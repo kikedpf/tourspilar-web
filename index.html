@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#173a63">
+  <meta name="description" content="Herramienta de análisis y gestión de operaciones de flipping inmobiliario.">
+  <title>Polanco · Flipping</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div id="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">PI</div>
+        <div>
+          <strong>POLANCO</strong>
+          <span>INVERSIONES</span>
+        </div>
+      </div>
+
+      <nav class="main-nav" aria-label="Navegación principal">
+        <button class="nav-btn active" data-view="dashboard"><span>◫</span> Analizador</button>
+        <button class="nav-btn" data-view="sensitivity"><span>▦</span> Sensibilidad</button>
+        <button class="nav-btn" data-view="finance"><span>↗</span> Financiación</button>
+        <button class="nav-btn" data-view="operations"><span>⌂</span> Operaciones</button>
+        <button class="nav-btn" data-view="compare"><span>⇄</span> Comparador</button>
+        <button class="nav-btn" data-view="settings"><span>⚙</span> Configuración</button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="connection"><span id="online-dot"></span><span id="online-label">Disponible sin conexión</span></div>
+        <button class="ghost-btn full" id="install-btn" hidden>Instalar aplicación</button>
+        <small>Versión 1.0 · Datos privados en este dispositivo</small>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobile-menu" aria-label="Abrir menú">☰</button>
+        <div>
+          <h1 id="page-title">Analizador de operaciones</h1>
+          <p id="page-subtitle">Decide con números, no con ilusión.</p>
+        </div>
+        <div class="top-actions">
+          <button class="icon-btn" id="theme-btn" title="Cambiar tema">◐</button>
+          <button class="secondary-btn" id="copy-summary-btn">Copiar resumen</button>
+          <button class="primary-btn" id="save-top-btn">Guardar operación</button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="view active" data-view-panel="dashboard">
+          <div class="dashboard-grid">
+            <div class="stack">
+              <article class="card">
+                <div class="card-head">
+                  <div><span class="eyebrow">OPERACIÓN</span><h2>Datos del inmueble</h2></div>
+                  <span class="pill" id="edit-mode-pill">Nueva</span>
+                </div>
+
+                <div class="form-grid two">
+                  <label>Nombre de la operación<input id="projectName" type="text" placeholder="Ej. Apartamento Aruma"></label>
+                  <label>Barrio<input id="neighborhood" type="text" placeholder="Ej. La Estanzuela"></label>
+                  <label>Dirección<input id="address" type="text" placeholder="Dirección o referencia"></label>
+                  <label>Estado<select id="status"><option>Detectado</option><option>Contactado</option><option>Visitado</option><option>Oferta enviada</option><option>Negociación</option><option>Comprado</option><option>Reforma</option><option>En venta</option><option>Vendido</option><option>Descartado</option></select></label>
+                  <label>Enlace del anuncio<input id="listingUrl" type="url" placeholder="https://..."></label>
+                  <label>Contacto del vendedor<input id="contact" type="text" placeholder="Nombre y teléfono"></label>
+                </div>
+
+                <div class="section-line"></div>
+
+                <div class="form-grid two main-inputs">
+                  <label class="money-field">Precio de venta esperado<span class="input-wrap"><span>$</span><input id="salePrice" type="number" min="0" step="1000000"></span></label>
+                  <label class="money-field">Oferta / precio de compra<span class="input-wrap featured"><span>$</span><input id="purchasePrice" type="number" min="0" step="1000000"></span></label>
+                  <label>Área del inmueble<span class="input-wrap"><input id="area" type="number" min="0" step="0.1"><span>m²</span></span></label>
+                  <label class="money-field">Reforma por m²<span class="input-wrap"><span>$</span><input id="renovationPerSqm" type="number" min="0" step="50000"></span></label>
+                  <label>Margen bruto objetivo<span class="input-wrap"><input id="targetMargin" type="number" min="0" max="100" step="0.5"><span>%</span></span></label>
+                  <label>Duración estimada<span class="input-wrap"><input id="durationDays" type="number" min="1" step="1"><span>días</span></span></label>
+                </div>
+
+                <details class="advanced">
+                  <summary>Supuestos avanzados</summary>
+                  <div class="form-grid three">
+                    <label>Comisión de venta<span class="input-wrap"><input id="commissionPct" type="number" min="0" step="0.1"><span>%</span></span></label>
+                    <label>IVA comisión<span class="input-wrap"><input id="vatPct" type="number" min="0" step="0.1"><span>%</span></span></label>
+                    <label class="check-label"><input id="includeVat" type="checkbox"> Incluir IVA como coste</label>
+                    <label>Gastos de venta<span class="input-wrap"><input id="saleCostsPct" type="number" min="0" step="0.1"><span>%</span></span></label>
+                    <label>Gastos de compra<span class="input-wrap"><input id="purchaseCostsPct" type="number" min="0" step="0.1"><span>%</span></span></label>
+                    <label>Impuesto de renta<span class="input-wrap"><input id="incomeTaxPct" type="number" min="0" step="0.1"><span>%</span></span></label>
+                    <label>ICA sobre ingresos<span class="input-wrap"><input id="icaPct" type="number" min="0" step="0.1"><span>%</span></span></label>
+                    <label>Sobretasa bomberil<span class="input-wrap"><input id="fireSurchargePct" type="number" min="0" step="0.1"><span>% ICA</span></span></label>
+                    <label class="money-field">Costes fijos<span class="input-wrap"><span>$</span><input id="fixedCosts" type="number" min="0" step="100000"></span></label>
+                    <label class="money-field">Contingencia<span class="input-wrap"><span>$</span><input id="contingency" type="number" min="0" step="100000"></span></label>
+                    <label class="money-field">Intereses manuales<span class="input-wrap"><span>$</span><input id="manualInterest" type="number" min="0" step="100000"></span></label>
+                    <label class="money-field">Otros impuestos / tasas<span class="input-wrap"><span>$</span><input id="otherTaxes" type="number" min="0" step="100000"></span></label>
+                    <label class="money-field">Valor mercado obra gris<span class="input-wrap"><span>$</span><input id="marketValueGray" type="number" min="0" step="1000000"></span></label>
+                  </div>
+                </details>
+
+                <label>Notas<textarea id="notes" rows="4" placeholder="Estado interior, comparables, negociación, riesgos..."></textarea></label>
+                <div class="photo-zone"><div><strong>Fotos</strong><small>Hasta 3 imágenes. Se comprimen y quedan guardadas en este dispositivo.</small></div><label class="secondary-btn file-btn">Añadir fotos<input id="photos" type="file" accept="image/*" multiple hidden></label></div>
+                <div class="photo-preview" id="photo-preview"></div>
+                <div class="button-row"><button class="primary-btn" id="save-operation-btn">Guardar operación</button><button class="secondary-btn" id="new-operation-btn">Nueva operación</button><button class="secondary-btn" id="print-btn">Informe PDF</button></div>
+              </article>
+
+              <article class="card"><div class="card-head"><div><span class="eyebrow">DESGLOSE</span><h2>Coste total de la oferta</h2></div></div><div class="breakdown" id="breakdown"></div></article>
+            </div>
+
+            <div class="stack sticky-results">
+              <article class="decision-card" id="decision-card"><div><span class="eyebrow">DECISIÓN</span><h2 id="decision-value">—</h2><p id="decision-caption"></p></div><div class="decision-icon" id="decision-icon">?</div></article>
+              <div class="kpi-grid">
+                <article class="kpi important"><span>Precio máximo de compra</span><strong id="kpi-max-purchase">—</strong><small id="kpi-max-purchase-eur"></small></article>
+                <article class="kpi"><span>Margen frente al máximo</span><strong id="kpi-room">—</strong><small>Positivo = margen para negociar</small></article>
+                <article class="kpi"><span>Inversión total</span><strong id="kpi-total-cost">—</strong><small id="kpi-total-cost-eur"></small></article>
+                <article class="kpi"><span>Utilidad neta</span><strong id="kpi-net-profit">—</strong><small id="kpi-net-profit-eur"></small></article>
+                <article class="kpi"><span>Margen neto</span><strong id="kpi-net-margin">—</strong><small>Utilidad / venta</small></article>
+                <article class="kpi"><span>Rentabilidad del proyecto</span><strong id="kpi-roi">—</strong><small>Utilidad / inversión</small></article>
+                <article class="kpi"><span>Rentabilidad anualizada</span><strong id="kpi-annualized">—</strong><small>Referencia matemática, no promesa</small></article>
+                <article class="kpi"><span>Margen antes de renta</span><strong id="kpi-gross-margin">—</strong><small>Métrica que decide PASA / NO PASA</small></article>
+              </div>
+              <article class="card risk-card"><div class="card-head compact"><div><span class="eyebrow">LECTURA CLAVE</span><h2>Riesgo principal</h2></div></div><p id="risk-text"></p><div class="stress-row" id="stress-row"></div></article>
+              <article class="card"><div class="card-head compact"><div><span class="eyebrow">OBJETIVO</span><h2>Resultado al precio máximo</h2></div></div><div class="mini-grid"><div><span>Utilidad neta</span><strong id="target-net-profit">—</strong></div><div><span>Margen neto</span><strong id="target-net-margin">—</strong></div><div><span>ROI proyecto</span><strong id="target-roi">—</strong></div><div><span>Descuento vs. mercado</span><strong id="target-discount">—</strong></div></div></article>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" data-view-panel="sensitivity"><div class="page-grid">
+          <article class="card full-card"><div class="card-head"><div><span class="eyebrow">MAPA 1</span><h2>Precio máximo de compra</h2><p>Cuánto puedes pagar según precio de venta y margen bruto objetivo.</p></div><div class="legend"><span class="green"></span>Cumple <span class="yellow"></span>Cerca <span class="red"></span>No cumple</div></div><div class="table-scroll" id="max-purchase-map"></div></article>
+          <article class="card full-card"><div class="card-head"><div><span class="eyebrow">MAPA 2</span><h2>Margen neto de una oferta</h2><p>Margen después de renta, sin financiación.</p></div><div class="legend"><span class="green"></span>≥ 8% <span class="yellow"></span>3–8% <span class="orange"></span>0–3% <span class="red"></span>Pérdida</div></div><div class="table-scroll" id="net-margin-map"></div></article>
+        </div></section>
+
+        <section class="view" data-view-panel="finance"><div class="page-grid finance-grid">
+          <article class="card"><div class="card-head"><div><span class="eyebrow">SUPUESTOS DEL CRÉDITO</span><h2>Financiación de la operación</h2></div></div><div class="form-grid two">
+            <label>Operación analizada<select id="financeMode"><option value="actual">Oferta actual</option><option value="target">Compra al precio máximo</option></select></label>
+            <label>Base financiable<select id="financeBase"><option value="sale">Precio de venta / avalúo</option><option value="purchase">Precio de compra</option><option value="cashCost">Coste total de caja</option><option value="custom">Base personalizada</option></select></label>
+            <label>Porcentaje financiado<span class="input-wrap"><input id="financePct" type="number" min="0" max="100" step="1"><span>%</span></span></label>
+            <label>Tasa anual<span class="input-wrap"><input id="annualRate" type="number" min="0" step="0.1"><span>%</span></span></label>
+            <label class="money-field">Base personalizada<span class="input-wrap"><span>$</span><input id="customFinanceBase" type="number" min="0" step="1000000"></span></label>
+            <label>Plazo adicional<span class="input-wrap"><input id="customMonths" type="number" min="1" max="120" step="1"><span>meses</span></span></label>
+            <label class="check-label"><input id="interestDeductible" type="checkbox"> Intereses deducibles antes de renta</label>
+          </div><div class="notice">Cálculo con interés simple prorrateado y sin amortización de capital. Para firmar una deuda, manda el cronograma real del banco.</div></article>
+          <article class="card finance-summary"><div class="card-head"><div><span class="eyebrow">SEÑALES DE CONTROL</span><h2>El coste del tiempo</h2></div></div><div class="mini-grid"><div><span>Deuda estimada</span><strong id="finance-debt">—</strong></div><div><span>Caja propia</span><strong id="finance-own-cash">—</strong></div><div><span>Interés mensual</span><strong id="finance-monthly-interest">—</strong></div><div><span>Mes de equilibrio</span><strong id="finance-break-even">—</strong></div></div></article>
+          <article class="card full-card"><div class="card-head"><div><span class="eyebrow">ESCENARIOS</span><h2>Rentabilidad por plazo</h2></div></div><div class="finance-chart" id="finance-chart"></div><div class="table-scroll" id="finance-table"></div></article>
+        </div></section>
+
+        <section class="view" data-view-panel="operations"><div class="page-grid"><article class="card full-card">
+          <div class="card-head operations-head"><div><span class="eyebrow">BASE DE DATOS</span><h2>Operaciones guardadas</h2><p id="operations-count">0 operaciones</p></div><div class="toolbar"><input id="operations-search" type="search" placeholder="Buscar operación o barrio"><select id="operations-filter"><option value="">Todos los estados</option></select><button class="secondary-btn" id="export-csv-btn">Exportar CSV</button></div></div>
+          <div class="pipeline" id="pipeline"></div><div class="operation-list" id="operation-list"></div><div class="empty-state" id="operations-empty"><div>⌂</div><h3>Aún no hay operaciones guardadas</h3><p>Analiza un apartamento y pulsa “Guardar operación”.</p><button class="primary-btn" data-go-dashboard>Crear la primera</button></div>
+        </article></div></section>
+
+        <section class="view" data-view-panel="compare"><div class="page-grid"><article class="card full-card"><div class="card-head"><div><span class="eyebrow">COMPARADOR</span><h2>Qué operación merece tu capital</h2><p>Selecciona operaciones desde la base de datos.</p></div><button class="secondary-btn" id="clear-compare-btn">Limpiar selección</button></div><div id="compare-recommendation"></div><div class="table-scroll" id="compare-table"></div><div class="empty-state" id="compare-empty"><div>⇄</div><h3>No hay operaciones seleccionadas</h3><p>Ve a Operaciones y marca “Comparar”.</p><button class="primary-btn" data-go-operations>Elegir operaciones</button></div></article></div></section>
+
+        <section class="view" data-view-panel="settings"><div class="settings-grid">
+          <article class="card"><div class="card-head"><div><span class="eyebrow">VISUALIZACIÓN</span><h2>Moneda y apariencia</h2></div></div><div class="form-grid"><label class="check-label"><input id="showEur" type="checkbox"> Mostrar equivalentes en euros</label><label>Tipo de cambio manual<span class="input-wrap"><span>1 EUR =</span><input id="fxCopPerEur" type="number" min="1" step="1"><span>COP</span></span></label><p class="muted">La aplicación no inventa una tasa en tiempo real. Introduce la que realmente vayas a utilizar.</p></div></article>
+          <article class="card"><div class="card-head"><div><span class="eyebrow">COPIA DE SEGURIDAD</span><h2>Tus datos</h2></div></div><p>Los datos se guardan en este navegador. Antes de cambiar de móvil o borrar Safari/Chrome, exporta una copia.</p><div class="button-row"><button class="primary-btn" id="export-backup-btn">Exportar copia JSON</button><label class="secondary-btn file-btn">Importar copia<input id="import-backup-input" type="file" accept=".json,application/json" hidden></label></div></article>
+          <article class="card"><div class="card-head"><div><span class="eyebrow">REINICIO</span><h2>Valores del modelo</h2></div></div><p>Restablece los supuestos exactamente a los valores iniciales del Excel.</p><button class="secondary-btn" id="reset-assumptions-btn">Restablecer supuestos</button></article>
+          <article class="card danger-zone"><div class="card-head"><div><span class="eyebrow">ZONA DE RIESGO</span><h2>Borrar todas las operaciones</h2></div></div><p>Esta acción no se puede deshacer salvo que tengas una copia JSON.</p><button class="danger-btn" id="delete-all-btn">Borrar base de datos</button></article>
+        </div></section>
+      </div>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="js/logic.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
