@@ -30,3 +30,7 @@ Con venta de 270 M COP, compra de 150 M, 55 m², reforma de 60,5 M y los supuest
 - Margen neto: 9,17%.
 - ROI: 10,81%.
 - Decisión: NO PASA.
+
+## Despliegue
+
+Cada cambio dentro de `polanco-os-v2` activa la publicación automática de GitHub Pages.
