@@ -1,0 +1,175 @@
+(function () {
+  'use strict';
+
+  const E = window.PolancoEngine;
+  const STORAGE = {
+    operations: 'polanco_os_operations_v2',
+    settings: 'polanco_os_settings_v2',
+    compare: 'polanco_os_compare_v2',
+    current: 'polanco_os_current_v2',
+    theme: 'polanco_os_theme_v2'
+  };
+  const STATUS = ['Detectado','Contactado','Visitado','Oferta enviada','Negociación','Comprado','Reforma','En venta','Vendido','Descartado'];
+  const VIEWS = {
+    dashboard: ['Panel ejecutivo','El capital va a la mejor operación, no a la más bonita.'],
+    analyzer: ['Analizador','Decide con números, no con ilusión.'],
+    opportunities: ['Oportunidades','Tu radar de compra, ordenado por evidencia y retorno.'],
+    comparables: ['Comparables','La salida se demuestra; no se adivina.'],
+    renovation: ['Reforma','Presupuesto cerrado, hitos claros y cero fe ciega.'],
+    finance: ['Financiación','El tiempo también cobra comisión.'],
+    risk: ['Sensibilidad y riesgos','Mide cuánto error soporta la operación antes de enamorarte.'],
+    pipeline: ['Pipeline','Cada operación necesita una próxima acción.'],
+    reports: ['Informes','Un socio debe entender la operación en dos minutos.'],
+    settings: ['Configuración','Supuestos, privacidad y copias de seguridad.']
+  };
+
+  const state = {
+    view: 'dashboard',
+    operations: [],
+    currentId: null,
+    draft: null,
+    settings: null,
+    compareIds: new Set(),
+    deferredPrompt: null,
+    filters: { search: '', status: '', decision: '' },
+    financeUI: { baseType: 'sale', customBase: 270000000, customMonths: 9 }
+  };
+
+  const $ = id => document.getElementById(id);
+  const qs = (selector, root = document) => root.querySelector(selector);
+  const qsa = (selector, root = document) => [...root.querySelectorAll(selector)];
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[s]));
+  const uid = () => (crypto.randomUUID ? crypto.randomUUID() : `id-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+  const clone = value => JSON.parse(JSON.stringify(value));
+  const money = value => new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(Number(value)||0);
+  const compact = value => {
+    const n = Number(value)||0;
+    if (Math.abs(n) >= 1e9) return `${(n/1e9).toFixed(2)} mil M`;
+    if (Math.abs(n) >= 1e6) return `${(n/1e6).toFixed(Math.abs(n)%1e6===0?0:1)} M`;
+    return money(n);
+  };
+  const pct = value => new Intl.NumberFormat('es-ES',{style:'percent',minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(value)||0);
+  const number = value => new Intl.NumberFormat('es-CO',{maximumFractionDigits:2}).format(Number(value)||0);
+  const eur = value => new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format((Number(value)||0)/(state.settings.fxCopPerEur||1));
+  const today = () => new Date().toISOString().slice(0,10);
+  const dateText = value => value ? new Date(`${value}T12:00:00`).toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'numeric'}) : 'Sin fecha';
+  const daysSince = iso => iso ? Math.floor((Date.now() - new Date(iso).getTime())/86400000) : 0;
+  const scoreTone = score => score >= 65 ? 'positive' : score >= 45 ? 'warning' : 'negative';
+  const marginTone = margin => margin >= .08 ? 'positive' : margin >= .03 ? 'warning' : 'negative';
+
+  function defaultSettings() {
+    return {
+      fxCopPerEur: 4500,
+      showEur: true,
+      defaultTargetMargin: E.DEFAULTS.targetMargin,
+      defaultRenovationPerSqm: E.DEFAULTS.renovationPerSqm,
+      defaultCommissionPct: E.DEFAULTS.commissionPct,
+      defaultPurchaseCostsPct: E.DEFAULTS.purchaseCostsPct,
+      defaultSaleCostsPct: E.DEFAULTS.saleCostsPct,
+      defaultIncomeTaxPct: E.DEFAULTS.incomeTaxPct,
+      defaultIcaPct: E.DEFAULTS.icaPct,
+      defaultContingency: E.DEFAULTS.contingency,
+      milestone1: 30,
+      milestone2: 50,
+      milestone3: 20
+    };
+  }
+
+  function baseOperation(overrides = {}) {
+    const s = state.settings || defaultSettings();
+    const now = new Date().toISOString();
+    return {
+      id: uid(),
+      name: 'Nueva operación',
+      neighborhood: '',
+      address: '',
+      status: 'Detectado',
+      listingUrl: '',
+      contact: '',
+      owner: 'Enrique',
+      nextAction: '',
+      dueDate: '',
+      notes: '',
+      rooms: 3,
+      baths: 1,
+      estrato: 3,
+      floor: '',
+      elevator: false,
+      parking: false,
+      admin: 0,
+      photos: [],
+      comparables: [],
+      renovationItems: [],
+      createdAt: now,
+      updatedAt: now,
+      isDemo: false,
+      ...E.DEFAULTS,
+      targetMargin: s.defaultTargetMargin,
+      renovationPerSqm: s.defaultRenovationPerSqm,
+      commissionPct: s.defaultCommissionPct,
+      purchaseCostsPct: s.defaultPurchaseCostsPct,
+      saleCostsPct: s.defaultSaleCostsPct,
+      incomeTaxPct: s.defaultIncomeTaxPct,
+      icaPct: s.defaultIcaPct,
+      contingency: s.defaultContingency,
+      ...overrides
+    };
+  }
+
+  function demoOperation() {
+    const op = baseOperation({
+      id: 'demo-polanco-os',
+      name: 'DEMO · Apartamento objetivo',
+      neighborhood: 'La Estanzuela',
+      address: 'Operación de demostración',
+      listedPrice: 170000000,
+      purchasePrice: 150000000,
+      salePrice: 270000000,
+      area: 55,
+      renovationPerSqm: 1100000,
+      targetMargin: .15,
+      durationDays: 60,
+      marketGray: 170000000,
+      status: 'Visitado',
+      nextAction: 'Validar cierres reales y presentar oferta',
+      dueDate: today(),
+      notes: 'Operación demo. Puedes borrarla desde Oportunidades.',
+      isDemo: true
+    });
+    op.comparables = [
+      {id:uid(),name:'Comparable A',price:260000000,area:54,rooms:3,date:today(),source:'Portal',url:'',excluded:false},
+      {id:uid(),name:'Comparable B',price:268000000,area:55,rooms:3,date:today(),source:'Inmobiliaria',url:'',excluded:false},
+      {id:uid(),name:'Comparable C',price:275000000,area:56,rooms:3,date:today(),source:'Portal',url:'',excluded:false},
+      {id:uid(),name:'Comparable D',price:265000000,area:53,rooms:3,date:today(),source:'Propietario',url:'',excluded:false},
+      {id:uid(),name:'Comparable E',price:280000000,area:57,rooms:3,date:today(),source:'Portal',url:'',excluded:false}
+    ];
+    op.renovationItems = [
+      ['Cocina','global',1,15000000],['Baño','global',1,8000000],['Pisos','m²',55,181818.18],
+      ['Pintura','global',1,5000000],['Drywall','global',1,4000000],['Electricidad','global',1,4000000],
+      ['Plomería','global',1,3500000],['Puertas','global',1,4000000],['Iluminación','global',1,2000000],['Mano de obra','global',1,5000000]
+    ].map(([category,unit,qty,unitCost]) => ({id:uid(),category,unit,qty,unitCost,actualCost:'',supplier:'',status:'Pendiente',notes:''}));
+    return op;
+  }
+
+  function load() {
+    state.settings = readJSON(STORAGE.settings, defaultSettings());
+    const stored = readJSON(STORAGE.operations, null);
+    state.operations = Array.isArray(stored) && stored.length ? stored : [demoOperation()];
+    state.compareIds = new Set(readJSON(STORAGE.compare, []));
+    const preferred = localStorage.getItem(STORAGE.current);
+    state.currentId = state.operations.some(o => o.id === preferred) ? preferred : state.operations[0].id;
+    state.draft = clone(state.operations.find(o => o.id === state.currentId));
+    const theme = localStorage.getItem(STORAGE.theme) || 'light';
+    document.documentElement.dataset.theme = theme === 'dark' ? 'dark' : '';
+    persist();
+  }
+
+  function readJSON(key, fallback) {
+    try { const value = localStorage.getItem(key); return value ? JSON.parse(value) : fallback; }
+    catch (_) { return fallback; }
+  }
+
+  function persist() {
+    try {
+      localStorage.setItem(STORAGE.operations, JSON.stringify(state.operations));
+      localStorage.setItem(STORAGE.settings, JSON.stringify(state.settings));
