@@ -48,6 +48,19 @@
     $('save-operation').addEventListener('click',()=>{saveCurrent();render()});
     $('theme-toggle').addEventListener('click',()=>{const dark=document.documentElement.dataset.theme==='dark';document.documentElement.dataset.theme=dark?'':'dark';localStorage.setItem(STORAGE.theme,dark?'light':'dark')});
 
+    window.addEventListener('polanco:update-operation',event=>{
+      const detail=event.detail||{};
+      const key=detail.key;
+      if(!state.draft||!['salePrice'].includes(key))return;
+      const value=Number(detail.value);
+      if(!Number.isFinite(value)||value<=0){toast('Introduce un precio de venta válido');return}
+      state.draft[key]=value;
+      state.draft.updatedAt=new Date().toISOString();
+      saveCurrent(true);
+      render();
+      toast('Precio de venta actualizado');
+    });
+
     document.addEventListener('input',e=>{
       const bind=e.target.closest('[data-bind]');
       if(bind){updateDraftFromElement(bind);if(state.view==='analyzer')refreshAnalyzerComputed()}
