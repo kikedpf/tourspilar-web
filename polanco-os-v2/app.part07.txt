@@ -1,0 +1,87 @@
+        <section class="report-section"><h2>Financiación a 6 meses</h2><p>Deuda estimada ${money(finance.debt)}, intereses ${money(finance.interest)}, utilidad neta ${money(finance.netProfit)}, ROI sobre caja ${finance.roiOnCash==null?'N/A':pct(finance.roiOnCash)}.</p></section>
+        <section class="report-section"><h2>Riesgos</h2><ol>${r.risks.map(x=>`<li><strong>${esc(x.title)}:</strong> ${esc(x.detail)}</li>`).join('')}</ol></section>
+        <section class="report-section"><h2>Notas</h2><p>${esc(state.draft.notes||'Sin notas.')}</p></section>
+      </article>`;
+  }
+
+  function reportBox(label,value){return `<div class="report-box"><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`}
+
+  function renderSettings() {
+    const s=state.settings;
+    return `<div class="grid two">
+      <article class="card"><div class="card-head"><div><span class="eyebrow">VISUALIZACIÓN</span><h2>Moneda y apariencia</h2></div></div><div class="form-grid two">${checkSetting('Mostrar equivalentes en EUR','showEur',s.showEur)}${settingNumber('Tipo de cambio: 1 EUR','fxCopPerEur',s.fxCopPerEur,'COP')}</div><p class="muted">La tasa es manual. No voy a inventarte una conversión “actual” sin una fuente real.</p></article>
+      <article class="card"><div class="card-head"><div><span class="eyebrow">SUPUESTOS POR DEFECTO</span><h2>Nuevas operaciones</h2></div></div><div class="form-grid two">${settingPct('Margen objetivo','defaultTargetMargin',s.defaultTargetMargin)}${settingNumber('Reforma por m²','defaultRenovationPerSqm',s.defaultRenovationPerSqm,'COP')}${settingPct('Comisión','defaultCommissionPct',s.defaultCommissionPct)}${settingPct('Gastos compra','defaultPurchaseCostsPct',s.defaultPurchaseCostsPct)}${settingPct('Gastos venta','defaultSaleCostsPct',s.defaultSaleCostsPct)}${settingPct('Renta','defaultIncomeTaxPct',s.defaultIncomeTaxPct)}${settingPct('ICA','defaultIcaPct',s.defaultIcaPct)}${settingNumber('Contingencia','defaultContingency',s.defaultContingency,'COP')}</div></article>
+      <article class="card"><div class="card-head"><div><span class="eyebrow">HITOS DE OBRA</span><h2>Pagos al contratista</h2></div></div><div class="form-grid three">${settingNumber('Inicio','milestone1',s.milestone1,'%')}${settingNumber('Avance','milestone2',s.milestone2,'%')}${settingNumber('Entrega','milestone3',s.milestone3,'%')}</div><div class="notice" style="margin-top:14px">Total configurado: ${Number(s.milestone1)+Number(s.milestone2)+Number(s.milestone3)}%. Debe sumar 100%.</div></article>
+      <article class="card"><div class="card-head"><div><span class="eyebrow">DATOS Y PRIVACIDAD</span><h2>Copia de seguridad</h2></div></div><p class="muted">Las operaciones se guardan en este navegador. Exporta una copia antes de cambiar de móvil o borrar Safari/Chrome.</p><div class="toolbar"><button class="primary-btn" data-action="export-json">Exportar JSON</button><label class="secondary-btn">Importar JSON<input id="import-json" type="file" accept="application/json,.json" hidden></label></div></article>
+      <article class="card"><div class="card-head"><div><span class="eyebrow">REINICIO</span><h2>Acciones delicadas</h2></div></div><div class="toolbar"><button class="secondary-btn" data-action="reset-settings">Restablecer supuestos</button><button class="danger-btn" data-action="delete-all">Borrar todas las operaciones</button></div></article>
+    </div>`;
+  }
+
+  function checkSetting(label,key,value){return `<label class="check-row"><input type="checkbox" data-setting="${key}" data-kind="checkbox" ${value?'checked':''}> ${esc(label)}</label>`}
+  function settingNumber(label,key,value,suffix){return `<label>${esc(label)}<span class="input-wrap"><input type="number" data-setting="${key}" data-kind="number" value="${Number(value)||0}"><span>${esc(suffix)}</span></span></label>`}
+  function settingPct(label,key,value){return `<label>${esc(label)}<span class="input-wrap"><input type="number" data-setting="${key}" data-kind="pct" value="${((Number(value)||0)*100).toFixed(2)}"><span>%</span></span></label>`}
+
+  function empty(title,detail){return `<div class="empty-state"><div class="empty-icon">⌂</div><h3>${esc(title)}</h3><p>${esc(detail)}</p></div>`}
+
+  function bindDynamicAfterRender() {
+    const photoInput=$('photo-input'); if(photoInput) photoInput.addEventListener('change',handlePhotos);
+    const importInput=$('import-json'); if(importInput) importInput.addEventListener('change',handleImport);
+    qsa('[data-drag-id]').forEach(card=>card.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',card.dataset.dragId);card.classList.add('dragging')}));
+    qsa('[data-drag-id]').forEach(card=>card.addEventListener('dragend',()=>card.classList.remove('dragging')));
+    qsa('[data-drop-status]').forEach(col=>{
+      col.addEventListener('dragover',e=>{e.preventDefault();col.classList.add('drop-active')});
+      col.addEventListener('dragleave',()=>col.classList.remove('drop-active'));
+      col.addEventListener('drop',e=>{e.preventDefault();col.classList.remove('drop-active');movePipeline(e.dataTransfer.getData('text/plain'),col.dataset.dropStatus)});
+    });
+  }
+
+  function movePipeline(id,status) {
+    const op=state.operations.find(o=>o.id===id); if(!op)return;
+    op.status=status; op.updatedAt=new Date().toISOString();
+    if(state.currentId===id){state.draft.status=status;state.draft.updatedAt=op.updatedAt}
+    persist();render();toast(`Movida a ${status}`);
+  }
+
+  function updateDraftFromElement(el) {
+    const key=el.dataset.bind; if(!key||!state.draft)return;
+    let value=el.value;
+    if(el.dataset.kind==='number') value=Number(value)||0;
+    if(el.dataset.kind==='pct') value=(Number(value)||0)/100;
+    if(el.dataset.kind==='checkbox') value=el.checked;
+    if(key==='financeCustomBase'){state.financeUI.customBase=Number(value)||0;return}
+    if(key==='financeCustomMonths'){state.financeUI.customMonths=Number(value)||0;return}
+    state.draft[key]=value;
+    state.draft.updatedAt=new Date().toISOString();
+  }
+
+  function refreshAnalyzerComputed() {
+    const target=$('analyzer-results'); if(target) target.innerHTML=analyzerResults(calc());
+  }
+
+  function addComparable() {
+    const name=$('comp-name')?.value.trim(),price=Number($('comp-price')?.value),area=Number($('comp-area')?.value);
+    if(!name||!price||!area){toast('Nombre, precio y área son obligatorios');return}
+    state.draft.comparables.push({id:uid(),name,price,area,rooms:Number($('comp-rooms')?.value)||0,date:$('comp-date')?.value||'',source:$('comp-source')?.value.trim()||'',url:$('comp-url')?.value.trim()||'',excluded:false});
+    saveCurrent(true);render();toast('Comparable añadido');
+  }
+
+  function addRenovation() {
+    const category=$('reno-category')?.value.trim(),qty=Number($('reno-qty')?.value),unitCost=Number($('reno-unit-cost')?.value);
+    if(!category||!qty||!unitCost){toast('Partida, cantidad y coste unitario son obligatorios');return}
+    state.draft.renovationItems.push({id:uid(),category,unit:$('reno-unit')?.value.trim()||'global',qty,unitCost,actualCost:$('reno-actual')?.value===''?'':Number($('reno-actual')?.value)||0,supplier:$('reno-supplier')?.value.trim()||'',status:$('reno-status')?.value||'Pendiente',notes:$('reno-notes')?.value.trim()||''});
+    saveCurrent(true);render();toast('Partida añadida');
+  }
+
+  async function handlePhotos(event) {
+    const files=[...event.target.files].slice(0,Math.max(0,6-(state.draft.photos||[]).length));
+    for(const file of files){try{state.draft.photos.push(await compressImage(file))}catch(_){toast('No se pudo procesar una imagen')}}
+    saveCurrent(true);render();
+  }
+
+  function compressImage(file) {
+    return new Promise((resolve,reject)=>{
+      if(!file.type.startsWith('image/')) return reject(new Error('Archivo no válido'));
+      const reader=new FileReader();
+      reader.onerror=reject;
+      reader.onload=()=>{
+        const img=new Image(); img.onerror=reject;
