@@ -1,0 +1,100 @@
+        img.onload=()=>{const max=900,scale=Math.min(1,max/Math.max(img.width,img.height)),canvas=document.createElement('canvas');canvas.width=Math.round(img.width*scale);canvas.height=Math.round(img.height*scale);canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);resolve({name:file.name,dataUrl:canvas.toDataURL('image/jpeg',.62)})};
+        img.src=reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function exportJSON() {
+    const payload={version:2,exportedAt:new Date().toISOString(),settings:state.settings,operations:state.operations,compareIds:[...state.compareIds]};
+    download(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),`polanco_os_${today()}.json`);
+  }
+
+  function exportCSV() {
+    const head=['Nombre','Barrio','Estado','Precio publicado','Compra','Venta','Área','Score','Precio máximo','Inversión','Utilidad','Margen neto','ROI','Comparables','Decisión','Actualizado'];
+    const rows=state.operations.map(op=>{const r=calc(op);return [op.name,op.neighborhood,op.status,op.listedPrice,op.purchasePrice,op.salePrice,op.area,r.score.total,r.actual.maxPurchase,r.breakdown.cashCost,r.actual.netProfit,r.actual.netMargin,r.actual.roi,r.comparables.count,r.actual.decision,op.updatedAt]});
+    const csv=[head,...rows].map(row=>row.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(';')).join('\n');
+    download(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}),`operaciones_polanco_${today()}.csv`);
+  }
+
+  function download(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1200)}
+
+  async function handleImport(event) {
+    const file=event.target.files[0]; if(!file)return;
+    try{
+      const data=JSON.parse(await file.text());
+      if(!Array.isArray(data.operations)) throw new Error('Copia no válida');
+      state.operations=data.operations;
+      state.settings={...defaultSettings(),...(data.settings||{})};
+      state.compareIds=new Set(data.compareIds||[]);
+      state.currentId=state.operations[0]?.id||null;
+      state.draft=state.currentId?clone(state.operations[0]):baseOperation();
+      persist();refreshOperationSelect();render();toast('Copia importada');
+    }catch(error){toast(`No se pudo importar: ${error.message}`)}
+    event.target.value='';
+  }
+
+  function copySummary() {
+    const r=calc();
+    const text=[`POLANCO OS · ${state.draft.name}`,`Compra: ${money(state.draft.purchasePrice)}`,`Venta: ${money(state.draft.salePrice)}`,`Precio máximo: ${money(r.actual.maxPurchase)}`,`Inversión: ${money(r.breakdown.cashCost)}`,`Utilidad neta: ${money(r.actual.netProfit)}`,`Margen neto: ${pct(r.actual.netMargin)}`,`ROI: ${pct(r.actual.roi)}`,`Score: ${r.score.total}/100`, `Decisión: ${r.actual.decision}`].join('\n');
+    navigator.clipboard?.writeText(text).then(()=>toast('Resumen copiado')).catch(()=>prompt('Copia el resumen:',text));
+  }
+
+  function setupEvents() {
+    qsa('.nav-item').forEach(btn=>btn.addEventListener('click',()=>navigate(btn.dataset.view)));
+    $('menu-btn').addEventListener('click',()=>$('sidebar').classList.toggle('open'));
+    $('current-operation').addEventListener('change',e=>setCurrent(e.target.value));
+    $('new-operation').addEventListener('click',createNew);
+    $('save-operation').addEventListener('click',()=>{saveCurrent();render()});
+    $('theme-toggle').addEventListener('click',()=>{const dark=document.documentElement.dataset.theme==='dark';document.documentElement.dataset.theme=dark?'':'dark';localStorage.setItem(STORAGE.theme,dark?'light':'dark')});
+
+    document.addEventListener('input',e=>{
+      const bind=e.target.closest('[data-bind]');
+      if(bind){updateDraftFromElement(bind);if(state.view==='analyzer')refreshAnalyzerComputed()}
+      if(e.target.id==='filter-search'){state.filters.search=e.target.value;render();requestAnimationFrame(()=>{const f=$('filter-search');if(f){f.focus();f.setSelectionRange(f.value.length,f.value.length)}})}
+      const setting=e.target.closest('[data-setting]');
+      if(setting){updateSetting(setting)}
+    });
+    document.addEventListener('change',e=>{
+      const bind=e.target.closest('[data-bind]');
+      if(bind){updateDraftFromElement(bind);if(['analyzer','finance'].includes(state.view))render()}
+      if(e.target.id==='filter-status'){state.filters.status=e.target.value;render()}
+      if(e.target.id==='filter-decision'){state.filters.decision=e.target.value;render()}
+      if(e.target.id==='finance-base'){state.financeUI.baseType=e.target.value;render()}
+      const compare=e.target.closest('[data-compare]');
+      if(compare){compare.checked?state.compareIds.add(compare.dataset.compare):state.compareIds.delete(compare.dataset.compare);persist()}
+      const exclude=e.target.closest('[data-exclude-comp]');
+      if(exclude){const item=state.draft.comparables.find(c=>c.id===exclude.dataset.excludeComp);if(item){item.excluded=exclude.checked;saveCurrent(true);render()}}
+      const setting=e.target.closest('[data-setting]');if(setting)updateSetting(setting);
+    });
+    document.addEventListener('click',e=>{
+      const go=e.target.closest('[data-go]');if(go)return navigate(go.dataset.go);
+      const edit=e.target.closest('[data-edit]');if(edit){setCurrent(edit.dataset.edit);return navigate('analyzer')}
+      const del=e.target.closest('[data-delete]');if(del)return deleteOperation(del.dataset.delete);
+      const dup=e.target.closest('[data-duplicate]');if(dup)return duplicateOperation(dup.dataset.duplicate);
+      const url=e.target.closest('[data-url]');if(url)return window.open(url.dataset.url,'_blank','noopener');
+      const removePhoto=e.target.closest('[data-remove-photo]');if(removePhoto){state.draft.photos.splice(Number(removePhoto.dataset.removePhoto),1);saveCurrent(true);render();return}
+      const deleteComp=e.target.closest('[data-delete-comp]');if(deleteComp){state.draft.comparables=state.draft.comparables.filter(c=>c.id!==deleteComp.dataset.deleteComp);saveCurrent(true);render();return}
+      const deleteReno=e.target.closest('[data-delete-reno]');if(deleteReno){state.draft.renovationItems=state.draft.renovationItems.filter(i=>i.id!==deleteReno.dataset.deleteReno);saveCurrent(true);render();return}
+      const action=e.target.closest('[data-action]')?.dataset.action;
+      if(action==='new')createNew();
+      if(action==='add-comparable')addComparable();
+      if(action==='add-renovation')addRenovation();
+      if(action==='print')window.print();
+      if(action==='export-json')exportJSON();
+      if(action==='export-csv')exportCSV();
+      if(action==='copy-summary')copySummary();
+      if(action==='reset-settings'){if(confirm('¿Restablecer los supuestos por defecto?')){state.settings=defaultSettings();persist();render();toast('Supuestos restablecidos')}}
+      if(action==='delete-all'){if(confirm('¿Borrar TODAS las operaciones? Exporta una copia antes.')){state.operations=[baseOperation()];state.currentId=state.operations[0].id;state.draft=clone(state.operations[0]);state.compareIds.clear();persist();refreshOperationSelect();navigate('dashboard');toast('Base de datos reiniciada')}}
+    });
+
+    window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();state.deferredPrompt=e;$('install-app').hidden=false});
+    $('install-app').addEventListener('click',async()=>{if(state.deferredPrompt){state.deferredPrompt.prompt();await state.deferredPrompt.userChoice;state.deferredPrompt=null;$('install-app').hidden=true}else toast('En iPhone: Compartir → Añadir a pantalla de inicio')});
+    window.addEventListener('online',updateConnection);window.addEventListener('offline',updateConnection);
+  }
+
+  function updateSetting(el) {
+    const key=el.dataset.setting;let value=el.value;
+    if(el.dataset.kind==='number')value=Number(value)||0;
+    if(el.dataset.kind==='pct')value=(Number(value)||0)/100;
+    if(el.dataset.kind==='checkbox')value=el.checked;
