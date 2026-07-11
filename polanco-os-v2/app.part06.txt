@@ -1,0 +1,43 @@
+      <article class="card" style="grid-column:1/-1"><div class="card-head"><div><span class="eyebrow">COSTE DEL TIEMPO</span><h2>Utilidad por plazo</h2></div></div><div class="chart">${financeChart(scenarios)}</div><div class="data-table-wrap"><table class="data-table"><thead><tr><th>Plazo</th><th>Deuda</th><th>Intereses</th><th>Renta</th><th>Utilidad neta</th><th>Margen</th><th>ROI caja</th><th>Beneficio destruido</th><th>Estado</th></tr></thead><tbody>${scenarios.map(s=>`<tr><td>${s.months} meses</td><td>${money(s.debt)}</td><td>${money(s.interest)}</td><td>${money(s.tax)}</td><td>${money(s.netProfit)}</td><td>${pct(s.netMargin)}</td><td>${s.roiOnCash==null?'N/A':pct(s.roiOnCash)}</td><td>${money(s.profitDestroyed)}</td><td class="${s.status==='RENTABLE'?'cell-green':s.status==='AJUSTADO'?'cell-yellow':s.status==='PELIGRO'?'cell-orange':'cell-red'}">${s.status}</td></tr>`).join('')}</tbody></table></div></article>
+    </div>`;
+  }
+
+  function financeChart(rows) {
+    if (!rows.length) return '';
+    const w=900,h=230,p=42,values=rows.map(r=>r.netProfit),min=Math.min(0,...values),max=Math.max(1,...values);
+    const x=i=>p+(w-p*2)*(rows.length===1?.5:i/(rows.length-1));
+    const y=v=>h-p-(v-min)/(max-min||1)*(h-p*2);
+    const points=rows.map((r,i)=>`${x(i)},${y(r.netProfit)}`).join(' ');
+    const grid=[0,.25,.5,.75,1].map(t=>{const yy=p+t*(h-p*2),val=max-t*(max-min);return `<line class="chart-grid" x1="${p}" y1="${yy}" x2="${w-p}" y2="${yy}"/><text class="chart-label" x="2" y="${yy+4}">${esc(compact(val))}</text>`}).join('');
+    const dots=rows.map((r,i)=>`<circle class="chart-dot" cx="${x(i)}" cy="${y(r.netProfit)}" r="6"/><text class="chart-label" text-anchor="middle" x="${x(i)}" y="${h-8}">${r.months}m</text><text class="chart-label" text-anchor="middle" x="${x(i)}" y="${y(r.netProfit)-12}">${esc(compact(r.netProfit))}</text>`).join('');
+    return `<svg viewBox="0 0 ${w} ${h}"><polyline class="chart-area" points="${p},${h-p} ${points} ${w-p},${h-p}"/><g>${grid}</g><polyline class="chart-line" points="${points}"/>${dots}</svg>`;
+  }
+
+  function renderRisk() {
+    const r=calc();
+    const saleCenter=Math.round(state.draft.salePrice/10000000)*10000000;
+    const purchaseCenter=Math.round(state.draft.purchasePrice/5000000)*5000000;
+    const sales=Array.from({length:7},(_,i)=>Math.max(10000000,saleCenter+(i-3)*10000000));
+    const targets=[.10,.125,.15,.175,.20];
+    const purchases=Array.from({length:7},(_,i)=>Math.max(0,purchaseCenter+(i-3)*5000000));
+    return `<div class="grid two">
+      <article class="card"><div class="card-head"><div><span class="eyebrow">PRUEBAS DE ESTRÉS</span><h2>Cuánto error soporta</h2></div></div><div class="kpi-grid">${Object.values(r.stress).map(s=>kpi(s.label,money(s.netProfit),pct(s.netMargin),s.netProfit>=0?'good':'bad')).join('')}</div></article>
+      <article class="card"><div class="card-head"><div><span class="eyebrow">RIESGOS AUTOMÁTICOS</span><h2>Lo que puede romper la tesis</h2></div></div><div class="risk-list">${r.risks.map(x=>`<div class="risk-item ${x.severity==='high'?'high':x.severity==='medium'?'medium':'low'}"><strong>${esc(x.title)}</strong><p>${esc(x.detail)}</p></div>`).join('')}</div></article>
+      <article class="card" style="grid-column:1/-1"><div class="card-head"><div><span class="eyebrow">MAPA 1</span><h2>Precio máximo de compra</h2><p>Según precio de venta y margen bruto objetivo.</p></div></div><div class="data-table-wrap"><table class="data-table"><thead><tr><th>Venta / margen</th>${targets.map(t=>`<th>${pct(t)}</th>`).join('')}</tr></thead><tbody>${sales.map(s=>`<tr><td>${compact(s)}</td>${targets.map(t=>{const max=E.maxPurchaseFor(state.draft,s,t);const ratio=max?state.draft.purchasePrice/max:99;const cls=ratio<=1?'cell-green':ratio<=1.05?'cell-yellow':'cell-red';return `<td class="${cls}" title="${money(max)}">${compact(max)}</td>`}).join('')}</tr>`).join('')}</tbody></table></div></article>
+      <article class="card" style="grid-column:1/-1"><div class="card-head"><div><span class="eyebrow">MAPA 2</span><h2>Margen neto por compra y salida</h2></div></div><div class="data-table-wrap"><table class="data-table"><thead><tr><th>Compra / venta</th>${sales.slice(1,6).map(s=>`<th>${compact(s)}</th>`).join('')}</tr></thead><tbody>${purchases.map(p=>`<tr><td>${compact(p)}</td>${sales.slice(1,6).map(s=>{const m=E.netMarginFor(state.draft,s,p);const cls=m>=.08?'cell-green':m>=.03?'cell-yellow':m>=0?'cell-orange':'cell-red';return `<td class="${cls}">${pct(m)}</td>`}).join('')}</tr>`).join('')}</tbody></table></div></article>
+    </div>`;
+  }
+
+  function renderPipeline() {
+    const columns=STATUS.slice(0,9);
+    return `<article class="card"><div class="card-head"><div><span class="eyebrow">KANBAN</span><h2>Flujo de operaciones</h2><p>Arrastra una tarjeta para cambiar de fase. La fecha de actualización se registra automáticamente.</p></div></div><div class="kanban">${columns.map(status=>`<section class="kanban-column" data-drop-status="${esc(status)}"><div class="kanban-head"><strong>${esc(status)}</strong><span class="kanban-count">${state.operations.filter(o=>o.status===status).length}</span></div>${state.operations.filter(o=>o.status===status).map(op=>{const r=calc(op);return `<article class="kanban-card" draggable="true" data-drag-id="${op.id}"><h4>${esc(op.name)}</h4><p>${esc(op.neighborhood||'Sin barrio')}</p><p class="${scoreTone(r.score.total)}">Score ${r.score.total} · ${r.actual.decision}</p>${op.nextAction?`<p>→ ${esc(op.nextAction)}</p>`:''}${op.dueDate?`<p class="${new Date(op.dueDate)<new Date(today())?'negative':''}">${dateText(op.dueDate)}</p>`:''}</article>`}).join('')}</section>`).join('')}</div></article>`;
+  }
+
+  function renderReports() {
+    const r=calc();
+    const finance=E.financingScenario(state.draft,6,{baseType:'sale',financePct:state.draft.financePct,annualRate:state.draft.annualRate,bankFees:state.draft.bankFees,interestDeductible:state.draft.interestDeductible});
+    return `<div class="toolbar no-print" style="margin-bottom:16px"><button class="primary-btn" data-action="print">Imprimir / PDF</button><button class="secondary-btn" data-action="export-json">Exportar copia JSON</button><button class="secondary-btn" data-action="export-csv">Exportar operaciones CSV</button><button class="secondary-btn" data-action="copy-summary">Copiar resumen</button></div>
+      <article class="report" id="report-content"><span class="eyebrow">POLANCO INVERSIONES INMOBILIARIAS</span><h1>Informe de compra · ${esc(state.draft.name)}</h1><p>${esc(state.draft.address||'Sin dirección')} · ${esc(state.draft.neighborhood||'Sin barrio')} · ${dateText(today())}</p>
+        <div class="report-grid">${reportBox('Decisión',r.actual.decision)}${reportBox('Score',`${r.score.total}/100 · ${r.score.label}`)}${reportBox('Precio máximo',money(r.actual.maxPurchase))}${reportBox('Oferta',money(state.draft.purchasePrice))}${reportBox('Venta esperada',money(state.draft.salePrice))}${reportBox('Inversión',money(r.breakdown.cashCost))}${reportBox('Utilidad neta',money(r.actual.netProfit))}${reportBox('Margen neto',pct(r.actual.netMargin))}${reportBox('ROI',pct(r.actual.roi))}</div>
+        <section class="report-section"><h2>Tesis de salida</h2><p>${r.comparables.count} comparables válidos · confianza ${r.comparables.confidence}/100 (${r.comparables.confidenceLabel}). Salida conservadora ${money(r.comparables.conservativeSale)}, probable ${money(r.comparables.probableSale)}, agresiva ${money(r.comparables.aggressiveSale)}.</p></section>
+        <section class="report-section"><h2>Reforma</h2><p>Presupuesto incluido: ${money(r.renovation.actual)}. ${r.renovation.itemCount} partidas detalladas. Desviación actual: ${money(r.renovation.variance)}.</p></section>
