@@ -6,7 +6,7 @@
     return new TextDecoder().decode(bytes);
   };
   const fetchText=async path=>{
-    const response=await fetch(`${path}?v=4`,{cache:"no-store"});
+    const response=await fetch(`${path}?v=5`,{cache:"no-store"});
     if(!response.ok) throw new Error(`No se pudo cargar ${path}`);
     return response.text();
   };
@@ -37,6 +37,7 @@
   const parts=[];
   for(let i=0;i<8;i++) parts.push(await fetchText(`js/app-core-${String(i).padStart(2,'0')}.b64`));
   (0,eval)(decode(parts.join('')));
+  if(document.readyState!=="loading") document.dispatchEvent(new Event("DOMContentLoaded"));
 })().catch(error=>{
   console.error(error);
   const toast=document.getElementById('toast');
