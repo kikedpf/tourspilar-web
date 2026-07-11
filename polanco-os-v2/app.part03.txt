@@ -1,0 +1,75 @@
+            <div class="card-head"><div><span class="eyebrow">BARRIOS</span><h2>Utilidad proyectada por zona</h2></div></div>
+            <div class="stack">${Object.entries(neighborhoods).sort((a,b)=>b[1]-a[1]).map(([name,value])=>`<div><div style="display:flex;justify-content:space-between;font-size:11px"><strong>${esc(name)}</strong><span>${money(value)}</span></div><div class="confidence"><span style="width:${Math.max(3,value/maxN*100)}%"></span></div></div>`).join('') || '<p class="muted">Sin datos suficientes.</p>'}</div>
+          </article>
+        </div>
+        <div class="stack sticky">
+          <article class="card">
+            <div class="card-head"><div><span class="eyebrow">ALERTAS</span><h2>Lo que exige atención</h2></div><span class="chip ${alerts.length?'active':''}">${alerts.length}</span></div>
+            <div class="risk-list">${alerts.slice(0,8).map(a=>`<div class="risk-item ${a.tone==='high'?'high':'medium'}"><strong>${esc(a.title)}</strong><p>${esc(a.detail)}</p></div>`).join('') || '<div class="risk-item low"><strong>Radar limpio</strong><p>No hay alertas críticas en las operaciones activas.</p></div>'}</div>
+          </article>
+          <article class="card">
+            <div class="card-head"><div><span class="eyebrow">PRÓXIMO MOVIMIENTO</span><h2>Acciones pendientes</h2></div></div>
+            <div class="stack">${active.filter(x=>x.op.nextAction).sort((a,b)=>(a.op.dueDate||'9999').localeCompare(b.op.dueDate||'9999')).slice(0,6).map(({op})=>`<div class="stat-box"><span>${esc(op.name)} · ${dateText(op.dueDate)}</span><strong style="font-size:12px">${esc(op.nextAction)}</strong></div>`).join('') || '<p class="muted">No has definido próximas acciones. Sin próxima acción, una oportunidad es solo una pestaña abierta.</p>'}</div>
+          </article>
+        </div>
+      </div>`;
+  }
+
+  function kpi(label,value,sub,tone='') {
+    return `<article class="kpi ${tone}"><span>${esc(label)}</span><strong>${esc(value)}</strong><small>${esc(sub||'')}</small></article>`;
+  }
+
+  function renderAnalyzer() {
+    const o = state.draft;
+    const r = calc(o);
+    return `<div class="dashboard-grid">
+      <div class="stack">
+        <article class="card">
+          <div class="card-head"><div><span class="eyebrow">OPERACIÓN ACTIVA</span><h2>Ficha de adquisición</h2><p>Modifica cualquier campo: los números se actualizan al instante.</p></div><span class="chip ${o.isDemo?'active':''}">${o.isDemo?'DEMO':esc(o.status)}</span></div>
+          <div class="form-grid three">
+            ${field('Nombre','name',o.name,'text')}${field('Barrio','neighborhood',o.neighborhood,'text')}${field('Dirección','address',o.address,'text')}
+            ${selectField('Estado','status',o.status,STATUS)}${field('Responsable','owner',o.owner,'text')}${field('Próxima acción','nextAction',o.nextAction,'text')}
+            ${field('Fecha límite','dueDate',o.dueDate,'date')}${field('Enlace del anuncio','listingUrl',o.listingUrl,'url')}${field('Contacto','contact',o.contact,'text')}
+          </div>
+          <div class="section-divider"></div>
+          <div class="form-grid four">
+            ${moneyField('Precio publicado','listedPrice',o.listedPrice)}${moneyField('Oferta / compra','purchasePrice',o.purchasePrice,true)}${moneyField('Venta esperada','salePrice',o.salePrice)}${moneyField('Valor obra gris','marketGray',o.marketGray)}
+            ${numberField('Área','area',o.area,'m²')}${numberField('Habitaciones','rooms',o.rooms,'')}${numberField('Baños','baths',o.baths,'')}${numberField('Estrato','estrato',o.estrato,'')}
+            ${field('Piso','floor',o.floor,'text')}${moneyField('Administración mensual','admin',o.admin)}${numberField('Duración prevista','durationDays',o.durationDays,'días')}${pctField('Margen bruto objetivo','targetMargin',o.targetMargin)}
+            ${checkField('Ascensor','elevator',o.elevator)}${checkField('Parqueadero','parking',o.parking)}
+          </div>
+          <details class="advanced">
+            <summary>Supuestos financieros avanzados</summary>
+            <div class="advanced-body form-grid four">
+              ${moneyField('Reforma por m²','renovationPerSqm',o.renovationPerSqm)}${pctField('Comisión de venta','commissionPct',o.commissionPct)}${pctField('IVA comisión','vatPct',o.vatPct)}${checkField('Incluir IVA','includeVat',o.includeVat)}
+              ${pctField('Gastos de compra','purchaseCostsPct',o.purchaseCostsPct)}${pctField('Gastos de venta','saleCostsPct',o.saleCostsPct)}${moneyField('Costes fijos','fixedCosts',o.fixedCosts)}${moneyField('Contingencia','contingency',o.contingency)}
+              ${pctField('Impuesto de renta','incomeTaxPct',o.incomeTaxPct)}${pctField('ICA','icaPct',o.icaPct)}${pctField('Sobretasa bomberil','fireSurchargePct',o.fireSurchargePct)}${moneyField('Otros costes','otherCosts',o.otherCosts)}
+              ${moneyField('Intereses manuales','manualInterest',o.manualInterest)}${pctField('Porcentaje financiado','financePct',o.financePct)}${pctField('Tasa anual','annualRate',o.annualRate)}${moneyField('Costes bancarios','bankFees',o.bankFees)}
+              ${checkField('Intereses deducibles','interestDeductible',o.interestDeductible)}
+            </div>
+          </details>
+          <label style="margin-top:18px">Notas<textarea rows="4" data-bind="notes">${esc(o.notes)}</textarea></label>
+          <div class="photo-zone" style="margin-top:16px"><div><strong>Fotos de la operación</strong><small>Máximo 6. Se comprimen antes de guardarse.</small></div><label class="secondary-btn">Añadir fotos<input id="photo-input" type="file" accept="image/*" multiple hidden></label></div>
+          <div class="photo-grid">${(o.photos||[]).map((p,i)=>`<div class="photo"><img src="${p.dataUrl}" alt="Foto"><button data-remove-photo="${i}">×</button></div>`).join('')}</div>
+        </article>
+      </div>
+      <div class="stack sticky" id="analyzer-results">${analyzerResults(r)}</div>
+    </div>`;
+  }
+
+  function analyzerResults(r) {
+    const pass = r.actual.decision === 'PASA';
+    return `
+      <article class="score-card"><div><span class="eyebrow">POLANCO SCORE</span><h2>${esc(r.score.label)}</h2><p>${r.comparables.confidenceLabel} confianza de salida · ${r.renovation.usesDetailedBudget?'presupuesto detallado':'reforma por m²'}</p></div><div class="score-ring" style="--score:${r.score.total}"><strong>${r.score.total}</strong></div></article>
+      <div class="decision ${pass?'pass':'fail'}"><div><span class="eyebrow">DECISIÓN</span><h2>${r.actual.decision}</h2><p>${pass?`Cumple el margen bruto objetivo de ${pct(r.operation.targetMargin)}.`:`Faltan ${pct(Math.max(0,r.operation.targetMargin-r.actual.grossMargin))} de margen bruto.`}</p></div><div class="decision-icon">${pass?'✓':'!'}</div></div>
+      <div class="kpi-grid">
+        ${kpi('Precio máximo',money(r.actual.maxPurchase),state.settings.showEur?eur(r.actual.maxPurchase):'','good')}
+        ${kpi('Margen frente al máximo',money(r.actual.roomVsMax),'Positivo = colchón',r.actual.roomVsMax>=0?'good':'bad')}
+        ${kpi('Inversión total',money(r.breakdown.cashCost),state.settings.showEur?eur(r.breakdown.cashCost):'')}
+        ${kpi('Utilidad neta',money(r.actual.netProfit),state.settings.showEur?eur(r.actual.netProfit):'',r.actual.netProfit>=0?'good':'bad')}
+        ${kpi('Margen neto',pct(r.actual.netMargin),'Después de renta',r.actual.netMargin>=.08?'good':r.actual.netMargin<.03?'bad':'')}
+        ${kpi('ROI proyecto',pct(r.actual.roi),'Utilidad / caja',r.actual.roi>=.12?'good':'')}
+        ${kpi('Rentabilidad anualizada',pct(r.actual.annualizedRoi),'Referencia matemática')}
+        ${kpi('Confianza de salida',`${r.comparables.confidence}/100`,`${r.comparables.count} comparables`)}
+      </div>
+      <article class="card"><div class="card-head"><div><span class="eyebrow">DESGLOSE</span><h2>Dónde se va el dinero</h2></div></div>${breakdownHtml(r)}</article>
