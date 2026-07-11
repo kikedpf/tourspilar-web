@@ -1,0 +1,61 @@
+      <article class="card"><div class="card-head"><div><span class="eyebrow">RIESGO PRINCIPAL</span><h2>${esc(r.risks[0].title)}</h2></div></div><div class="risk-item ${r.risks[0].severity==='high'?'high':r.risks[0].severity==='medium'?'medium':'low'}"><p>${esc(r.risks[0].detail)}</p></div><div class="notice" style="margin-top:12px">Venta -10% → utilidad ${money(r.stress.saleMinus10.netProfit)} · margen ${pct(r.stress.saleMinus10.netMargin)}</div></article>`;
+  }
+
+  function breakdownHtml(r) {
+    const rows = [
+      ['Compra',r.breakdown.purchasePrice],['Gastos de compra',r.breakdown.purchaseCosts],['Reforma',r.breakdown.renovationTotal],['Comisión + IVA',r.breakdown.commissionTotal],['Gastos de venta',r.breakdown.saleCosts],['Costes fijos',r.breakdown.fixedCosts],['Contingencia',r.breakdown.contingency],['Intereses manuales',r.breakdown.manualInterest],['Otros costes',r.breakdown.otherCosts],['ICA',r.breakdown.ica],['Sobretasa bomberil',r.breakdown.fireSurcharge],['Coste de caja',r.breakdown.cashCost,true],['Coste económico total',r.breakdown.totalEconomicCost,true]
+    ];
+    return `<div class="breakdown">${rows.filter(x=>x[1]||x[2]).map(([label,value,total])=>`<div class="breakdown-row ${total?'total':''}"><span>${esc(label)}</span><strong>${money(value)}</strong></div>`).join('')}</div>`;
+  }
+
+  function field(label,key,value,type='text') { return `<label>${esc(label)}<input type="${type}" data-bind="${key}" value="${esc(value)}"></label>`; }
+  function moneyField(label,key,value,featured=false) { return `<label>${esc(label)}<span class="input-wrap ${featured?'featured':''}"><span>$</span><input type="number" min="0" step="100000" data-bind="${key}" data-kind="number" value="${Number(value)||0}"></span></label>`; }
+  function numberField(label,key,value,suffix='') { return `<label>${esc(label)}<span class="input-wrap"><input type="number" min="0" step="0.1" data-bind="${key}" data-kind="number" value="${Number(value)||0}">${suffix?`<span>${esc(suffix)}</span>`:''}</span></label>`; }
+  function pctField(label,key,value) { return `<label>${esc(label)}<span class="input-wrap"><input type="number" min="0" step="0.1" data-bind="${key}" data-kind="pct" value="${((Number(value)||0)*100).toFixed(2)}"><span>%</span></span></label>`; }
+  function checkField(label,key,value) { return `<label class="check-row"><input type="checkbox" data-bind="${key}" data-kind="checkbox" ${value?'checked':''}> ${esc(label)}</label>`; }
+  function selectField(label,key,value,options) { return `<label>${esc(label)}<select data-bind="${key}">${options.map(o=>`<option ${o===value?'selected':''}>${esc(o)}</option>`).join('')}</select></label>`; }
+
+  function renderOpportunities() {
+    const filtered = state.operations.filter(op => {
+      const r = calc(op);
+      const text = `${op.name} ${op.neighborhood} ${op.address}`.toLowerCase();
+      return (!state.filters.search || text.includes(state.filters.search.toLowerCase())) && (!state.filters.status || op.status===state.filters.status) && (!state.filters.decision || r.actual.decision===state.filters.decision);
+    }).sort((a,b)=>calc(b).score.total-calc(a).score.total);
+    const selected = state.operations.filter(o=>state.compareIds.has(o.id)).map(op=>({op,r:calc(op)}));
+    return `<article class="card">
+      <div class="card-head"><div><span class="eyebrow">RADAR DE COMPRA</span><h2>${state.operations.length} operaciones guardadas</h2><p>Filtra, ordena y compara antes de gastar tiempo en visitas.</p></div><button class="primary-btn" data-action="new">Nueva oportunidad</button></div>
+      <div class="toolbar no-print">
+        <input class="grow" id="filter-search" type="search" placeholder="Buscar por operación, barrio o dirección" value="${esc(state.filters.search)}">
+        <select id="filter-status"><option value="">Todos los estados</option>${STATUS.map(s=>`<option value="${esc(s)}" ${state.filters.status===s?'selected':''}>${esc(s)}</option>`).join('')}</select>
+        <select id="filter-decision"><option value="">Todas las decisiones</option><option ${state.filters.decision==='PASA'?'selected':''}>PASA</option><option ${state.filters.decision==='NO PASA'?'selected':''}>NO PASA</option></select>
+      </div>
+      ${selected.length>=2 ? `<div class="recommendation" style="margin:16px 0"><strong>Comparación activa:</strong> ${selected.length} operaciones. Mejor ROI: ${esc([...selected].sort((a,b)=>b.r.actual.roi-a.r.actual.roi)[0].op.name)}.</div>`:''}
+      <div class="operation-grid" style="margin-top:18px">${filtered.map(operationCard).join('')}</div>
+      ${!filtered.length?empty('No hay resultados','Cambia los filtros o crea una nueva oportunidad.'):''}
+    </article>`;
+  }
+
+  function operationCard(op) {
+    const r = calc(op);
+    const photo = op.photos?.[0]?.dataUrl;
+    return `<article class="operation-card">
+      <div class="operation-card-head">${photo?`<img class="thumb" src="${photo}" alt="">`:'<div class="thumb">⌂</div>'}<div><h3>${esc(op.name)}</h3><p>${esc(op.neighborhood||op.address||'Sin ubicación')} · ${daysSince(op.updatedAt)} días desde actualización</p></div><span class="status-tag">${esc(op.status)}</span></div>
+      <div class="metric-grid"><div><span>Score</span><strong class="${scoreTone(r.score.total)}">${r.score.total}/100</strong></div><div><span>Compra</span><strong>${compact(op.purchasePrice)}</strong></div><div><span>Máximo</span><strong>${compact(r.actual.maxPurchase)}</strong></div><div><span>Utilidad</span><strong class="${r.actual.netProfit>=0?'positive':'negative'}">${compact(r.actual.netProfit)}</strong></div><div><span>Margen</span><strong class="${marginTone(r.actual.netMargin)}">${pct(r.actual.netMargin)}</strong></div><div><span>ROI</span><strong>${pct(r.actual.roi)}</strong></div></div>
+      <label class="check-row"><input type="checkbox" data-compare="${op.id}" ${state.compareIds.has(op.id)?'checked':''}> Comparar</label>
+      <div class="card-actions"><button data-edit="${op.id}">Abrir</button>${op.listingUrl?`<button data-url="${esc(op.listingUrl)}">Anuncio ↗</button>`:''}<button data-duplicate="${op.id}">Duplicar</button><button data-delete="${op.id}">Eliminar</button></div>
+    </article>`;
+  }
+
+  function renderComparables() {
+    const r = calc();
+    const comps = state.draft.comparables || [];
+    return `<div class="grid two">
+      <article class="card">
+        <div class="card-head"><div><span class="eyebrow">EVIDENCIA DE SALIDA</span><h2>Comparables de ${esc(state.draft.name)}</h2><p>Mezclar edificios o productos distintos es la forma más rápida de inventar rentabilidad.</p></div></div>
+        <div class="stats-row"><div class="stat-box"><span>Válidos</span><strong>${r.comparables.count}</strong></div><div class="stat-box"><span>Mediana / m²</span><strong>${money(r.comparables.median)}</strong></div><div class="stat-box"><span>Promedio / m²</span><strong>${money(r.comparables.mean)}</strong></div><div class="stat-box"><span>Dispersión</span><strong>${pct(r.comparables.dispersion)}</strong></div><div class="stat-box"><span>Confianza</span><strong>${r.comparables.confidence}/100</strong></div></div>
+        <div class="confidence" style="margin-top:12px"><span style="width:${r.comparables.confidence}%"></span></div>
+        <div class="grid three" style="margin-top:16px">${kpi('Salida conservadora',money(r.comparables.conservativeSale),'Percentil 25')}${kpi('Salida probable',money(r.comparables.probableSale),'Mediana', 'good')}${kpi('Salida agresiva',money(r.comparables.aggressiveSale),'Percentil 75')}</div>
+        ${r.comparables.count<5?'<div class="notice" style="margin-top:14px">Menos de 5 comparables: la confianza de salida sigue siendo insuficiente para comprar.</div>':''}
+      </article>
+      <article class="card no-print">
+        <div class="card-head"><div><span class="eyebrow">AÑADIR COMPARABLE</span><h2>Nuevo registro</h2></div></div>
