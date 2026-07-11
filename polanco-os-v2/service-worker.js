@@ -1,5 +1,5 @@
-const CACHE='polanco-os-v2.0.1';
-const ASSETS=['./','index.html','styles.css','engine.js','app.js','app.part01.txt','app.part02.txt','app.part03.txt','app.part04.txt','app.part05.txt','app.part06.txt','app.part07.txt','app.part08.txt','app.part09.txt','manifest.webmanifest','icon.svg'];
+const CACHE='polanco-os-v2.1.0';
+const ASSETS=['./','index.html','styles.css','mobile.css','engine.js','app.js','app.part01.txt','app.part02.txt','app.part03.txt','app.part04.txt','app.part05.txt','app.part06.txt','app.part07.txt','app.part08.txt','app.part09.txt','manifest.webmanifest','icon.svg'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',event=>{
