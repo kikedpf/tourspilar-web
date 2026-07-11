@@ -124,6 +124,7 @@
     if (!isDashboard()) return;
     const operation = activeOperation();
     const result = operation ? calculate(operation) : null;
+    root.classList.remove('show-mobile-secondary');
     root.querySelector('.mobile-command-center')?.remove();
     root.insertAdjacentHTML('afterbegin', summaryHtml(operation, result));
     markSecondaryContent();
@@ -140,19 +141,25 @@
   let timer;
   function schedule() {
     clearTimeout(timer);
-    timer = setTimeout(renderSummary, 40);
+    timer = setTimeout(renderSummary, 50);
+  }
+
+  function isOwnSummaryMutation(mutation) {
+    const nodes = [...mutation.addedNodes, ...mutation.removedNodes]
+      .filter(node => node.nodeType === Node.ELEMENT_NODE);
+    return nodes.length > 0 && nodes.every(node => node.classList?.contains('mobile-command-center'));
   }
 
   const observer = new MutationObserver(mutations => {
-    if (mutations.some(mutation => mutation.target.closest?.('.mobile-command-center'))) return;
+    if (mutations.length && mutations.every(isOwnSummaryMutation)) return;
     schedule();
   });
-  observer.observe(root, { childList: true, subtree: true });
+  observer.observe(root, { childList: true });
 
   document.addEventListener('click', event => {
-    if (event.target.closest('.nav-item,.primary-btn,.secondary-btn,[data-edit],[data-go]')) setTimeout(schedule, 80);
+    if (event.target.closest('.nav-item,.primary-btn,.secondary-btn,[data-edit],[data-go]')) setTimeout(schedule, 100);
   });
-  document.getElementById('current-operation')?.addEventListener('change', () => setTimeout(schedule, 80));
+  document.getElementById('current-operation')?.addEventListener('change', () => setTimeout(schedule, 100));
   window.addEventListener('storage', schedule);
   setTimeout(schedule, 0);
 })();
