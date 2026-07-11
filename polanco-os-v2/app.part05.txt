@@ -1,0 +1,41 @@
+        <div class="form-grid three"><label>Nombre / proyecto<input id="comp-name"></label><label>Precio<input id="comp-price" type="number" min="0"></label><label>Área m²<input id="comp-area" type="number" min="1" step="0.1"></label><label>Habitaciones<input id="comp-rooms" type="number" min="0"></label><label>Fecha<input id="comp-date" type="date" value="${today()}"></label><label>Fuente<input id="comp-source" placeholder="Portal, inmobiliaria..."></label><label style="grid-column:1/-1">Enlace<input id="comp-url" type="url"></label></div>
+        <button class="primary-btn" data-action="add-comparable" style="margin-top:14px">Añadir comparable</button>
+      </article>
+      <article class="card" style="grid-column:1/-1"><div class="card-head"><div><span class="eyebrow">MUESTRA</span><h2>Registros guardados</h2></div></div>
+        ${comps.length?`<div class="data-table-wrap"><table class="data-table"><thead><tr><th>Comparable</th><th>Precio</th><th>Área</th><th>Precio/m²</th><th>Hab.</th><th>Fecha</th><th>Fuente</th><th>Excluir</th><th></th></tr></thead><tbody>${comps.map(c=>`<tr><td>${esc(c.name)}</td><td>${money(c.price)}</td><td>${number(c.area)}</td><td>${money((Number(c.price)||0)/(Number(c.area)||1))}</td><td>${esc(c.rooms||'')}</td><td>${dateText(c.date)}</td><td>${esc(c.source||'')}</td><td><input type="checkbox" data-exclude-comp="${c.id}" ${c.excluded?'checked':''}></td><td><button class="secondary-btn" data-delete-comp="${c.id}">Eliminar</button></td></tr>`).join('')}</tbody></table></div>`:empty('Sin comparables','Añade cierres o anuncios realmente comparables.')}
+      </article>
+    </div>`;
+  }
+
+  function renderRenovation() {
+    const r = calc();
+    const items = state.draft.renovationItems || [];
+    const m1=state.settings.milestone1,m2=state.settings.milestone2,m3=state.settings.milestone3;
+    return `<div class="grid two">
+      <article class="card"><div class="card-head"><div><span class="eyebrow">CONTROL DE OBRA</span><h2>Presupuesto de reforma</h2><p>El margen se pierde en pequeñas desviaciones repetidas, no en una gran sorpresa cinematográfica.</p></div></div>
+        <div class="kpi-grid">${kpi('Presupuesto estimado',money(r.renovation.estimated),r.renovation.usesDetailedBudget?'Por partidas':'Área × coste/m²')}${kpi('Coste real / previsto',money(r.renovation.actual),'Incluido en el análisis',r.renovation.variance<=0?'good':'bad')}${kpi('Desviación',money(r.renovation.variance),pct(r.renovation.variancePct),r.renovation.variance<=0?'good':'bad')}${kpi('Partidas',r.renovation.itemCount,'Con trazabilidad')}</div>
+        <div class="section-divider"></div><span class="eyebrow">PAGOS POR HITOS</span><div class="grid three" style="margin-top:10px">${kpi(`Inicio · ${m1}%`,money(r.renovation.estimated*m1/100),'Anticipo')}${kpi(`Avance · ${m2}%`,money(r.renovation.estimated*m2/100),'Contra hito')}${kpi(`Entrega · ${m3}%`,money(r.renovation.estimated*m3/100),'Retención final')}</div>
+      </article>
+      <article class="card no-print"><div class="card-head"><div><span class="eyebrow">AÑADIR PARTIDA</span><h2>Presupuesto detallado</h2></div></div>
+        <div class="form-grid three"><label>Partida<input id="reno-category" placeholder="Cocina, pisos..."></label><label>Unidad<input id="reno-unit" placeholder="m², global, unidad"></label><label>Cantidad<input id="reno-qty" type="number" min="0" step="0.1" value="1"></label><label>Coste unitario<input id="reno-unit-cost" type="number" min="0"></label><label>Coste real<input id="reno-actual" type="number" min="0" placeholder="Opcional"></label><label>Proveedor<input id="reno-supplier"></label><label>Estado<select id="reno-status"><option>Pendiente</option><option>Presupuestado</option><option>Contratado</option><option>En ejecución</option><option>Terminado</option></select></label><label style="grid-column:span 2">Notas<input id="reno-notes"></label></div>
+        <button class="primary-btn" data-action="add-renovation" style="margin-top:14px">Añadir partida</button>
+      </article>
+      <article class="card" style="grid-column:1/-1"><div class="card-head"><div><span class="eyebrow">PARTIDAS</span><h2>Presupuesto y ejecución</h2></div></div>
+        ${items.length?`<div class="data-table-wrap"><table class="data-table"><thead><tr><th>Partida</th><th>Unidad</th><th>Cantidad</th><th>Unitario</th><th>Estimado</th><th>Real</th><th>Proveedor</th><th>Estado</th><th></th></tr></thead><tbody>${items.map(i=>`<tr><td>${esc(i.category)}</td><td>${esc(i.unit)}</td><td>${number(i.qty)}</td><td>${money(i.unitCost)}</td><td>${money((Number(i.qty)||0)*(Number(i.unitCost)||0))}</td><td>${i.actualCost===''||i.actualCost==null?'—':money(i.actualCost)}</td><td>${esc(i.supplier||'')}</td><td>${esc(i.status||'')}</td><td><button class="secondary-btn" data-delete-reno="${i.id}">Eliminar</button></td></tr>`).join('')}</tbody></table></div>`:empty('Sin partidas','La app está usando área × reforma por m². Añade partidas para tener control real.')}
+      </article>
+    </div>`;
+  }
+
+  function renderFinance() {
+    const base = calc();
+    const opts = {baseType:state.financeUI.baseType,customBase:state.financeUI.customBase,financePct:state.draft.financePct,annualRate:state.draft.annualRate,bankFees:state.draft.bankFees,interestDeductible:state.draft.interestDeductible};
+    const months=[4,6,9,12,Number(state.financeUI.customMonths)||9].filter((v,i,a)=>v>0&&a.indexOf(v)===i).sort((a,b)=>a-b);
+    const scenarios=months.map(m=>E.financingScenario(state.draft,m,opts));
+    return `<div class="grid two">
+      <article class="card no-print"><div class="card-head"><div><span class="eyebrow">SUPUESTOS DEL CRÉDITO</span><h2>Financiación</h2></div></div>
+        <div class="form-grid three"><label>Base financiable<select id="finance-base"><option value="sale" ${state.financeUI.baseType==='sale'?'selected':''}>Venta / avalúo</option><option value="purchase" ${state.financeUI.baseType==='purchase'?'selected':''}>Compra</option><option value="cashCost" ${state.financeUI.baseType==='cashCost'?'selected':''}>Coste de caja</option><option value="custom" ${state.financeUI.baseType==='custom'?'selected':''}>Personalizada</option></select></label>${moneyField('Base personalizada','financeCustomBase',state.financeUI.customBase)}${numberField('Plazo personalizado','financeCustomMonths',state.financeUI.customMonths,'meses')}${pctField('Porcentaje financiado','financePct',state.draft.financePct)}${pctField('Tasa anual','annualRate',state.draft.annualRate)}${moneyField('Costes bancarios','bankFees',state.draft.bankFees)}${checkField('Intereses deducibles','interestDeductible',state.draft.interestDeductible)}</div>
+        <div class="notice" style="margin-top:14px">Modelo con interés simple prorrateado y sin amortización de capital. Para firmar deuda, manda el cronograma contractual del banco.</div>
+      </article>
+      <article class="card"><div class="card-head"><div><span class="eyebrow">CONTADO VS. DEUDA</span><h2>La palanca real</h2></div></div>
+        <div class="kpi-grid">${kpi('Utilidad al contado',money(base.actual.netProfit),pct(base.actual.netMargin),base.actual.netProfit>=0?'good':'bad')}${kpi('Caja total',money(base.breakdown.cashCost),state.settings.showEur?eur(base.breakdown.cashCost):'')}${kpi('Interés mensual',money(scenarios[0]?.monthlyInterest||0),'Sobre la deuda')}${kpi('Mes de equilibrio',scenarios[0]?.breakEvenMonths?`${number(scenarios[0].breakEvenMonths)} meses`:'Sin límite','Antes de utilidad cero')}</div>
+      </article>
