@@ -1,0 +1,69 @@
+html,body,.app-shell,.main{max-width:100%;overflow-x:hidden}
+.topbar,.title-block,.context-actions,.card,.operation-card,.score-card,.kpi,.toolbar,.metric-grid,.stats-row,.dashboard-grid>*{min-width:0}
+.context-actions select{width:100%}
+.data-table-wrap,.kanban,.photo-grid{max-width:100%;overflow:auto;-webkit-overflow-scrolling:touch}
+.card-head,.toolbar,.score-card,.decision,.operation-card-head,.card-actions{flex-wrap:wrap}
+
+@media(max-width:920px){
+  :root{--radius:16px}
+  .topbar{height:auto;align-items:flex-start;flex-wrap:wrap;gap:12px;padding:12px 14px}
+  .title-block{flex:1 1 calc(100% - 52px)}
+  .context-actions{width:100%;margin-left:0;display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px}
+  .context-actions select{min-width:0;max-width:none}
+  .context-actions .secondary-btn,.context-actions .primary-btn{display:inline-flex;justify-content:center;align-items:center;padding:10px 12px}
+  .content{padding:14px 12px 64px}
+  .card{padding:16px}
+  .grid,.stack,.dashboard-grid{gap:14px}
+  .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .kpi strong{font-size:18px}
+  .score-card{display:grid;grid-template-columns:78px 1fr;gap:14px;align-items:center}
+  .score-ring{width:78px;height:78px}
+  .score-ring strong{font-size:22px}
+  .decision h2{font-size:24px}
+  .operation-card{padding:14px}
+  .data-table{min-width:640px}
+  .data-table th,.data-table td{padding:9px 8px;font-size:10px}
+  .stat-box strong{font-size:14px}
+  .chart{height:220px}
+}
+
+@media(max-width:620px){
+  .topbar{position:sticky;top:0}
+  .title-block h1{font-size:17px;line-height:1.15}
+  .context-actions{grid-template-columns:1fr auto;grid-template-areas:"select select" "theme save";align-items:stretch}
+  .context-actions select{grid-area:select;font-size:12px;padding:10px 12px}
+  .context-actions .icon-btn{grid-area:theme;display:inline-grid;place-items:center}
+  .context-actions #save-operation{grid-area:save;display:inline-flex;justify-content:center}
+  .context-actions #new-operation{display:none}
+  .menu-btn{width:40px;height:40px;border-radius:10px;background:var(--card);border:1px solid var(--line)}
+  .content{padding:10px 10px 72px}
+  .card{padding:14px;border-radius:14px}
+  .card-head{margin-bottom:12px}
+  .card-head h2{font-size:17px}
+  .card-head p,.decision p,.kpi small,.muted,label,.operation-card p,.risk-item p{font-size:11px}
+  .eyebrow{font-size:9px;letter-spacing:1.3px}
+  .dashboard-grid,.grid.two,.grid.three,.grid.four,.form-grid.two,.form-grid.three,.form-grid.four,.report-grid,.stats-row,.metric-grid{grid-template-columns:1fr}
+  .kpi-grid{grid-template-columns:1fr 1fr}
+  .score-card{grid-template-columns:1fr;align-items:flex-start}
+  .score-ring{width:72px;height:72px}
+  .photo-zone{flex-direction:column;align-items:flex-start}
+  .toolbar>*{width:100%}
+  .toolbar .grow{min-width:0}
+  .data-table{min-width:560px}
+  .kanban{grid-auto-columns:minmax(210px,85vw)}
+  .report{padding:16px}
+}
+
+@media(max-width:430px){
+  .topbar{padding:10px}
+  .title-block h1{font-size:16px}
+  .context-actions{gap:6px}
+  .content{padding:8px 8px 80px}
+  .kpi-grid{grid-template-columns:1fr}
+  .kpi{padding:13px}
+  .score-card,.decision,.card{border-radius:13px}
+  .decision{padding:14px}
+  .decision-icon{width:44px;height:44px;font-size:20px}
+  .operation-card h3{font-size:14px}
+  .data-table{min-width:520px}
+}
