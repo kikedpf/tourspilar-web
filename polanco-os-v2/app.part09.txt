@@ -1,0 +1,16 @@
+    state.settings[key]=value;persist();
+  }
+
+  function updateConnection(){const online=navigator.onLine;qs('.connection').classList.toggle('offline',!online);$('connection-label').textContent=online?'Datos locales protegidos':'Trabajando sin conexión'}
+
+  function init() {
+    load();
+    refreshOperationSelect();
+    setupEvents();
+    updateConnection();
+    render();
+    if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+})();
