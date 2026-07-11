@@ -6,16 +6,17 @@
   <meta name="theme-color" content="#173A63">
   <meta name="description" content="Polanco OS Deal Lab: sistema de análisis y gestión de operaciones de flipping inmobiliario.">
   <title>Polanco OS · Deal Lab</title>
-  <link rel="manifest" href="manifest.webmanifest?v=310">
+  <link rel="manifest" href="manifest.webmanifest?v=320">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon.svg">
-  <link rel="stylesheet" href="styles.css?v=310">
-  <link rel="stylesheet" href="mobile.css?v=310">
+  <link rel="stylesheet" href="styles.css?v=320">
+  <link rel="stylesheet" href="mobile.css?v=320">
+  <link rel="stylesheet" href="deal-prices.css?v=320">
   <script>
     (function(){
-      const version='polanco-ui-310';
+      const version='polanco-ui-320';
       if(localStorage.getItem('polanco-ui-version')!==version){
-        if('caches' in window){caches.keys().then(keys=>Promise.all(keys.map(key=>caches.delete(key))));}
+        if('caches' in window){caches.keys().then(keys=>Promise.all(keys.map(key=>caches.delete(key)));}
         if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(reg=>reg.update()));}
         localStorage.setItem('polanco-ui-version',version);
       }
@@ -49,7 +50,7 @@
       <div class="sidebar-footer">
         <div class="connection"><span id="connection-dot"></span><span id="connection-label">Datos locales protegidos</span></div>
         <button class="ghost-btn full" id="install-app" hidden>Instalar aplicación</button>
-        <small>v3.1 · Deal Lab móvil</small>
+        <small>v3.2 · Compra y venta en vivo</small>
       </div>
     </aside>
 
@@ -82,8 +83,8 @@
     </div>
   </template>
 
-  <script src="engine.js?v=310"></script>
-  <script src="app.js?v=310"></script>
-  <script src="mobile-dashboard.js?v=310"></script>
+  <script src="engine.js?v=320"></script>
+  <script src="app.js?v=320"></script>
+  <script src="mobile-dashboard.js?v=320"></script>
 </body>
 </html>
