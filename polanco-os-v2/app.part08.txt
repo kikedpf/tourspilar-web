@@ -51,14 +51,15 @@
     window.addEventListener('polanco:update-operation',event=>{
       const detail=event.detail||{};
       const key=detail.key;
-      if(!state.draft||!['salePrice'].includes(key))return;
+      const labels={purchasePrice:'precio de compra',salePrice:'precio de venta'};
+      if(!state.draft||!Object.prototype.hasOwnProperty.call(labels,key))return;
       const value=Number(detail.value);
-      if(!Number.isFinite(value)||value<=0){toast('Introduce un precio de venta válido');return}
+      if(!Number.isFinite(value)||value<=0){toast(`Introduce un ${labels[key]} válido`);return}
       state.draft[key]=value;
       state.draft.updatedAt=new Date().toISOString();
       saveCurrent(true);
       render();
-      toast('Precio de venta actualizado');
+      toast(`${labels[key][0].toUpperCase()+labels[key].slice(1)} actualizado`);
     });
 
     document.addEventListener('input',e=>{
