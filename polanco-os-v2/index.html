@@ -16,7 +16,7 @@
     (function(){
       const version='polanco-ui-320';
       if(localStorage.getItem('polanco-ui-version')!==version){
-        if('caches' in window){caches.keys().then(keys=>Promise.all(keys.map(key=>caches.delete(key)));}
+        if('caches' in window){caches.keys().then(keys=>Promise.all(keys.map(key=>caches.delete(key))));}
         if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(reg=>reg.update()));}
         localStorage.setItem('polanco-ui-version',version);
       }
