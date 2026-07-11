@@ -58,6 +58,21 @@
     }
   }
 
+  function priceRow({ key, eyebrow, label, value, tone }) {
+    return `<div class="mobile-price-row ${tone}">
+      <div class="mobile-price-label"><span>${eyebrow}</span><strong>${label}</strong></div>
+      <div class="mobile-price-editor">
+        <button class="mobile-price-step" data-price-key="${key}" data-price-delta="-5000000" type="button" aria-label="Restar cinco millones">−5M</button>
+        <label class="mobile-price-input">
+          <span>$</span>
+          <input id="mobile-${key}" data-price-input="${key}" type="text" inputmode="numeric" autocomplete="off" value="${esc(integer(value))}" aria-label="${label}">
+          <em>COP</em>
+        </label>
+        <button class="mobile-price-step" data-price-key="${key}" data-price-delta="5000000" type="button" aria-label="Sumar cinco millones">+5M</button>
+      </div>
+    </div>`;
+  }
+
   function summaryHtml(operation, result) {
     if (!operation || !result) {
       return `<section class="mobile-command-center">
@@ -75,6 +90,7 @@
     const purchasePrice = Number(operation.purchasePrice) || 0;
     const spread = salePrice - purchasePrice;
     const pricePerSqm = operation.area ? salePrice / Number(operation.area) : 0;
+    const purchasePerSqm = operation.area ? purchasePrice / Number(operation.area) : 0;
     const grossMargin = Number(result.actual.grossMargin) || 0;
     const targetMargin = Number(result.operation?.targetMargin ?? operation.targetMargin) || 0;
     const meterScale = Math.max(.25, targetMargin * 1.35, Math.max(0, grossMargin) * 1.15);
@@ -112,29 +128,25 @@
         <div class="mobile-score-orbit"><div><strong>${score}</strong><small>SCORE</small></div></div>
       </article>
 
-      <article class="mobile-sale-card">
-        <div class="mobile-price-head">
-          <div><span>SALIDA PREVISTA</span><strong>Precio de venta</strong></div>
+      <article class="mobile-deal-card">
+        <div class="mobile-deal-head">
+          <div><span>ESTRUCTURA DEL DEAL</span><strong>Entrada ↔ Salida</strong></div>
           <small>EDITABLE EN VIVO</small>
         </div>
-        <div class="mobile-price-editor">
-          <button class="mobile-price-step" data-sale-delta="-5000000" type="button" aria-label="Restar cinco millones">−5M</button>
-          <label class="mobile-price-input">
-            <span>$</span>
-            <input id="mobile-sale-price" type="text" inputmode="numeric" autocomplete="off" value="${esc(integer(salePrice))}" aria-label="Precio de venta esperado">
-            <em>COP</em>
-          </label>
-          <button class="mobile-price-step" data-sale-delta="5000000" type="button" aria-label="Sumar cinco millones">+5M</button>
+        ${priceRow({ key: 'purchasePrice', eyebrow: 'ENTRADA', label: 'Precio de compra', value: purchasePrice, tone: 'purchase' })}
+        <div class="mobile-spread-bridge">
+          <span></span><b>SPREAD BRUTO ${compact(spread)}</b><span></span>
         </div>
+        ${priceRow({ key: 'salePrice', eyebrow: 'SALIDA', label: 'Precio de venta', value: salePrice, tone: 'sale' })}
         <div class="mobile-price-foot">
-          <span>Spread bruto <strong class="${spread >= 0 ? 'positive' : 'negative'}">${compact(spread)}</strong></span>
-          <span>Salida por m² <strong>${compact(pricePerSqm)}</strong></span>
+          <span>Compra por m² <strong>${compact(purchasePerSqm)}</strong></span>
+          <span>Venta por m² <strong>${compact(pricePerSqm)}</strong></span>
         </div>
       </article>
 
       <div class="mobile-kpi-grid">
-        <article class="mobile-kpi-purchase"><span>Compra</span><strong>${compact(purchasePrice)}</strong><small>Oferta actual</small></article>
-        <article class="mobile-kpi-max"><span>Precio máximo</span><strong>${compact(result.actual.maxPurchase)}</strong><small>${room >= 0 ? 'Con colchón' : 'Por debajo de compra'}</small></article>
+        <article class="mobile-kpi-max"><span>Precio máximo</span><strong>${compact(result.actual.maxPurchase)}</strong><small>${room >= 0 ? 'Tienes colchón' : 'La compra lo supera'}</small></article>
+        <article class="mobile-kpi-invest"><span>Inversión total</span><strong>${compact(result.breakdown.cashCost)}</strong><small>Caja del proyecto</small></article>
         <article class="mobile-kpi-profit"><span>Utilidad neta</span><strong class="${result.actual.netProfit >= 0 ? 'positive' : 'negative'}">${compact(result.actual.netProfit)}</strong><small>Después de renta</small></article>
         <article class="mobile-kpi-roi"><span>ROI proyecto</span><strong class="${result.actual.roi >= 0 ? 'positive' : 'negative'}">${pct(result.actual.roi)}</strong><small>Utilidad / caja</small></article>
       </div>
@@ -162,17 +174,36 @@
     });
   }
 
-  function commitSalePrice(value) {
-    const salePrice = parseMoney(value);
-    if (salePrice <= 0) {
-      const input = document.getElementById('mobile-sale-price');
+  function commitPrice(key, value) {
+    const price = parseMoney(value);
+    const input = document.querySelector(`[data-price-input="${key}"]`);
+    if (price <= 0) {
       input?.classList.add('invalid');
       input?.focus();
       return;
     }
     window.dispatchEvent(new CustomEvent('polanco:update-operation', {
-      detail: { key: 'salePrice', value: salePrice, source: 'mobile-cockpit' }
+      detail: { key, value: price, source: 'mobile-cockpit' }
     }));
+  }
+
+  function bindPriceInput(input) {
+    const key = input.dataset.priceInput;
+    input.addEventListener('focus', () => {
+      input.classList.remove('invalid');
+      input.value = String(parseMoney(input.value));
+      input.select();
+    });
+    input.addEventListener('keydown', event => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        input.blur();
+      }
+    });
+    input.addEventListener('change', () => commitPrice(key, input.value));
+    input.addEventListener('blur', () => {
+      if (document.body.contains(input)) input.value = integer(parseMoney(input.value));
+    });
   }
 
   function bindSummaryActions() {
@@ -186,29 +217,13 @@
       event.currentTarget.querySelector('b').textContent = showing ? '⌃' : '⌄';
     });
 
-    const input = document.getElementById('mobile-sale-price');
-    if (input) {
-      input.addEventListener('focus', () => {
-        input.classList.remove('invalid');
-        input.value = String(parseMoney(input.value));
-        input.select();
-      });
-      input.addEventListener('keydown', event => {
-        if (event.key === 'Enter') {
-          event.preventDefault();
-          input.blur();
-        }
-      });
-      input.addEventListener('change', () => commitSalePrice(input.value));
-      input.addEventListener('blur', () => {
-        if (document.body.contains(input)) input.value = integer(parseMoney(input.value));
-      });
-    }
+    document.querySelectorAll('[data-price-input]').forEach(bindPriceInput);
 
-    document.querySelectorAll('[data-sale-delta]').forEach(button => {
+    document.querySelectorAll('[data-price-delta]').forEach(button => {
       button.addEventListener('click', () => {
-        const current = parseMoney(document.getElementById('mobile-sale-price')?.value || activeOperation()?.salePrice);
-        commitSalePrice(Math.max(1000000, current + Number(button.dataset.saleDelta || 0)));
+        const key = button.dataset.priceKey;
+        const current = parseMoney(document.querySelector(`[data-price-input="${key}"]`)?.value || activeOperation()?.[key]);
+        commitPrice(key, Math.max(1000000, current + Number(button.dataset.priceDelta || 0)));
       });
     });
   }
