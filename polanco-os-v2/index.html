@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#173A63">
+  <meta name="description" content="Polanco OS: sistema de análisis y gestión de operaciones de flipping inmobiliario.">
+  <title>Polanco OS</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-icon">PI</div>
+        <div>
+          <strong>POLANCO OS</strong>
+          <span>INVERSIÓN INMOBILIARIA</span>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="Navegación principal">
+        <button class="nav-item active" data-view="dashboard"><span>◫</span>Panel ejecutivo</button>
+        <button class="nav-item" data-view="analyzer"><span>◎</span>Analizador</button>
+        <button class="nav-item" data-view="opportunities"><span>⌂</span>Oportunidades</button>
+        <button class="nav-item" data-view="comparables"><span>≋</span>Comparables</button>
+        <button class="nav-item" data-view="renovation"><span>⌁</span>Reforma</button>
+        <button class="nav-item" data-view="finance"><span>↗</span>Financiación</button>
+        <button class="nav-item" data-view="risk"><span>▦</span>Sensibilidad y riesgos</button>
+        <button class="nav-item" data-view="pipeline"><span>⋮</span>Pipeline</button>
+        <button class="nav-item" data-view="reports"><span>▤</span>Informes</button>
+        <button class="nav-item" data-view="settings"><span>⚙</span>Configuración</button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="connection"><span id="connection-dot"></span><span id="connection-label">Datos locales protegidos</span></div>
+        <button class="ghost-btn full" id="install-app" hidden>Instalar aplicación</button>
+        <small>v2.0 · Funciona sin conexión</small>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="menu-btn" id="menu-btn" aria-label="Abrir menú">☰</button>
+        <div class="title-block">
+          <h1 id="page-title">Panel ejecutivo</h1>
+          <p id="page-subtitle">El capital va a la mejor operación, no a la más bonita.</p>
+        </div>
+        <div class="context-actions">
+          <select id="current-operation" aria-label="Operación activa"></select>
+          <button class="icon-btn" id="theme-toggle" title="Cambiar tema">◐</button>
+          <button class="secondary-btn" id="new-operation">Nueva</button>
+          <button class="primary-btn" id="save-operation">Guardar</button>
+        </div>
+      </header>
+
+      <div id="view-root" class="content"></div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <template id="empty-template">
+    <div class="empty-state">
+      <div class="empty-icon">⌂</div>
+      <h3>No hay datos todavía</h3>
+      <p>Crea una operación para empezar.</p>
+    </div>
+  </template>
+
+  <script src="engine.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
