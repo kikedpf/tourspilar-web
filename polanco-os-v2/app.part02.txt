@@ -1,0 +1,158 @@
+      localStorage.setItem(STORAGE.compare, JSON.stringify([...state.compareIds]));
+      if (state.currentId) localStorage.setItem(STORAGE.current, state.currentId);
+    } catch (error) {
+      toast('El almacenamiento está lleno. Exporta una copia y elimina fotos pesadas.');
+    }
+  }
+
+  function toast(message) {
+    const el = $('toast');
+    el.textContent = message;
+    el.classList.add('show');
+    clearTimeout(toast.timer);
+    toast.timer = setTimeout(() => el.classList.remove('show'), 2800);
+  }
+
+  function setCurrent(id) {
+    const op = state.operations.find(item => item.id === id);
+    if (!op) return;
+    state.currentId = id;
+    state.draft = clone(op);
+    localStorage.setItem(STORAGE.current, id);
+    refreshOperationSelect();
+    render();
+  }
+
+  function saveCurrent(silent = false) {
+    if (!state.draft) return;
+    if (!state.draft.name.trim()) state.draft.name = `Operación ${new Date().toLocaleDateString('es-CO')}`;
+    state.draft.updatedAt = new Date().toISOString();
+    const index = state.operations.findIndex(o => o.id === state.draft.id);
+    if (index >= 0) state.operations[index] = clone(state.draft);
+    else state.operations.unshift(clone(state.draft));
+    state.currentId = state.draft.id;
+    persist();
+    refreshOperationSelect();
+    if (!silent) toast('Operación guardada');
+  }
+
+  function createNew() {
+    state.draft = baseOperation();
+    state.currentId = state.draft.id;
+    state.operations.unshift(clone(state.draft));
+    persist();
+    refreshOperationSelect();
+    navigate('analyzer');
+    toast('Nueva operación creada');
+  }
+
+  function deleteOperation(id) {
+    const op = state.operations.find(o => o.id === id);
+    if (!op || !confirm(`¿Eliminar “${op.name}”?`)) return;
+    state.operations = state.operations.filter(o => o.id !== id);
+    state.compareIds.delete(id);
+    if (!state.operations.length) state.operations.push(baseOperation());
+    if (state.currentId === id) {
+      state.currentId = state.operations[0].id;
+      state.draft = clone(state.operations[0]);
+    }
+    persist();
+    refreshOperationSelect();
+    render();
+    toast('Operación eliminada');
+  }
+
+  function duplicateOperation(id) {
+    const op = state.operations.find(o => o.id === id);
+    if (!op) return;
+    const copy = clone(op);
+    copy.id = uid();
+    copy.name = `${op.name} · copia`;
+    copy.status = 'Detectado';
+    copy.isDemo = false;
+    copy.createdAt = copy.updatedAt = new Date().toISOString();
+    state.operations.unshift(copy);
+    persist();
+    toast('Operación duplicada');
+    render();
+  }
+
+  function navigate(view) {
+    state.view = view;
+    qsa('.nav-item').forEach(btn => btn.classList.toggle('active', btn.dataset.view === view));
+    const [title, subtitle] = VIEWS[view] || VIEWS.dashboard;
+    $('page-title').textContent = title;
+    $('page-subtitle').textContent = subtitle;
+    $('sidebar').classList.remove('open');
+    render();
+  }
+
+  function refreshOperationSelect() {
+    const select = $('current-operation');
+    select.innerHTML = state.operations.map(op => `<option value="${esc(op.id)}" ${op.id===state.currentId?'selected':''}>${esc(op.name)}</option>`).join('');
+  }
+
+  function calc(op = state.draft) { return E.calculate(op || baseOperation()); }
+  function currentStored() { return state.operations.find(o => o.id === state.currentId); }
+  function secondaryMoney(value) { return state.settings.showEur ? `<small>${eur(value)}</small>` : ''; }
+
+  function render() {
+    const root = $('view-root');
+    const renderer = {
+      dashboard: renderDashboard,
+      analyzer: renderAnalyzer,
+      opportunities: renderOpportunities,
+      comparables: renderComparables,
+      renovation: renderRenovation,
+      finance: renderFinance,
+      risk: renderRisk,
+      pipeline: renderPipeline,
+      reports: renderReports,
+      settings: renderSettings
+    }[state.view] || renderDashboard;
+    root.innerHTML = renderer();
+    bindDynamicAfterRender();
+  }
+
+  function renderDashboard() {
+    const rows = state.operations.map(op => ({op, r:calc(op)}));
+    const active = rows.filter(x => !['Vendido','Descartado'].includes(x.op.status));
+    const committed = active.reduce((sum,x) => sum + (['Comprado','Reforma','En venta'].includes(x.op.status) ? x.r.breakdown.cashCost : 0),0);
+    const profit = active.reduce((sum,x) => sum + x.r.actual.netProfit,0);
+    const avgRoi = active.length ? active.reduce((sum,x)=>sum+x.r.actual.roi,0)/active.length : 0;
+    const passes = active.filter(x => x.r.actual.decision === 'PASA').length;
+    const highRisk = active.filter(x => x.r.risks.some(r=>r.severity==='high')).length;
+    const ranking = [...active].sort((a,b)=>b.r.score.total-a.r.score.total).slice(0,5);
+    const counts = Object.fromEntries(STATUS.map(s=>[s,0]));
+    state.operations.forEach(o => counts[o.status] = (counts[o.status]||0)+1);
+    const neighborhoods = {};
+    active.forEach(({op,r}) => { const key=op.neighborhood||'Sin barrio'; neighborhoods[key]=(neighborhoods[key]||0)+Math.max(0,r.actual.netProfit); });
+    const maxN = Math.max(1,...Object.values(neighborhoods));
+    const alerts = [];
+    active.forEach(({op,r}) => {
+      if (r.actual.decision !== 'PASA') alerts.push({tone:'high',title:op.name,detail:`Supera el máximo en ${money(Math.abs(r.actual.roomVsMax))}.`});
+      if (r.comparables.count < 5) alerts.push({tone:'medium',title:op.name,detail:`Solo ${r.comparables.count} comparables válidos.`});
+      if (daysSince(op.updatedAt)>14) alerts.push({tone:'medium',title:op.name,detail:`Lleva ${daysSince(op.updatedAt)} días sin actualizarse.`});
+    });
+    return `
+      <div class="kpi-grid">
+        ${kpi('Oportunidades activas',active.length,'En seguimiento')}
+        ${kpi('Capital comprometido',compact(committed),state.settings.showEur?eur(committed):'')}
+        ${kpi('Utilidad proyectada',compact(profit),state.settings.showEur?eur(profit):'',profit>=0?'good':'bad')}
+        ${kpi('ROI medio',pct(avgRoi),'Sobre inversión')}
+        ${kpi('Operaciones que pasan',passes,`${active.length?Math.round(passes/active.length*100):0}% del radar`,passes?'good':'')}
+        ${kpi('Riesgo alto',highRisk,'Necesitan decisión',highRisk?'bad':'good')}
+        ${kpi('En reforma',counts['Reforma']||0,'Control de ejecución')}
+        ${kpi('En venta',counts['En venta']||0,'Capital por recuperar')}
+      </div>
+      <div class="dashboard-grid" style="margin-top:20px">
+        <div class="stack">
+          <article class="card">
+            <div class="card-head"><div><span class="eyebrow">PIPELINE</span><h2>Estado de las operaciones</h2><p>Haz clic en una fase para abrir el pipeline completo.</p></div><button class="secondary-btn" data-go="pipeline">Abrir Kanban</button></div>
+            <div class="stats-row">${STATUS.slice(0,9).map(s=>`<div class="stat-box"><span>${esc(s)}</span><strong>${counts[s]||0}</strong></div>`).join('')}</div>
+          </article>
+          <article class="card">
+            <div class="card-head"><div><span class="eyebrow">RANKING</span><h2>Mejores operaciones por score</h2><p>El score combina margen, ROI, precio, comparables, reforma y tiempo.</p></div></div>
+            ${ranking.length ? `<div class="data-table-wrap"><table class="data-table"><thead><tr><th>Operación</th><th>Score</th><th>Utilidad</th><th>Margen</th><th>ROI</th><th>Decisión</th></tr></thead><tbody>${ranking.map(({op,r})=>`<tr><td><button class="link-button" data-edit="${op.id}">${esc(op.name)}</button></td><td class="${scoreTone(r.score.total)}">${r.score.total}/100</td><td>${money(r.actual.netProfit)}</td><td>${pct(r.actual.netMargin)}</td><td>${pct(r.actual.roi)}</td><td class="${r.actual.decision==='PASA'?'cell-green':'cell-red'}">${r.actual.decision}</td></tr>`).join('')}</tbody></table></div>` : empty('No hay operaciones activas','Crea una operación para comenzar el radar.')}
+          </article>
+          <article class="card">
