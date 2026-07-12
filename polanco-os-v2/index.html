@@ -6,15 +6,15 @@
   <meta name="theme-color" content="#4E9AD1">
   <meta name="description" content="Polanco OS Deal Lab: sistema de análisis y gestión de operaciones de flipping inmobiliario.">
   <title>Polanco OS · Deal Lab</title>
-  <link rel="manifest" href="manifest.webmanifest?v=460">
+  <link rel="manifest" href="manifest.webmanifest?v=470">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon.svg">
-  <link rel="stylesheet" href="styles.css?v=460">
-  <link rel="stylesheet" href="mobile.css?v=460">
-  <link rel="stylesheet" href="deal-prices.css?v=460">
+  <link rel="stylesheet" href="styles.css?v=470">
+  <link rel="stylesheet" href="mobile.css?v=470">
+  <link rel="stylesheet" href="deal-prices.css?v=470">
   <script>
     (function(){
-      const version='polanco-ui-460';
+      const version='polanco-ui-470';
       if(localStorage.getItem('polanco-ui-version')!==version){
         if('caches' in window){caches.keys().then(keys=>Promise.all(keys.map(key=>caches.delete(key))));}
         if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(reg=>reg.update()));}
@@ -44,7 +44,7 @@
       <div class="sidebar-footer">
         <div class="connection"><span id="connection-dot"></span><span id="connection-label">Datos locales protegidos</span></div>
         <button class="ghost-btn full" id="install-app" hidden>Instalar aplicación</button>
-        <small>v4.6 · Arranque sincronizado</small>
+        <small>v4.7 · Financiación adaptada a móvil</small>
       </div>
     </aside>
     <main class="main">
@@ -64,13 +64,13 @@
   <div class="toast" id="toast" role="status"></div>
   <template id="empty-template"><div class="empty-state"><div class="empty-icon">⌂</div><h3>No hay datos todavía</h3><p>Crea una operación para empezar.</p></div></template>
 
-  <script src="excel-model-migration.js?v=460"></script>
-  <script src="engine.js?v=460"></script>
-  <script src="app.js?v=460"></script>
+  <script src="excel-model-migration.js?v=470"></script>
+  <script src="engine.js?v=470"></script>
+  <script src="app.js?v=470"></script>
   <script>
     (function(){
       'use strict';
-      const enhancements=['mobile-dashboard-fixed.js?v=460','tax-breakdown.js?v=460','financing-dashboard.js?v=460'];
+      const enhancements=['mobile-dashboard-fixed.js?v=470','tax-breakdown.js?v=470','financing-dashboard.js?v=470'];
       let started=false;
       function loadScript(src){return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(new Error(src));document.body.appendChild(s);});}
       async function startEnhancements(){
