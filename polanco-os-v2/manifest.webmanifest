@@ -9,20 +9,20 @@
   "scope": "./",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
-  "background_color": "#F3F6FA",
+  "background_color": "#0B397D",
   "theme_color": "#4E9AD1",
   "orientation": "portrait-primary",
   "categories": ["business", "finance", "productivity"],
   "prefer_related_applications": false,
   "icons": [
     {
-      "src": "icon.svg",
+      "src": "icon.svg?v=550",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "icon.svg",
+      "src": "icon.svg?v=550",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "maskable"
