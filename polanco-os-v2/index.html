@@ -6,15 +6,15 @@
   <meta name="theme-color" content="#4E9AD1">
   <meta name="description" content="Polanco OS Deal Lab: sistema de análisis y gestión de operaciones de flipping inmobiliario.">
   <title>Polanco OS · Deal Lab</title>
-  <link rel="manifest" href="manifest.webmanifest?v=390">
+  <link rel="manifest" href="manifest.webmanifest?v=400">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon.svg">
-  <link rel="stylesheet" href="styles.css?v=390">
-  <link rel="stylesheet" href="mobile.css?v=390">
-  <link rel="stylesheet" href="deal-prices.css?v=390">
+  <link rel="stylesheet" href="styles.css?v=400">
+  <link rel="stylesheet" href="mobile.css?v=400">
+  <link rel="stylesheet" href="deal-prices.css?v=400">
   <script>
     (function(){
-      const version='polanco-ui-390';
+      const version='polanco-ui-400';
       if(localStorage.getItem('polanco-ui-version')!==version){
         if('caches' in window){caches.keys().then(keys=>Promise.all(keys.map(key=>caches.delete(key))));}
         if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(reg=>reg.update()));}
@@ -50,7 +50,7 @@
       <div class="sidebar-footer">
         <div class="connection"><span id="connection-dot"></span><span id="connection-label">Datos locales protegidos</span></div>
         <button class="ghost-btn full" id="install-app" hidden>Instalar aplicación</button>
-        <small>v3.9 · Edición móvil y reforma dinámica</small>
+        <small>v4.0 · Edición móvil corregida</small>
       </div>
     </aside>
 
@@ -83,10 +83,28 @@
     </div>
   </template>
 
-  <script src="excel-model-migration.js?v=390"></script>
-  <script src="engine.js?v=390"></script>
-  <script src="app.js?v=390"></script>
-  <script src="mobile-dashboard.js?v=390"></script>
+  <script src="excel-model-migration.js?v=400"></script>
+  <script src="engine.js?v=400"></script>
+  <script src="app.js?v=400"></script>
+  <script>
+    (function(){
+      const NativeMutationObserver = window.MutationObserver;
+      window.__polancoNativeMutationObserver = NativeMutationObserver;
+      window.MutationObserver = class extends NativeMutationObserver {
+        observe(target, options){
+          if(target && target.id === 'view-root') return;
+          return super.observe(target, options);
+        }
+      };
+    })();
+  </script>
+  <script src="mobile-dashboard.js?v=400"></script>
+  <script>
+    if(window.__polancoNativeMutationObserver){
+      window.MutationObserver = window.__polancoNativeMutationObserver;
+      delete window.__polancoNativeMutationObserver;
+    }
+  </script>
   <script>
     (function(){
       'use strict';
