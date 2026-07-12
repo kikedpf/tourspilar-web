@@ -3,11 +3,42 @@
 
   const APP_URL='https://kikedpf.github.io/tourspilar-web/';
   const DISMISS_KEY='polanco_pwa_install_dismissed_until';
+  const BRAND_ICON='icon.svg?v=550';
   let deferredPrompt=null;
 
   const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
   const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
   const dismissed=()=>Number(localStorage.getItem(DISMISS_KEY)||0)>Date.now();
+
+  function refreshBranding(){
+    let manifest=document.querySelector('link[rel="manifest"]');
+    if(manifest)manifest.href='manifest.webmanifest?v=550';
+
+    let icon=document.querySelector('link[rel="icon"]');
+    if(!icon){icon=document.createElement('link');icon.rel='icon';document.head.appendChild(icon);}
+    icon.href=BRAND_ICON;
+    icon.type='image/svg+xml';
+
+    let apple=document.querySelector('link[rel="apple-touch-icon"]');
+    if(!apple){apple=document.createElement('link');apple.rel='apple-touch-icon';document.head.appendChild(apple);}
+    apple.href=BRAND_ICON;
+    apple.setAttribute('sizes','180x180');
+
+    const brand=document.querySelector('.brand-icon');
+    if(brand){
+      brand.textContent='';
+      brand.style.padding='0';
+      brand.style.overflow='hidden';
+      brand.style.background='#fff';
+      const img=document.createElement('img');
+      img.src=BRAND_ICON;
+      img.alt='P & B';
+      img.width=46;
+      img.height=46;
+      img.style.cssText='display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit';
+      brand.appendChild(img);
+    }
+  }
 
   function injectStyles(){
     if(document.getElementById('pwa-install-styles'))return;
@@ -134,6 +165,6 @@
   window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();deferredPrompt=event;showBar(true);});
   window.addEventListener('appinstalled',()=>{deferredPrompt=null;hideBar();closeModal();});
 
-  function init(){injectStyles();buildUI();if(!isStandalone())setTimeout(()=>showBar(false),1300);}
+  function init(){refreshBranding();injectStyles();buildUI();if(!isStandalone())setTimeout(()=>showBar(false),1300);}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
