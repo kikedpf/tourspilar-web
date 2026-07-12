@@ -24,14 +24,14 @@
     }
   }
 
-  function resultCard(label, value, helper, tone = '') {
-    return `<div class="result-stat tax-stat ${tone}"><div><span>${label}</span><small>${helper}</small></div><strong>${value}</strong></div>`;
+  function card(label, value, helper, tone = '') {
+    return `<div class="result-stat ${tone}" data-tax-integrated="true"><div><span>${label}</span><small>${helper}</small></div><strong>${value}</strong></div>`;
   }
 
-  function enhance() {
+  function integrate() {
     const dashboard = root.querySelector('.mobile-command-center');
     const financialGroup = dashboard?.querySelector('.financial-group');
-    if (!dashboard || !financialGroup || dashboard.querySelector('.tax-breakdown-group')) return;
+    if (!dashboard || !financialGroup || financialGroup.dataset.taxLayout === 'integrated') return;
 
     const operation = getOperation();
     if (!operation || !window.PolancoEngine?.calculate) return;
@@ -43,35 +43,40 @@
     });
 
     const taxRate = Number(result.operation?.incomeTaxPct ?? operation.incomeTaxPct ?? 0.35);
-    const block = document.createElement('div');
-    block.className = 'tax-breakdown-group';
-    block.innerHTML = `
-      <div class="tax-breakdown-title"><span>Antes y después de impuestos</span><small>La renta sí está descontada</small></div>
-      ${resultCard('Margen antes de impuestos', pct(result.actual.grossMargin), 'Utilidad antes de renta / venta')}
-      ${resultCard(`Impuesto de renta estimado (${pct(taxRate)})`, money(result.actual.incomeTax), 'Se descuenta de la utilidad antes de impuestos', 'tax')}
-      ${resultCard('Margen después de impuestos', pct(result.actual.netMargin), 'Utilidad neta / venta', 'positive')}
+    financialGroup.dataset.taxLayout = 'integrated';
+    financialGroup.innerHTML = `
+      ${card('Inversión total', money(result.breakdown.cashCost), 'Compra + reforma + costes')}
+      ${card('Utilidad antes de impuestos', money(result.actual.grossProfitBeforeTax), 'Después de costes e ICA')}
+      ${card(`Impuesto de renta (${pct(taxRate)})`, `−${money(result.actual.incomeTax)}`, 'Descontado sobre la utilidad positiva', 'tax')}
+      ${card('Utilidad neta', money(result.actual.netProfit), 'Después de costes, ICA y renta', result.actual.netProfit >= 0 ? 'positive' : 'negative')}
+      ${card('Margen antes de impuestos', pct(result.actual.grossMargin), 'Utilidad antes de renta / venta')}
+      ${card('Margen después de impuestos', pct(result.actual.netMargin), 'Utilidad neta / venta', 'positive')}
+      ${card('ROI del proyecto', pct(result.actual.roi), 'Utilidad neta / inversión')}
     `;
 
-    const oldMargin = [...financialGroup.querySelectorAll('.result-stat')].find(card =>
-      card.querySelector('span')?.textContent?.trim() === 'Margen neto'
-    );
-    if (oldMargin) oldMargin.remove();
-
-    const utilityCard = [...financialGroup.querySelectorAll('.result-stat')].find(card =>
-      card.querySelector('span')?.textContent?.trim() === 'Utilidad neta'
-    );
-    const utilityHelper = utilityCard?.querySelector('small');
-    if (utilityHelper) utilityHelper.textContent = 'Después de costes, ICA e impuesto de renta; sin financiación';
-
-    financialGroup.insertBefore(block, utilityCard || financialGroup.firstChild);
+    if (!document.getElementById('tax-integrated-styles')) {
+      const style = document.createElement('style');
+      style.id = 'tax-integrated-styles';
+      style.textContent = `
+        @media(max-width:760px){
+          .financial-group[data-tax-layout="integrated"]{display:grid;gap:6px}
+          .financial-group[data-tax-layout="integrated"] .result-stat.tax{background:#f3f7fa;border-color:#ccd9e4}
+          .financial-group[data-tax-layout="integrated"] .result-stat.tax strong{color:#667b91}
+          .financial-group[data-tax-layout="integrated"] .result-stat.positive{background:#edf6fc;border-color:#bdd9ea}
+          .financial-group[data-tax-layout="integrated"] .result-stat.positive strong{color:#2d6f9f}
+        }
+      `;
+      document.head.appendChild(style);
+    }
   }
 
   const observer = new MutationObserver(() => {
-    if (!root.querySelector('.tax-breakdown-group')) requestAnimationFrame(enhance);
+    const group = root.querySelector('.financial-group');
+    if (group && group.dataset.taxLayout !== 'integrated') requestAnimationFrame(integrate);
   });
   observer.observe(root, { childList: true, subtree: true });
 
-  window.addEventListener('storage', () => requestAnimationFrame(enhance));
-  document.addEventListener('DOMContentLoaded', enhance);
-  setTimeout(enhance, 150);
+  window.addEventListener('storage', () => requestAnimationFrame(integrate));
+  document.addEventListener('DOMContentLoaded', integrate);
+  setTimeout(integrate, 150);
 })();
