@@ -6,15 +6,15 @@
   <meta name="theme-color" content="#4E9AD1">
   <meta name="description" content="Polanco OS Deal Lab: sistema de análisis y gestión de operaciones de flipping inmobiliario.">
   <title>Polanco OS · Deal Lab</title>
-  <link rel="manifest" href="manifest.webmanifest?v=420">
+  <link rel="manifest" href="manifest.webmanifest?v=440">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon.svg">
-  <link rel="stylesheet" href="styles.css?v=420">
-  <link rel="stylesheet" href="mobile.css?v=420">
-  <link rel="stylesheet" href="deal-prices.css?v=420">
+  <link rel="stylesheet" href="styles.css?v=440">
+  <link rel="stylesheet" href="mobile.css?v=440">
+  <link rel="stylesheet" href="deal-prices.css?v=440">
   <script>
     (function(){
-      const version='polanco-ui-420';
+      const version='polanco-ui-440';
       if(localStorage.getItem('polanco-ui-version')!==version){
         if('caches' in window){caches.keys().then(keys=>Promise.all(keys.map(key=>caches.delete(key))));}
         if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(reg=>reg.update()));}
@@ -50,7 +50,7 @@
       <div class="sidebar-footer">
         <div class="connection"><span id="connection-dot"></span><span id="connection-label">Datos locales protegidos</span></div>
         <button class="ghost-btn full" id="install-app" hidden>Instalar aplicación</button>
-        <small>v4.2 · Márgenes antes y después de impuestos</small>
+        <small>v4.4 · Resultados fiscales jerarquizados</small>
       </div>
     </aside>
 
@@ -83,11 +83,11 @@
     </div>
   </template>
 
-  <script src="excel-model-migration.js?v=420"></script>
-  <script src="engine.js?v=420"></script>
-  <script src="app.js?v=420"></script>
-  <script src="mobile-dashboard-fixed.js?v=420"></script>
-  <script src="tax-breakdown.js?v=420"></script>
+  <script src="excel-model-migration.js?v=440"></script>
+  <script src="engine.js?v=440"></script>
+  <script src="app.js?v=440"></script>
+  <script src="mobile-dashboard-fixed.js?v=440"></script>
+  <script src="tax-breakdown.js?v=440"></script>
   <script>
     (function(){
       'use strict';
