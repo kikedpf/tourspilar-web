@@ -28,6 +28,12 @@
     replaceExact('.finance-mini span','Margen después','Margen neto');
     replaceExact('.finance-mini span','ROI','ROI neto');
 
+    replaceExact('.available-margin small','Margen disponible frente al máximo','Diferencia respecto al precio máximo de compra');
+    replaceExact('.result-stat span','Margen disponible','Diferencia respecto al precio máximo de compra');
+    replaceExact('.kpi span','Margen frente al máximo','Diferencia respecto al precio máximo de compra');
+    replaceExact('.result-stat small','Puedes pagar hasta este margen adicional','La oferta está por debajo del máximo de compra');
+    replaceExact('.result-stat small','La oferta supera el máximo permitido','La oferta supera el máximo de compra');
+
     root.querySelectorAll('label').forEach(label=>{
       replaceDirectText(label,'Margen bruto objetivo','Objetivo bruto antes de renta');
     });
@@ -43,6 +49,8 @@
       @media(max-width:760px){
         .mini-stat span{line-height:1.12;min-height:16px;display:flex;align-items:center;justify-content:center}
         .margin-summary .finance-mini span{min-height:22px;display:flex;align-items:center;justify-content:center;line-height:1.08;white-space:normal}
+        .available-margin small{line-height:1.18;max-width:220px}
+        .result-stat span{line-height:1.12}
       }
     `;
     document.head.appendChild(style);
