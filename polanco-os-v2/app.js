@@ -3,7 +3,7 @@
   const root=document.getElementById('view-root');
   try{
     const source=(await Promise.all(parts.map(async file=>{
-      const response=await fetch(`${file}?v=460`,{cache:'no-store'});
+      const response=await fetch(`${file}?v=470`,{cache:'no-store'});
       if(!response.ok)throw new Error(file);
       return response.text();
     }))).join('');
