@@ -1,45 +1,40 @@
-(function () {
+(function(){
   'use strict';
 
-  const APP_URL = 'https://kikedpf.github.io/tourspilar-web/';
-  const DISMISS_KEY = 'polanco_pwa_install_dismissed_until';
-  let deferredPrompt = null;
+  const APP_URL='https://kikedpf.github.io/tourspilar-web/';
+  const DISMISS_KEY='polanco_pwa_install_dismissed_until';
+  let deferredPrompt=null;
 
-  const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  const isStandalone = () => window.matchMedia('(display-mode: standalone)').matches ||
-    window.navigator.standalone === true;
+  const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
+  const dismissed=()=>Number(localStorage.getItem(DISMISS_KEY)||0)>Date.now();
 
-  function dismissed() {
-    return Number(localStorage.getItem(DISMISS_KEY) || 0) > Date.now();
-  }
-
-  function injectStyles() {
-    if (document.getElementById('pwa-install-styles')) return;
-    const style = document.createElement('style');
-    style.id = 'pwa-install-styles';
-    style.textContent = `
+  function injectStyles(){
+    if(document.getElementById('pwa-install-styles'))return;
+    const style=document.createElement('style');
+    style.id='pwa-install-styles';
+    style.textContent=`
       .pwa-install-bar{position:fixed;left:10px;right:10px;bottom:calc(68px + env(safe-area-inset-bottom));z-index:120;display:flex;align-items:center;gap:10px;padding:11px 12px;border:1px solid rgba(78,154,209,.34);border-radius:17px;background:rgba(247,251,255,.97);box-shadow:0 16px 38px rgba(27,74,111,.2);backdrop-filter:blur(18px);color:#173a63}
       .pwa-install-bar[hidden]{display:none!important}.pwa-install-copy{display:grid;gap:2px;min-width:0;flex:1}.pwa-install-copy strong{font-size:12px}.pwa-install-copy span{font-size:9px;line-height:1.25;color:#6b7b94}.pwa-install-actions{display:flex;align-items:center;gap:6px;flex:none}.pwa-install-actions button{min-height:35px;border-radius:11px;padding:8px 10px;border:1px solid #b9d4e8;background:#fff;color:#2d6f9f;font-size:10px;font-weight:900}.pwa-install-actions .pwa-primary{border-color:#4e9ad1;background:linear-gradient(135deg,#58a8dc,#3f86c6);color:#fff}.pwa-install-close{width:28px!important;padding:0!important;border:0!important;background:transparent!important;color:#8090a4!important;font-size:17px!important}
-      .pwa-modal{position:fixed;inset:0;z-index:140;display:grid;place-items:end center;padding:18px 12px calc(18px + env(safe-area-inset-bottom));background:rgba(10,30,50,.42);backdrop-filter:blur(5px)}.pwa-modal[hidden]{display:none!important}.pwa-modal-card{width:min(100%,430px);display:grid;gap:14px;padding:18px;border-radius:22px;background:#fff;box-shadow:0 24px 60px rgba(0,0,0,.28);color:#17233a}.pwa-modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.pwa-modal-head div{display:grid;gap:4px}.pwa-modal-head strong{font-size:18px;color:#2d6f9f}.pwa-modal-head span{font-size:11px;line-height:1.35;color:#6b7b94}.pwa-modal-close{border:0;background:#edf5fb;color:#2d6f9f;width:34px;height:34px;border-radius:11px;font-size:18px}.pwa-warning{padding:10px 12px;border-radius:13px;background:#fff6df;border:1px solid #f0d18a;color:#7a5a13;font-size:10px;font-weight:800;line-height:1.35}.pwa-steps{display:grid;gap:9px}.pwa-step{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;align-items:center;padding:10px;border-radius:14px;background:#f4f8fb;border:1px solid #dce8f1}.pwa-step b{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#e1f1fb;color:#2d6f9f;font-size:13px}.pwa-step span{font-size:11px;line-height:1.4;color:#4e6075}.pwa-step strong{color:#234f72}.pwa-modal-copy{min-height:42px;border:0;border-radius:13px;background:linear-gradient(135deg,#58a8dc,#3f86c6);color:#fff;font-size:12px;font-weight:900}
+      .pwa-modal{position:fixed;inset:0;z-index:140;display:grid;place-items:end center;padding:18px 12px calc(18px + env(safe-area-inset-bottom));background:rgba(10,30,50,.42);backdrop-filter:blur(5px)}.pwa-modal[hidden]{display:none!important}.pwa-modal-card{width:min(100%,430px);display:grid;gap:14px;padding:18px;border-radius:22px;background:#fff;box-shadow:0 24px 60px rgba(0,0,0,.28);color:#17233a}.pwa-modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.pwa-modal-head div{display:grid;gap:4px}.pwa-modal-head strong{font-size:18px;color:#2d6f9f}.pwa-modal-head span{font-size:11px;line-height:1.35;color:#6b7b94}.pwa-modal-close{border:0;background:#edf5fb;color:#2d6f9f;width:34px;height:34px;border-radius:11px;font-size:18px}.pwa-warning{padding:10px 12px;border-radius:13px;background:#eef7fd;border:1px solid #cde2f0;color:#315f80;font-size:10px;font-weight:800;line-height:1.35}.pwa-steps{display:grid;gap:9px}.pwa-step{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;align-items:center;padding:10px;border-radius:14px;background:#f4f8fb;border:1px solid #dce8f1}.pwa-step b{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#e1f1fb;color:#2d6f9f;font-size:13px}.pwa-step span{font-size:11px;line-height:1.4;color:#4e6075}.pwa-step strong{color:#234f72}.pwa-modal-copy{min-height:42px;border:0;border-radius:13px;background:linear-gradient(135deg,#58a8dc,#3f86c6);color:#fff;font-size:12px;font-weight:900}
       @media(min-width:701px){.pwa-install-bar{left:auto;right:20px;bottom:20px;max-width:470px}.pwa-modal{place-items:center}}
       @media(max-width:390px){.pwa-install-bar{align-items:flex-start}.pwa-install-actions{display:grid;grid-template-columns:1fr 1fr}.pwa-install-close{position:absolute;right:5px;top:3px}.pwa-install-copy{padding-right:18px}}
     `;
     document.head.appendChild(style);
   }
 
-  function buildUI() {
-    if (document.getElementById('pwa-install-bar')) return;
+  function buildUI(){
+    if(document.getElementById('pwa-install-bar'))return;
 
-    const bar = document.createElement('section');
-    bar.id = 'pwa-install-bar';
-    bar.className = 'pwa-install-bar';
-    bar.hidden = true;
-    bar.setAttribute('aria-label', 'Instalar o copiar Polanco OS');
-    bar.innerHTML = `
+    const bar=document.createElement('section');
+    bar.id='pwa-install-bar';
+    bar.className='pwa-install-bar';
+    bar.hidden=true;
+    bar.setAttribute('aria-label','Instalar Polanco OS');
+    bar.innerHTML=`
       <div class="pwa-install-copy">
         <strong>Instala Polanco OS</strong>
-        <span>Copia el enlace, ábrelo en Safari y añádelo a tu pantalla de inicio.</span>
+        <span>Copia el enlace, pégalo en Safari y añádelo a tu pantalla de inicio.</span>
       </div>
       <div class="pwa-install-actions">
         <button type="button" class="pwa-primary" data-pwa-install>Cómo instalar</button>
@@ -48,16 +43,16 @@
       <button type="button" class="pwa-install-close" data-pwa-dismiss aria-label="Cerrar">×</button>
     `;
 
-    const modal = document.createElement('div');
-    modal.id = 'pwa-install-modal';
-    modal.className = 'pwa-modal';
-    modal.hidden = true;
-    modal.innerHTML = `
+    const modal=document.createElement('div');
+    modal.id='pwa-install-modal';
+    modal.className='pwa-modal';
+    modal.hidden=true;
+    modal.innerHTML=`
       <div class="pwa-modal-card" role="dialog" aria-modal="true" aria-labelledby="pwa-modal-title">
         <div class="pwa-modal-head">
           <div>
             <strong id="pwa-modal-title">Instalar Polanco OS</strong>
-            <span id="pwa-modal-subtitle">Copia el enlace y termina la instalación desde Safari.</span>
+            <span id="pwa-modal-subtitle">Copia el enlace y termina la instalación en Safari.</span>
           </div>
           <button type="button" class="pwa-modal-close" data-pwa-modal-close aria-label="Cerrar">×</button>
         </div>
@@ -69,120 +64,76 @@
 
     document.body.appendChild(bar);
     document.body.appendChild(modal);
-    bar.addEventListener('click', handleClick);
-    modal.addEventListener('click', handleClick);
-    modal.addEventListener('click', event => { if (event.target === modal) closeModal(); });
+    bar.addEventListener('click',handleClick);
+    modal.addEventListener('click',handleClick);
+    modal.addEventListener('click',event=>{if(event.target===modal)closeModal();});
   }
 
-  function setSteps() {
-    const steps = document.getElementById('pwa-install-steps');
-    const warning = document.getElementById('pwa-install-warning');
-    const subtitle = document.getElementById('pwa-modal-subtitle');
-    if (!steps || !warning || !subtitle) return;
+  function setSteps(){
+    const steps=document.getElementById('pwa-install-steps');
+    const warning=document.getElementById('pwa-install-warning');
+    const subtitle=document.getElementById('pwa-modal-subtitle');
+    if(!steps||!warning||!subtitle)return;
 
-    if (isIOS()) {
-      subtitle.textContent = 'Copia el enlace y sigue estos pasos en tu iPhone.';
-      warning.innerHTML = 'No uses el botón Compartir de esta ventana. Primero pulsa <strong>Copiar enlace</strong> y abre Safari.';
-      steps.innerHTML = `
-        <div class="pwa-step"><b>1</b><span>Pulsa <strong>Copiar enlace</strong> en el botón azul de abajo.</span></div>
-        <div class="pwa-step"><b>2</b><span>Abre la aplicación <strong>Safari</strong>, pega el enlace en la barra de direcciones y entra.</span></div>
-        <div class="pwa-step"><b>3</b><span>En Safari, pulsa el botón <strong>Compartir</strong> de la barra inferior, normalmente en el centro: es el <strong>cuadrado con una flecha hacia arriba</strong>.</span></div>
-        <div class="pwa-step"><b>4</b><span>Desliza el menú hacia abajo y pulsa <strong>Añadir a pantalla de inicio</strong>.</span></div>
-        <div class="pwa-step"><b>5</b><span>Pulsa <strong>Añadir</strong>. Polanco OS aparecerá como cualquier otra aplicación.</span></div>
-      `;
-    } else {
-      subtitle.textContent = 'Sigue estos pasos en Android.';
-      warning.textContent = 'Abre el enlace en Chrome para que aparezca la opción de instalación.';
-      steps.innerHTML = `
+    if(isIOS()){
+      subtitle.textContent='Sigue estos pasos exactamente en tu iPhone.';
+      warning.innerHTML='Primero pulsa <strong>Copiar enlace</strong>. Después abre Safari y pega allí el enlace.';
+      steps.innerHTML=`
         <div class="pwa-step"><b>1</b><span>Pulsa <strong>Copiar enlace</strong>.</span></div>
-        <div class="pwa-step"><b>2</b><span>Abre el enlace en <strong>Chrome</strong>.</span></div>
-        <div class="pwa-step"><b>3</b><span>Pulsa <strong>Instalar aplicación</strong> o abre el menú de los tres puntos.</span></div>
-        <div class="pwa-step"><b>4</b><span>Elige <strong>Instalar</strong> o <strong>Añadir a pantalla de inicio</strong>.</span></div>
+        <div class="pwa-step"><b>2</b><span>Abre <strong>Safari</strong>, pega el enlace en la barra de direcciones y entra.</span></div>
+        <div class="pwa-step"><b>3</b><span>En Safari, pulsa el botón <strong>Compartir</strong> de la parte inferior: es el <strong>cuadrado con una flecha hacia arriba</strong>.</span></div>
+        <div class="pwa-step"><b>4</b><span>Pulsa <strong>Añadir a pantalla de inicio</strong>.</span></div>
+        <div class="pwa-step"><b>5</b><span>Pulsa <strong>Añadir</strong>.</span></div>
+      `;
+    }else{
+      subtitle.textContent='Sigue estos pasos en Android.';
+      warning.innerHTML='Primero pulsa <strong>Copiar enlace</strong>. Después abre Chrome y pega allí el enlace.';
+      steps.innerHTML=`
+        <div class="pwa-step"><b>1</b><span>Pulsa <strong>Copiar enlace</strong>.</span></div>
+        <div class="pwa-step"><b>2</b><span>Abre <strong>Chrome</strong>, pega el enlace y entra.</span></div>
+        <div class="pwa-step"><b>3</b><span>Abre el menú de los tres puntos y pulsa <strong>Instalar aplicación</strong>.</span></div>
+        <div class="pwa-step"><b>4</b><span>Confirma pulsando <strong>Instalar</strong>.</span></div>
       `;
     }
   }
 
-  function openModal() {
-    setSteps();
-    const modal = document.getElementById('pwa-install-modal');
-    if (modal) modal.hidden = false;
-  }
+  function openModal(){setSteps();const modal=document.getElementById('pwa-install-modal');if(modal)modal.hidden=false;}
+  function closeModal(){const modal=document.getElementById('pwa-install-modal');if(modal)modal.hidden=true;}
+  function showBar(force){const bar=document.getElementById('pwa-install-bar');if(!bar||isStandalone())return;if(!force&&dismissed())return;bar.hidden=false;}
+  function hideBar(){const bar=document.getElementById('pwa-install-bar');if(bar)bar.hidden=true;}
 
-  function closeModal() {
-    const modal = document.getElementById('pwa-install-modal');
-    if (modal) modal.hidden = true;
-  }
-
-  function showBar(force) {
-    const bar = document.getElementById('pwa-install-bar');
-    if (!bar || isStandalone()) return;
-    if (!force && dismissed()) return;
-    bar.hidden = false;
-  }
-
-  function hideBar() {
-    const bar = document.getElementById('pwa-install-bar');
-    if (bar) bar.hidden = true;
-  }
-
-  async function installApp() {
-    if (isStandalone()) {
-      hideBar();
-      return;
-    }
-    if (deferredPrompt && !isIOS()) {
+  async function installApp(){
+    if(isStandalone()){hideBar();return;}
+    if(deferredPrompt&&!isIOS()){
       deferredPrompt.prompt();
-      const choice = await deferredPrompt.userChoice;
-      deferredPrompt = null;
-      if (choice?.outcome === 'accepted') hideBar();
+      const choice=await deferredPrompt.userChoice;
+      deferredPrompt=null;
+      if(choice?.outcome==='accepted')hideBar();
       return;
     }
     openModal();
   }
 
-  async function copyLink(button) {
-    try {
+  async function copyLink(button){
+    try{
       await navigator.clipboard.writeText(APP_URL);
-      const previous = button?.textContent || '';
-      if (button) {
-        button.textContent = 'Enlace copiado · abre Safari';
-        setTimeout(() => { button.textContent = previous; }, 2400);
-      }
-    } catch (_) {
-      window.prompt('Copia este enlace y pégalo en Safari:', APP_URL);
-    }
+      const previous=button?.textContent||'';
+      if(button){button.textContent='Enlace copiado · abre Safari';setTimeout(()=>{button.textContent=previous;},2400);}
+    }catch(_){window.prompt('Copia este enlace y pégalo en Safari:',APP_URL);}
   }
 
-  function handleClick(event) {
-    const install = event.target.closest('[data-pwa-install]');
-    const copy = event.target.closest('[data-pwa-copy]');
-    if (install) installApp();
-    if (copy) copyLink(copy);
-    if (event.target.closest('[data-pwa-modal-close]')) closeModal();
-    if (event.target.closest('[data-pwa-dismiss]')) {
-      localStorage.setItem(DISMISS_KEY, String(Date.now() + 7 * 24 * 60 * 60 * 1000));
-      hideBar();
-    }
+  function handleClick(event){
+    const install=event.target.closest('[data-pwa-install]');
+    const copy=event.target.closest('[data-pwa-copy]');
+    if(install)installApp();
+    if(copy)copyLink(copy);
+    if(event.target.closest('[data-pwa-modal-close]'))closeModal();
+    if(event.target.closest('[data-pwa-dismiss]')){localStorage.setItem(DISMISS_KEY,String(Date.now()+7*24*60*60*1000));hideBar();}
   }
 
-  window.addEventListener('beforeinstallprompt', event => {
-    event.preventDefault();
-    deferredPrompt = event;
-    showBar(true);
-  });
+  window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();deferredPrompt=event;showBar(true);});
+  window.addEventListener('appinstalled',()=>{deferredPrompt=null;hideBar();closeModal();});
 
-  window.addEventListener('appinstalled', () => {
-    deferredPrompt = null;
-    hideBar();
-    closeModal();
-  });
-
-  function init() {
-    injectStyles();
-    buildUI();
-    if (!isStandalone()) setTimeout(() => showBar(false), 1300);
-  }
-
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
-  else init();
+  function init(){injectStyles();buildUI();if(!isStandalone())setTimeout(()=>showBar(false),1300);}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
