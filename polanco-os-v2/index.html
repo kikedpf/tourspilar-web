@@ -2,19 +2,19 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#4E9AD1">
   <meta name="description" content="Polanco OS Deal Lab: sistema de análisis y gestión de operaciones de flipping inmobiliario.">
   <title>Polanco OS · Deal Lab</title>
-  <link rel="manifest" href="manifest.webmanifest?v=470">
+  <link rel="manifest" href="manifest.webmanifest?v=480">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon.svg">
-  <link rel="stylesheet" href="styles.css?v=470">
-  <link rel="stylesheet" href="mobile.css?v=470">
-  <link rel="stylesheet" href="deal-prices.css?v=470">
+  <link rel="stylesheet" href="styles.css?v=480">
+  <link rel="stylesheet" href="mobile.css?v=480">
+  <link rel="stylesheet" href="deal-prices.css?v=480">
   <script>
     (function(){
-      const version='polanco-ui-470';
+      const version='polanco-ui-480';
       if(localStorage.getItem('polanco-ui-version')!==version){
         if('caches' in window){caches.keys().then(keys=>Promise.all(keys.map(key=>caches.delete(key))));}
         if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(reg=>reg.update()));}
@@ -28,6 +28,21 @@
     .boot-spinner{width:34px;height:34px;border:3px solid #d6e7f3;border-top-color:#4e9ad1;border-radius:50%;animation:bootspin .8s linear infinite}
     .boot-loading strong{color:#2d6f9f;font-size:15px}.boot-loading small{font-size:12px}
     @keyframes bootspin{to{transform:rotate(360deg)}}
+    @media(max-width:920px){
+      html,body,.app-shell,.main,#view-root,.finance-command-center{width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:hidden!important}
+      #view-root{padding-left:7px!important;padding-right:7px!important}
+      .finance-command-center,.finance-command-center *{box-sizing:border-box;min-width:0}
+      .finance-command-center{display:grid!important;grid-template-columns:minmax(0,1fr)!important}
+      .finance-command-center>.fin-toolbar,.finance-command-center>.fin-hero,.finance-command-center>.fin-columns,.finance-command-center>.fin-note{width:100%!important;max-width:100%!important}
+      .fin-toolbar{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:6px!important}
+      .fin-toolbar small{max-width:100%!important;white-space:normal!important;overflow-wrap:anywhere!important}
+      .fin-hero{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:12px!important}
+      .fin-hero-side{text-align:left!important}
+      .fin-columns{display:grid!important;grid-template-columns:minmax(0,1fr)!important;width:100%!important;max-width:100%!important}
+      .fin-panel,.fin-primary,.fin-source,.fin-flow,.fin-kpis{display:grid!important;grid-template-columns:minmax(0,1fr)!important;width:100%!important;max-width:100%!important}
+      .fin-flow i{transform:rotate(90deg)!important;justify-self:center!important}
+      .fin-metric strong,.fin-flow strong,.fin-kpis strong{white-space:normal!important;overflow-wrap:anywhere!important;word-break:break-word!important}
+    }
   </style>
 </head>
 <body>
@@ -44,7 +59,7 @@
       <div class="sidebar-footer">
         <div class="connection"><span id="connection-dot"></span><span id="connection-label">Datos locales protegidos</span></div>
         <button class="ghost-btn full" id="install-app" hidden>Instalar aplicación</button>
-        <small>v4.7 · Financiación adaptada a móvil</small>
+        <small>v4.8 · Ancho móvil corregido</small>
       </div>
     </aside>
     <main class="main">
@@ -64,13 +79,13 @@
   <div class="toast" id="toast" role="status"></div>
   <template id="empty-template"><div class="empty-state"><div class="empty-icon">⌂</div><h3>No hay datos todavía</h3><p>Crea una operación para empezar.</p></div></template>
 
-  <script src="excel-model-migration.js?v=470"></script>
-  <script src="engine.js?v=470"></script>
-  <script src="app.js?v=470"></script>
+  <script src="excel-model-migration.js?v=480"></script>
+  <script src="engine.js?v=480"></script>
+  <script src="app.js?v=480"></script>
   <script>
     (function(){
       'use strict';
-      const enhancements=['mobile-dashboard-fixed.js?v=470','tax-breakdown.js?v=470','financing-dashboard.js?v=470'];
+      const enhancements=['mobile-dashboard-fixed.js?v=480','tax-breakdown.js?v=480','financing-dashboard.js?v=480'];
       let started=false;
       function loadScript(src){return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(new Error(src));document.body.appendChild(s);});}
       async function startEnhancements(){
@@ -90,7 +105,7 @@
       const dotted=value=>value?value.replace(/\B(?=(\d{3})+(?!\d))/g,'.'):'';
       function countDigits(text,end){return (String(text).slice(0,end).match(/\d/g)||[]).length;}
       function caretForDigits(text,amount){if(amount<=0)return 0;let seen=0;for(let i=0;i<text.length;i++){if(/\d/.test(text[i])&&++seen===amount)return i+1;}return text.length;}
-      function formatNow(input){if(!input||!input.matches(selector))return;const old=input.value;const caret=input.selectionStart==null?old.length:input.selectionStart;const before=countDigits(old,caret);const next=dotted(digits(old));if(old!==next)input.value=next;const nextCaret=caretForDigits(next,before);try{input.setSelectionRange(nextCaret,nextCaret);}catch(_){}}
+      function formatNow(input){if(!input||!input.matches(selector))return;const old=input.value;const caret=input.selectionStart==null?old.length:input.selectionStart;const before=countDigits(old,caret);const next=dotted(digits(old));if(old!==next)input.value=next;const nextCaret=caretForDigits(next,before);try{input.setSelectionRange(nextCaret,nextCaret);}catch(_){} }
       function delayed(input){requestAnimationFrame(()=>formatNow(input));setTimeout(()=>formatNow(input),0);}
       document.addEventListener('input',event=>formatNow(event.target),true);
       document.addEventListener('keyup',event=>formatNow(event.target),true);
