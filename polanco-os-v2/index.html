@@ -6,15 +6,15 @@
   <meta name="theme-color" content="#4E9AD1">
   <meta name="description" content="Polanco OS Deal Lab: sistema de análisis y gestión de operaciones de flipping inmobiliario.">
   <title>Polanco OS · Deal Lab</title>
-  <link rel="manifest" href="manifest.webmanifest?v=480">
+  <link rel="manifest" href="manifest.webmanifest?v=490">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon.svg">
-  <link rel="stylesheet" href="styles.css?v=480">
-  <link rel="stylesheet" href="mobile.css?v=480">
-  <link rel="stylesheet" href="deal-prices.css?v=480">
+  <link rel="stylesheet" href="styles.css?v=490">
+  <link rel="stylesheet" href="mobile.css?v=490">
+  <link rel="stylesheet" href="deal-prices.css?v=490">
   <script>
     (function(){
-      const version='polanco-ui-480';
+      const version='polanco-ui-490';
       if(localStorage.getItem('polanco-ui-version')!==version){
         if('caches' in window){caches.keys().then(keys=>Promise.all(keys.map(key=>caches.delete(key))));}
         if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(reg=>reg.update()));}
@@ -34,13 +34,13 @@
       .finance-command-center,.finance-command-center *{box-sizing:border-box;min-width:0}
       .finance-command-center{display:grid!important;grid-template-columns:minmax(0,1fr)!important}
       .finance-command-center>.fin-toolbar,.finance-command-center>.fin-hero,.finance-command-center>.fin-columns,.finance-command-center>.fin-note{width:100%!important;max-width:100%!important}
-      .fin-toolbar{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:6px!important}
-      .fin-toolbar small{max-width:100%!important;white-space:normal!important;overflow-wrap:anywhere!important}
-      .fin-hero{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:12px!important}
-      .fin-hero-side{text-align:left!important}
-      .fin-columns{display:grid!important;grid-template-columns:minmax(0,1fr)!important;width:100%!important;max-width:100%!important}
-      .fin-panel,.fin-primary,.fin-source,.fin-flow,.fin-kpis{display:grid!important;grid-template-columns:minmax(0,1fr)!important;width:100%!important;max-width:100%!important}
-      .fin-flow i{transform:rotate(90deg)!important;justify-self:center!important}
+      .fin-toolbar{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important}
+      .fin-toolbar small{max-width:46%!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+      .fin-hero{display:grid!important;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr)!important;gap:8px!important}
+      .fin-hero-side{text-align:right!important}
+      .fin-columns{display:grid!important;grid-template-columns:minmax(0,40fr) minmax(0,60fr)!important;gap:8px!important;width:100%!important;max-width:100%!important;overflow:hidden!important}
+      .fin-panel,.fin-primary,.fin-source,.fin-flow,.fin-kpis{min-width:0!important;max-width:100%!important}
+      .fin-panel{overflow:hidden!important}
       .fin-metric strong,.fin-flow strong,.fin-kpis strong{white-space:normal!important;overflow-wrap:anywhere!important;word-break:break-word!important}
     }
   </style>
@@ -59,7 +59,7 @@
       <div class="sidebar-footer">
         <div class="connection"><span id="connection-dot"></span><span id="connection-label">Datos locales protegidos</span></div>
         <button class="ghost-btn full" id="install-app" hidden>Instalar aplicación</button>
-        <small>v4.8 · Ancho móvil corregido</small>
+        <small>v4.9 · Financiación 40/60 corregida</small>
       </div>
     </aside>
     <main class="main">
@@ -79,13 +79,13 @@
   <div class="toast" id="toast" role="status"></div>
   <template id="empty-template"><div class="empty-state"><div class="empty-icon">⌂</div><h3>No hay datos todavía</h3><p>Crea una operación para empezar.</p></div></template>
 
-  <script src="excel-model-migration.js?v=480"></script>
-  <script src="engine.js?v=480"></script>
-  <script src="app.js?v=480"></script>
+  <script src="excel-model-migration.js?v=490"></script>
+  <script src="engine.js?v=490"></script>
+  <script src="app.js?v=490"></script>
   <script>
     (function(){
       'use strict';
-      const enhancements=['mobile-dashboard-fixed.js?v=480','tax-breakdown.js?v=480','financing-dashboard.js?v=480'];
+      const enhancements=['mobile-dashboard-fixed.js?v=490','tax-breakdown.js?v=490','financing-dashboard.js?v=490'];
       let started=false;
       function loadScript(src){return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(new Error(src));document.body.appendChild(s);});}
       async function startEnhancements(){
