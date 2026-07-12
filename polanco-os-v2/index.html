@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#173A63">
+  <meta name="theme-color" content="#4E9AD1">
   <meta name="description" content="Polanco OS Deal Lab: sistema de análisis y gestión de operaciones de flipping inmobiliario.">
   <title>Polanco OS · Deal Lab</title>
-  <link rel="manifest" href="manifest.webmanifest?v=370">
+  <link rel="manifest" href="manifest.webmanifest?v=380">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon.svg">
-  <link rel="stylesheet" href="styles.css?v=370">
-  <link rel="stylesheet" href="mobile.css?v=370">
-  <link rel="stylesheet" href="deal-prices.css?v=370">
+  <link rel="stylesheet" href="styles.css?v=380">
+  <link rel="stylesheet" href="mobile.css?v=380">
+  <link rel="stylesheet" href="deal-prices.css?v=380">
   <script>
     (function(){
-      const version='polanco-ui-370';
+      const version='polanco-ui-380';
       if(localStorage.getItem('polanco-ui-version')!==version){
         if('caches' in window){caches.keys().then(keys=>Promise.all(keys.map(key=>caches.delete(key))));}
         if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(reg=>reg.update()));}
@@ -50,7 +50,7 @@
       <div class="sidebar-footer">
         <div class="connection"><span id="connection-dot"></span><span id="connection-label">Datos locales protegidos</span></div>
         <button class="ghost-btn full" id="install-app" hidden>Instalar aplicación</button>
-        <small>v3.7 · Motor verificado contra Excel</small>
+        <small>v3.8 · Diseño ejecutivo azul</small>
       </div>
     </aside>
 
@@ -83,10 +83,10 @@
     </div>
   </template>
 
-  <script src="excel-model-migration.js?v=370"></script>
-  <script src="engine.js?v=370"></script>
-  <script src="app.js?v=370"></script>
-  <script src="mobile-dashboard.js?v=370"></script>
+  <script src="excel-model-migration.js?v=380"></script>
+  <script src="engine.js?v=380"></script>
+  <script src="app.js?v=380"></script>
+  <script src="mobile-dashboard.js?v=380"></script>
   <script>
     (function(){
       'use strict';
