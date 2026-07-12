@@ -6,15 +6,15 @@
   <meta name="theme-color" content="#4E9AD1">
   <meta name="description" content="Polanco OS Deal Lab: sistema de análisis y gestión de operaciones de flipping inmobiliario.">
   <title>Polanco OS · Deal Lab</title>
-  <link rel="manifest" href="manifest.webmanifest?v=440">
+  <link rel="manifest" href="manifest.webmanifest?v=450">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon.svg">
-  <link rel="stylesheet" href="styles.css?v=440">
-  <link rel="stylesheet" href="mobile.css?v=440">
-  <link rel="stylesheet" href="deal-prices.css?v=440">
+  <link rel="stylesheet" href="styles.css?v=450">
+  <link rel="stylesheet" href="mobile.css?v=450">
+  <link rel="stylesheet" href="deal-prices.css?v=450">
   <script>
     (function(){
-      const version='polanco-ui-440';
+      const version='polanco-ui-450';
       if(localStorage.getItem('polanco-ui-version')!==version){
         if('caches' in window){caches.keys().then(keys=>Promise.all(keys.map(key=>caches.delete(key))));}
         if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(reg=>reg.update()));}
@@ -36,21 +36,13 @@
 
       <nav class="nav" aria-label="Navegación principal">
         <button class="nav-item active" data-view="dashboard"><span>◫</span>Panel ejecutivo</button>
-        <button class="nav-item" data-view="analyzer"><span>◎</span>Analizador</button>
-        <button class="nav-item" data-view="opportunities"><span>⌂</span>Oportunidades</button>
-        <button class="nav-item" data-view="comparables"><span>≋</span>Comparables</button>
-        <button class="nav-item" data-view="renovation"><span>⌁</span>Reforma</button>
         <button class="nav-item" data-view="finance"><span>↗</span>Financiación</button>
-        <button class="nav-item" data-view="risk"><span>▦</span>Sensibilidad y riesgos</button>
-        <button class="nav-item" data-view="pipeline"><span>⋮</span>Pipeline</button>
-        <button class="nav-item" data-view="reports"><span>▤</span>Informes</button>
-        <button class="nav-item" data-view="settings"><span>⚙</span>Configuración</button>
       </nav>
 
       <div class="sidebar-footer">
         <div class="connection"><span id="connection-dot"></span><span id="connection-label">Datos locales protegidos</span></div>
         <button class="ghost-btn full" id="install-app" hidden>Instalar aplicación</button>
-        <small>v4.4 · Resultados fiscales jerarquizados</small>
+        <small>v4.5 · Panel ejecutivo + financiación</small>
       </div>
     </aside>
 
@@ -83,42 +75,22 @@
     </div>
   </template>
 
-  <script src="excel-model-migration.js?v=440"></script>
-  <script src="engine.js?v=440"></script>
-  <script src="app.js?v=440"></script>
-  <script src="mobile-dashboard-fixed.js?v=440"></script>
-  <script src="tax-breakdown.js?v=440"></script>
+  <script src="excel-model-migration.js?v=450"></script>
+  <script src="engine.js?v=450"></script>
+  <script src="app.js?v=450"></script>
+  <script src="mobile-dashboard-fixed.js?v=450"></script>
+  <script src="tax-breakdown.js?v=450"></script>
+  <script src="financing-dashboard.js?v=450"></script>
   <script>
     (function(){
       'use strict';
       const selector='[data-operation-input][data-input-type="money"]';
       const digits=value=>String(value||'').replace(/\D/g,'').replace(/^0+(?=\d)/,'');
       const dotted=value=>value?value.replace(/\B(?=(\d{3})+(?!\d))/g,'.'):'';
-
       function countDigits(text,end){return (String(text).slice(0,end).match(/\d/g)||[]).length;}
-      function caretForDigits(text,amount){
-        if(amount<=0)return 0;
-        let seen=0;
-        for(let i=0;i<text.length;i++){
-          if(/\d/.test(text[i])&&++seen===amount)return i+1;
-        }
-        return text.length;
-      }
-      function formatNow(input){
-        if(!input||!input.matches(selector))return;
-        const old=input.value;
-        const caret=input.selectionStart==null?old.length:input.selectionStart;
-        const before=countDigits(old,caret);
-        const next=dotted(digits(old));
-        if(old!==next)input.value=next;
-        const nextCaret=caretForDigits(next,before);
-        try{input.setSelectionRange(nextCaret,nextCaret);}catch(_){ }
-      }
-      function delayed(input){
-        requestAnimationFrame(()=>formatNow(input));
-        setTimeout(()=>formatNow(input),0);
-      }
-
+      function caretForDigits(text,amount){if(amount<=0)return 0;let seen=0;for(let i=0;i<text.length;i++){if(/\d/.test(text[i])&&++seen===amount)return i+1;}return text.length;}
+      function formatNow(input){if(!input||!input.matches(selector))return;const old=input.value;const caret=input.selectionStart==null?old.length:input.selectionStart;const before=countDigits(old,caret);const next=dotted(digits(old));if(old!==next)input.value=next;const nextCaret=caretForDigits(next,before);try{input.setSelectionRange(nextCaret,nextCaret);}catch(_){}}
+      function delayed(input){requestAnimationFrame(()=>formatNow(input));setTimeout(()=>formatNow(input),0);}
       document.addEventListener('input',event=>formatNow(event.target),true);
       document.addEventListener('keyup',event=>formatNow(event.target),true);
       document.addEventListener('paste',event=>delayed(event.target),true);
