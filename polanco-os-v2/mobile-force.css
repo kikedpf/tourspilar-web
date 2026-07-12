@@ -1,0 +1,5 @@
+@media (max-width:760px){
+  #view-root.mobile-exec-ready:not(.show-mobile-secondary) > :not(.mobile-command-center){display:none!important}
+  #view-root.mobile-exec-ready.show-mobile-secondary > .mobile-secondary-dashboard{display:block!important}
+  #view-root.mobile-exec-ready > .mobile-command-center{display:grid!important}
+}
