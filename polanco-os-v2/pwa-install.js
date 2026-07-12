@@ -39,7 +39,7 @@
     bar.innerHTML = `
       <div class="pwa-install-copy">
         <strong>Instala Polanco OS</strong>
-        <span>Ábrela como una app y copia el enlace para tus socios.</span>
+        <span>Copia el enlace, ábrelo en Safari y añádelo a tu pantalla de inicio.</span>
       </div>
       <div class="pwa-install-actions">
         <button type="button" class="pwa-primary" data-pwa-install>Cómo instalar</button>
@@ -57,13 +57,13 @@
         <div class="pwa-modal-head">
           <div>
             <strong id="pwa-modal-title">Instalar Polanco OS</strong>
-            <span id="pwa-modal-subtitle">Primero debes entrar en Safari completo.</span>
+            <span id="pwa-modal-subtitle">Copia el enlace y termina la instalación desde Safari.</span>
           </div>
           <button type="button" class="pwa-modal-close" data-pwa-modal-close aria-label="Cerrar">×</button>
         </div>
         <div class="pwa-warning" id="pwa-install-warning"></div>
         <div class="pwa-steps" id="pwa-install-steps"></div>
-        <button type="button" class="pwa-modal-copy" data-pwa-copy>Copiar enlace para tus socios</button>
+        <button type="button" class="pwa-modal-copy" data-pwa-copy>Copiar enlace</button>
       </div>
     `;
 
@@ -81,21 +81,23 @@
     if (!steps || !warning || !subtitle) return;
 
     if (isIOS()) {
-      subtitle.textContent = 'Sigue estos pasos exactamente en tu iPhone.';
-      warning.innerHTML = 'Si ves <strong>“OK” arriba</strong>, todavía estás dentro del navegador de otra aplicación. No pulses Compartir ahí porque no aparecerá “Añadir a pantalla de inicio”.';
+      subtitle.textContent = 'Copia el enlace y sigue estos pasos en tu iPhone.';
+      warning.innerHTML = 'No uses el botón Compartir de esta ventana. Primero pulsa <strong>Copiar enlace</strong> y abre Safari.';
       steps.innerHTML = `
-        <div class="pwa-step"><b>1</b><span>Si ves <strong>“OK” arriba</strong>, pulsa la <strong>brújula de abajo a la derecha</strong>. Ese botón abre la página en Safari real.</span></div>
-        <div class="pwa-step"><b>2</b><span>Cuando ya no aparezca “OK” arriba, pulsa en Safari el icono <strong>Compartir</strong>: el cuadrado con una flecha hacia arriba.</span></div>
-        <div class="pwa-step"><b>3</b><span>Desliza el menú hacia abajo y pulsa <strong>Añadir a pantalla de inicio</strong>.</span></div>
-        <div class="pwa-step"><b>4</b><span>Pulsa <strong>Añadir</strong>. Polanco OS aparecerá en tu pantalla como cualquier otra aplicación.</span></div>
+        <div class="pwa-step"><b>1</b><span>Pulsa <strong>Copiar enlace</strong> en el botón azul de abajo.</span></div>
+        <div class="pwa-step"><b>2</b><span>Abre la aplicación <strong>Safari</strong>, pega el enlace en la barra de direcciones y entra.</span></div>
+        <div class="pwa-step"><b>3</b><span>En Safari, pulsa el botón <strong>Compartir</strong> de la barra inferior, normalmente en el centro: es el <strong>cuadrado con una flecha hacia arriba</strong>.</span></div>
+        <div class="pwa-step"><b>4</b><span>Desliza el menú hacia abajo y pulsa <strong>Añadir a pantalla de inicio</strong>.</span></div>
+        <div class="pwa-step"><b>5</b><span>Pulsa <strong>Añadir</strong>. Polanco OS aparecerá como cualquier otra aplicación.</span></div>
       `;
     } else {
       subtitle.textContent = 'Sigue estos pasos en Android.';
       warning.textContent = 'Abre el enlace en Chrome para que aparezca la opción de instalación.';
       steps.innerHTML = `
-        <div class="pwa-step"><b>1</b><span>Abre el enlace en <strong>Chrome</strong>.</span></div>
-        <div class="pwa-step"><b>2</b><span>Pulsa <strong>Instalar aplicación</strong> o abre el menú de los tres puntos.</span></div>
-        <div class="pwa-step"><b>3</b><span>Elige <strong>Instalar</strong> o <strong>Añadir a pantalla de inicio</strong>.</span></div>
+        <div class="pwa-step"><b>1</b><span>Pulsa <strong>Copiar enlace</strong>.</span></div>
+        <div class="pwa-step"><b>2</b><span>Abre el enlace en <strong>Chrome</strong>.</span></div>
+        <div class="pwa-step"><b>3</b><span>Pulsa <strong>Instalar aplicación</strong> o abre el menú de los tres puntos.</span></div>
+        <div class="pwa-step"><b>4</b><span>Elige <strong>Instalar</strong> o <strong>Añadir a pantalla de inicio</strong>.</span></div>
       `;
     }
   }
@@ -143,11 +145,11 @@
       await navigator.clipboard.writeText(APP_URL);
       const previous = button?.textContent || '';
       if (button) {
-        button.textContent = 'Enlace copiado';
-        setTimeout(() => { button.textContent = previous; }, 1600);
+        button.textContent = 'Enlace copiado · abre Safari';
+        setTimeout(() => { button.textContent = previous; }, 2400);
       }
     } catch (_) {
-      window.prompt('Copia este enlace:', APP_URL);
+      window.prompt('Copia este enlace y pégalo en Safari:', APP_URL);
     }
   }
 
