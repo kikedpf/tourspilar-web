@@ -20,7 +20,7 @@
   <link rel="stylesheet" href="deal-prices.css?v=520">
   <script>
     (function(){
-      const version='polanco-ui-530';
+      const version='polanco-ui-540';
       if(localStorage.getItem('polanco-ui-version')!==version){
         if('caches' in window){caches.keys().then(keys=>Promise.all(keys.map(key=>caches.delete(key))));}
         if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(reg=>reg.update()));}
@@ -65,7 +65,7 @@
       <div class="sidebar-footer">
         <div class="connection"><span id="connection-dot"></span><span id="connection-label">Datos locales protegidos</span></div>
         <button class="ghost-btn full" id="install-app" hidden>Instalar aplicación</button>
-        <small>v5.3 · Instalación Safari explicada</small>
+        <small>v5.4 · Instrucciones exactas de Safari</small>
       </div>
     </aside>
     <main class="main">
@@ -88,7 +88,7 @@
   <script src="excel-model-migration.js?v=520"></script>
   <script src="engine.js?v=520"></script>
   <script src="app.js?v=520"></script>
-  <script src="pwa-install.js?v=530"></script>
+  <script src="pwa-install.js?v=540"></script>
   <script>
     (function(){
       'use strict';
