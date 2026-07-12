@@ -16,6 +16,11 @@
   const pct = value => new Intl.NumberFormat('es-ES', {
     style: 'percent', minimumFractionDigits: 2, maximumFractionDigits: 2
   }).format(Number(value) || 0);
+  const compactMoney = value => {
+    const n = Number(value) || 0;
+    if (Math.abs(n) >= 1000000) return `$ ${(n / 1000000).toFixed(Math.abs(n) % 1000000 === 0 ? 0 : 1).replace('.', ',')} M`;
+    return money(n);
+  };
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
   }[c]));
@@ -48,33 +53,28 @@
     catch (error) { console.error('Dashboard móvil:', error); return null; }
   }
 
-  function signedMoney(value) {
-    const n = Number(value) || 0;
-    return n > 0 ? `+${money(n)}` : n < 0 ? `−${money(Math.abs(n))}` : money(0);
+  function editablePrice(key, label, value, helper) {
+    return `<article class="input-card">
+      <div class="input-card-head"><span>${esc(label)}</span><small>${esc(helper)}</small></div>
+      <label class="price-editor">
+        <b>$</b>
+        <input data-price-input="${key}" type="text" inputmode="numeric" value="${esc(integer(value))}" aria-label="${esc(label)}">
+        <em>COP</em>
+      </label>
+    </article>`;
   }
 
-  function metric(label, value, helper, tone = '') {
-    return `<div class="exec-metric ${tone}"><div><span>${esc(label)}</span><small>${esc(helper)}</small></div><strong>${esc(value)}</strong></div>`;
+  function miniStat(label, value) {
+    return `<div class="mini-stat"><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`;
   }
 
-  function editablePrice(key, label, value, helper, tone) {
-    return `<div class="exec-metric exec-editable ${tone}">
-      <div><span>${esc(label)}</span><small>${esc(helper)}</small></div>
-      <label class="exec-price-input ${tone}"><b>$</b><input data-price-input="${key}" type="text" inputmode="numeric" value="${esc(integer(value))}" aria-label="${esc(label)}"><em>COP</em></label>
-    </div>`;
-  }
-
-  function actionText(operation, result) {
-    if (operation?.nextAction?.trim()) return operation.nextAction.trim();
-    const room = Number(result?.actual?.roomVsMax) || 0;
-    if (room < 0) return 'Bajar compra, subir venta o recortar reforma antes de ofertar.';
-    if ((Number(result?.comparables?.count) || 0) < 5) return 'Validar cierres reales antes de presentar oferta.';
-    return 'Validar cierres reales y presentar oferta.';
+  function resultStat(label, value, helper, tone = '') {
+    return `<div class="result-stat ${tone}"><div><span>${esc(label)}</span><small>${esc(helper)}</small></div><strong>${esc(value)}</strong></div>`;
   }
 
   function summaryHtml(operation, result) {
     if (!operation || !result) {
-      return `<section class="mobile-command-center"><div class="exec-empty"><strong>Sin operación activa</strong><span>Crea o selecciona una operación para ver la pantalla de decisión.</span></div></section>`;
+      return `<section class="mobile-command-center"><div class="exec-empty"><strong>Sin operación activa</strong><span>Crea o selecciona una operación para analizarla.</span></div></section>`;
     }
 
     const pass = result.actual.decision === 'PASA';
@@ -85,32 +85,64 @@
     const area = Number(operation.area) || 0;
     const renovationPerSqm = Number(operation.renovationPerSqm) || 0;
     const targetMargin = Number(result.operation?.targetMargin ?? operation.targetMargin) || 0;
-    const detail = room >= 0
-      ? `Tienes ${money(room)} de colchón frente al máximo.`
-      : `Estás ${money(Math.abs(room))} por encima del precio máximo.`;
+    const roomText = room >= 0 ? money(room) : `−${money(Math.abs(room))}`;
+    const roomHelper = room >= 0 ? 'Puedes pagar hasta este margen adicional' : 'La oferta supera el máximo permitido';
 
     return `<section class="mobile-command-center" aria-label="Dashboard ejecutivo móvil">
-      <div class="exec-topline"><div class="exec-kicker"><i></i><span>Dashboard ejecutivo</span></div><button id="mobile-open-analyzer" class="exec-open-btn" type="button">Abrir ficha</button></div>
-      <article class="exec-decision ${pass ? 'pass' : 'fail'}"><div class="exec-decision-copy"><span>${esc(operation.name || 'Operación activa')}</span><h2>${esc(result.actual.decision)}</h2><p>${esc(detail)}</p></div><div class="exec-score"><strong>${integer(score)}</strong><small>SCORE</small></div></article>
-      <div class="exec-two-columns">
-        <section class="exec-panel"><header><span>Calculadora rápida</span><small>Edita compra y venta</small></header>
-          ${editablePrice('salePrice','Precio de venta esperado',salePrice,'Salida probable','sale')}
-          ${editablePrice('purchasePrice','Oferta / precio de compra',purchasePrice,'Aquí se decide el negocio','buy')}
-          ${metric('Área del inmueble',`${integer(area)} m²`,'Variable por apartamento')}
-          ${metric('Costo de reforma por m²',money(renovationPerSqm),'Materiales y mano de obra')}
-          ${metric('Margen bruto objetivo',pct(targetMargin),'Antes de renta e intereses')}
+      <div class="exec-toolbar">
+        <div class="exec-kicker"><i></i><span>Resumen de operación</span></div>
+        <button id="mobile-open-analyzer" class="exec-open-btn" type="button">Abrir ficha</button>
+      </div>
+
+      <article class="decision-hero ${pass ? 'pass' : 'fail'}">
+        <div class="decision-main">
+          <span>${esc(operation.name || 'Operación activa')}</span>
+          <h2>${esc(result.actual.decision)}</h2>
+          <div class="available-margin">
+            <small>Margen disponible frente al máximo</small>
+            <strong>${esc(roomText)}</strong>
+          </div>
+        </div>
+        <div class="score-badge"><strong>${integer(score)}</strong><small>SCORE</small></div>
+      </article>
+
+      <div class="dashboard-columns">
+        <section class="dashboard-section inputs-section">
+          <header><span>Variables de decisión</span><small>Lo que puedes modificar</small></header>
+          ${editablePrice('salePrice', 'Precio de venta esperado', salePrice, 'Salida probable')}
+          ${editablePrice('purchasePrice', 'Oferta de compra', purchasePrice, 'Aquí se decide el negocio')}
+          <div class="property-strip">
+            ${miniStat('Área', `${integer(area)} m²`)}
+            ${miniStat('Reforma / m²', compactMoney(renovationPerSqm))}
+            ${miniStat('Objetivo', pct(targetMargin))}
+          </div>
         </section>
-        <section class="exec-panel"><header><span>Resultado</span><small>Lo que decide la compra</small></header>
-          ${metric('Precio máximo de compra',money(result.actual.maxPurchase),'No deberías pagar más','good')}
-          ${metric('Margen frente al máximo',signedMoney(room),room >= 0 ? 'Colchón disponible' : 'Estás pagando de más',room >= 0 ? 'good' : 'bad')}
-          ${metric('Inversión total',money(result.breakdown.cashCost),'Compra + reforma + costes')}
-          ${metric('Utilidad neta',money(result.actual.netProfit),'Después de costes, sin deuda',result.actual.netProfit >= 0 ? 'good' : 'bad')}
-          ${metric('Margen neto',pct(result.actual.netMargin),'Utilidad neta / venta')}
-          ${metric('Rentabilidad del proyecto',pct(result.actual.roi),'Utilidad neta / inversión')}
+
+        <section class="dashboard-section results-section">
+          <header><span>Límite y resultado</span><small>Lo que devuelve la operación</small></header>
+          <div class="limit-card">
+            <span>Precio máximo de compra</span>
+            <strong>${esc(money(result.actual.maxPurchase))}</strong>
+            <small>No deberías pagar más</small>
+          </div>
+          ${resultStat('Margen disponible', roomText, roomHelper, room >= 0 ? 'positive' : 'negative')}
+          <div class="financial-group">
+            ${resultStat('Utilidad neta', money(result.actual.netProfit), 'Después de costes, sin deuda', result.actual.netProfit >= 0 ? 'positive' : 'negative')}
+            ${resultStat('Margen neto', pct(result.actual.netMargin), 'Utilidad / venta')}
+            ${resultStat('ROI del proyecto', pct(result.actual.roi), 'Utilidad / inversión')}
+          </div>
         </section>
       </div>
-      <article class="exec-action ${pass ? 'pass' : 'fail'}"><div><span>Decisión</span><strong>${esc(result.actual.decision)}</strong></div><p>${esc(actionText(operation,result))}</p></article>
-      <button id="mobile-more-dashboard" class="exec-more-btn" type="button"><span>Ver cartera completa</span><b>⌄</b></button>
+
+      <section class="deal-flow" aria-label="Flujo financiero de la operación">
+        <div><span>Compra</span><strong>${esc(compactMoney(purchasePrice))}</strong></div>
+        <i>→</i>
+        <div><span>Inversión</span><strong>${esc(compactMoney(result.breakdown.cashCost))}</strong></div>
+        <i>→</i>
+        <div><span>Venta</span><strong>${esc(compactMoney(salePrice))}</strong></div>
+        <i>→</i>
+        <div class="flow-profit"><span>Utilidad</span><strong>${esc(compactMoney(result.actual.netProfit))}</strong></div>
+      </section>
     </section>`;
   }
 
@@ -124,20 +156,39 @@
       @media (max-width:760px){
         #view-root.mobile-exec-ready>.mobile-command-center{display:grid!important}
         #view-root.mobile-exec-ready>:not(.mobile-command-center){display:none!important}
-        #view-root.mobile-exec-ready.show-mobile-secondary>:not(.mobile-command-center){display:block!important}
-        .mobile-command-center{gap:8px;margin:0 0 14px!important}
-        .exec-topline{display:flex;align-items:center;justify-content:space-between;gap:8px}
-        .exec-kicker{display:flex;align-items:center;gap:7px;color:#68768a;font-size:9px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.exec-kicker i{width:8px;height:8px;border-radius:50%;background:#2da49d;box-shadow:0 0 0 5px rgba(45,164,157,.13)}
-        .exec-open-btn,.exec-more-btn{border:1px solid rgba(23,58,99,.17);background:#fff;color:#173A63;border-radius:13px;padding:8px 11px;font-size:11px;font-weight:900;box-shadow:0 5px 14px rgba(16,37,63,.07)}
-        .exec-decision{display:flex;align-items:center;justify-content:space-between;gap:10px;border-radius:19px;padding:11px 13px;color:#fff;box-shadow:0 12px 24px rgba(16,37,63,.16)}.exec-decision.pass{background:linear-gradient(135deg,#174c43,#2e8b61 58%,#75bf8e)}.exec-decision.fail{background:linear-gradient(135deg,#592632,#963a4d 58%,#d67f70)}
-        .exec-decision-copy{min-width:0}.exec-decision-copy>span{display:block;margin-bottom:3px;font-size:9px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;opacity:.78;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.exec-decision-copy h2{margin:0;font-size:29px;line-height:1;font-weight:950}.exec-decision-copy p{margin:5px 0 0;font-size:11px;line-height:1.25;color:rgba(255,255,255,.91)}
-        .exec-score{width:64px;height:64px;flex:0 0 auto;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,28,47,.25);border:4px solid rgba(139,224,255,.68)}.exec-score strong{font-size:24px;line-height:1;font-weight:950}.exec-score small{font-size:7px;font-weight:900;letter-spacing:.14em}
-        .exec-two-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px;align-items:start}.exec-panel{display:grid;gap:5px;min-width:0;padding:7px;border:1px solid rgba(23,58,99,.11);border-radius:17px;background:#fff;box-shadow:0 9px 20px rgba(16,37,63,.06)}.exec-panel header{display:grid;gap:1px;padding:1px 3px 4px}.exec-panel header span{font-size:9px;font-weight:950;letter-spacing:.11em;text-transform:uppercase;color:#315c88}.exec-panel header small{font-size:8px;color:#8793a5}
-        .exec-metric{display:grid;gap:3px;min-width:0;padding:6px 7px;border:1px solid #dde7f0;border-radius:11px;background:#f8fbfe}.exec-metric.good{border-color:#c9e5d3;background:#f3fbf6}.exec-metric.bad{border-color:#edc4ca;background:#fff5f6}.exec-metric>div{display:grid;gap:1px;min-width:0}.exec-metric span{font-size:7.8px;line-height:1.05;font-weight:950;letter-spacing:.055em;text-transform:uppercase;color:#657286}.exec-metric small{font-size:7.4px;line-height:1.1;color:#8a95a7}.exec-metric>strong{font-size:13.5px;line-height:1.05;font-weight:950;color:#17263c;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-        .exec-price-input{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:3px;padding:5px 6px;border:1px solid #d9e4ed;border-radius:9px;background:#fff}.exec-price-input.sale{border-color:#add5bd;background:#f2fbf5}.exec-price-input.buy{border-color:#dcc89f;background:#fffaf0}.exec-price-input b,.exec-price-input em{font-style:normal;font-size:8px;font-weight:950;color:#8994a5}.exec-price-input input{width:100%;min-width:0;border:0!important;background:transparent!important;padding:0!important;font-size:13px!important;font-weight:950!important;color:#173A63!important;box-shadow:none!important}.exec-price-input.sale input{color:#1a724d!important}.exec-price-input.buy input{color:#956419!important}
-        .exec-action{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:10px;padding:9px 11px;border-radius:15px;color:#fff}.exec-action.pass{background:linear-gradient(135deg,#173A63,#3468a5)}.exec-action.fail{background:linear-gradient(135deg,#5e2a38,#9f4558)}.exec-action>div{display:grid}.exec-action span{font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;opacity:.8}.exec-action strong{font-size:18px;line-height:1;font-weight:950}.exec-action p{margin:0;font-size:10px;line-height:1.25;color:rgba(255,255,255,.92)}
-        .exec-more-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%}.exec-empty{display:grid;gap:3px;padding:14px;border:1px solid rgba(23,58,99,.13);border-radius:17px;background:#fff;color:#627084}
-        @media(max-width:380px){.exec-two-columns{grid-template-columns:1fr}}
+        .mobile-command-center{gap:12px;margin:0 0 18px!important;color:#14233b}
+        .exec-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 2px}
+        .exec-kicker{display:flex;align-items:center;gap:8px;color:#6b7b94;font-size:10px;font-weight:900;letter-spacing:.14em;text-transform:uppercase}
+        .exec-kicker i{width:9px;height:9px;border-radius:50%;background:#59a9dc;box-shadow:0 0 0 5px rgba(89,169,220,.14)}
+        .exec-open-btn{border:1px solid #b9d4e8;background:#f7fbff;color:#2d6f9f;border-radius:14px;padding:9px 13px;font-size:12px;font-weight:900;box-shadow:0 5px 14px rgba(55,104,145,.08)}
+        .decision-hero{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 18px;border-radius:24px;color:#fff;box-shadow:0 18px 34px rgba(45,111,159,.22)}
+        .decision-hero.pass{background:linear-gradient(135deg,#58a8dc,#3f86c6 58%,#73b7e4)}
+        .decision-hero.fail{background:linear-gradient(135deg,#6e88a8,#5d6f89 58%,#8fa1b7)}
+        .decision-main{min-width:0;display:grid;gap:5px}
+        .decision-main>span{font-size:10px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;opacity:.82;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .decision-main h2{margin:0;font-size:34px;line-height:1;font-weight:950;letter-spacing:-.04em}
+        .available-margin{display:grid;gap:1px;margin-top:3px}
+        .available-margin small{font-size:10px;color:rgba(255,255,255,.82)}
+        .available-margin strong{font-size:19px;line-height:1.1;font-weight:950}
+        .score-badge{width:74px;height:74px;flex:0 0 auto;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(255,255,255,.16);border:4px solid rgba(213,240,255,.7);box-shadow:inset 0 0 0 3px rgba(255,255,255,.12)}
+        .score-badge strong{font-size:27px;line-height:1;font-weight:950}.score-badge small{font-size:8px;font-weight:900;letter-spacing:.15em;margin-top:3px}
+        .dashboard-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:start}
+        .dashboard-section{display:grid;gap:9px;padding:11px;border-radius:22px;background:#fff;border:1px solid #dbe7f2;box-shadow:0 12px 26px rgba(43,90,127,.08);min-width:0}
+        .dashboard-section>header{display:grid;gap:2px;padding:0 3px 3px}.dashboard-section>header span{font-size:11px;font-weight:950;letter-spacing:.11em;text-transform:uppercase;color:#3479aa}.dashboard-section>header small{font-size:9px;color:#8b98aa}
+        .input-card{display:grid;gap:7px;padding:9px;border-radius:15px;background:#f7fbff;border:1px solid #d5e4f0}
+        .input-card-head{display:grid;gap:2px}.input-card-head span{font-size:8px;font-weight:950;letter-spacing:.06em;text-transform:uppercase;color:#617188}.input-card-head small{font-size:8px;color:#94a0b1}
+        .price-editor{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:5px;padding:9px 10px;border-radius:12px;background:#fff;border:1px solid #b8d4e7;box-shadow:inset 0 0 0 1px rgba(72,143,190,.03)}
+        .price-editor b,.price-editor em{font-style:normal;font-size:9px;font-weight:900;color:#8290a3}.price-editor input{width:100%;min-width:0;border:0!important;background:transparent!important;padding:0!important;box-shadow:none!important;outline:0!important;font-size:17px!important;font-weight:950!important;color:#2d6f9f!important}
+        .property-strip{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px}
+        .mini-stat{display:grid;gap:3px;min-width:0;padding:7px 5px;border-radius:11px;background:#edf6fc;text-align:center}.mini-stat span{font-size:7px;font-weight:900;text-transform:uppercase;color:#728198}.mini-stat strong{font-size:11px;line-height:1.05;color:#244d70;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .limit-card{display:grid;gap:3px;padding:11px;border-radius:15px;background:linear-gradient(145deg,#eaf5fc,#f7fbfe);border:1px solid #b7d5e9}.limit-card span{font-size:8px;font-weight:950;letter-spacing:.06em;text-transform:uppercase;color:#5a6d84}.limit-card strong{font-size:18px;line-height:1.05;color:#245f8b;font-weight:950}.limit-card small{font-size:8px;color:#8796a8}
+        .result-stat{display:grid;gap:5px;padding:8px 9px;border-radius:13px;background:#f6f9fc;border:1px solid #dce6ef}.result-stat>div{display:grid;gap:1px}.result-stat span{font-size:7.5px;font-weight:950;letter-spacing:.05em;text-transform:uppercase;color:#64748a}.result-stat small{font-size:7.5px;color:#909cad}.result-stat strong{font-size:14px;line-height:1.05;color:#1d2f48;font-weight:950}.result-stat.positive{background:#edf6fc;border-color:#bdd9ea}.result-stat.positive strong{color:#2d6f9f}.result-stat.negative{background:#f4f1f2;border-color:#d8c9ce}.result-stat.negative strong{color:#79515d}
+        .financial-group{display:grid;gap:6px;padding-top:2px}
+        .deal-flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;align-items:center;gap:5px;padding:11px 9px;border-radius:18px;background:#edf5fb;border:1px solid #c9ddeb;box-shadow:0 8px 18px rgba(43,90,127,.06)}
+        .deal-flow div{display:grid;gap:2px;text-align:center;min-width:0}.deal-flow span{font-size:7px;font-weight:900;text-transform:uppercase;color:#728198}.deal-flow strong{font-size:10px;color:#244d70;white-space:nowrap}.deal-flow i{font-style:normal;color:#7faed0;font-weight:900}.deal-flow .flow-profit strong{color:#2d6f9f}
+        .exec-empty{display:grid;gap:4px;padding:16px;border-radius:18px;background:#fff;border:1px solid #dbe7f2;color:#627084}
+        html[data-theme="dark"] .dashboard-section,html[data-theme="dark"] .exec-open-btn,html[data-theme="dark"] .exec-empty{background:#152235;border-color:#2a3d58;color:#e8eef7}
+        @media(max-width:380px){.dashboard-columns{grid-template-columns:1fr}.deal-flow{grid-template-columns:1fr auto 1fr;row-gap:8px}.deal-flow div:nth-of-type(3),.deal-flow div:nth-of-type(4),.deal-flow i:nth-of-type(3){display:none}}
       }
     `;
     document.head.appendChild(style);
@@ -146,19 +197,20 @@
   function commitPrice(key, value) {
     const price = parseMoney(value);
     if (price <= 0) return;
-    window.dispatchEvent(new CustomEvent('polanco:update-operation', { detail: { key, value: price, source: 'mobile-executive-dashboard' } }));
+    window.dispatchEvent(new CustomEvent('polanco:update-operation', {
+      detail: { key, value: price, source: 'mobile-executive-dashboard' }
+    }));
   }
 
   function bindActions() {
-    document.getElementById('mobile-open-analyzer')?.addEventListener('click', () => document.querySelector('.nav-item[data-view="analyzer"]')?.click());
-    document.getElementById('mobile-more-dashboard')?.addEventListener('click', event => {
-      const showing = root.classList.toggle('show-mobile-secondary');
-      event.currentTarget.querySelector('span').textContent = showing ? 'Ocultar cartera completa' : 'Ver cartera completa';
-      event.currentTarget.querySelector('b').textContent = showing ? '⌃' : '⌄';
+    document.getElementById('mobile-open-analyzer')?.addEventListener('click', () => {
+      document.querySelector('.nav-item[data-view="analyzer"]')?.click();
     });
     root.querySelectorAll('[data-price-input]').forEach(input => {
       input.addEventListener('focus', () => input.select());
-      input.addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); input.blur(); } });
+      input.addEventListener('keydown', event => {
+        if (event.key === 'Enter') { event.preventDefault(); input.blur(); }
+      });
       input.addEventListener('change', () => commitPrice(input.dataset.priceInput, input.value));
       input.addEventListener('blur', () => commitPrice(input.dataset.priceInput, input.value));
     });
@@ -167,7 +219,7 @@
   function renderSummary() {
     injectStyles();
     root.querySelector('.mobile-command-center')?.remove();
-    root.classList.remove('mobile-exec-ready', 'show-mobile-secondary');
+    root.classList.remove('mobile-exec-ready');
     if (!isDashboard()) return;
     const operation = activeOperation();
     const result = operation ? calculate(operation) : null;
@@ -177,11 +229,16 @@
   }
 
   let timer;
-  function schedule(delay = 80) { clearTimeout(timer); timer = setTimeout(renderSummary, delay); }
+  function schedule(delay = 80) {
+    clearTimeout(timer);
+    timer = setTimeout(renderSummary, delay);
+  }
 
   const observer = new MutationObserver(() => schedule(100));
   observer.observe(root, { childList: true });
-  document.addEventListener('click', event => { if (event.target.closest('.nav-item,.primary-btn,.secondary-btn,[data-edit],[data-go]')) schedule(140); }, true);
+  document.addEventListener('click', event => {
+    if (event.target.closest('.nav-item,.primary-btn,.secondary-btn,[data-edit],[data-go]')) schedule(140);
+  }, true);
   document.getElementById('current-operation')?.addEventListener('change', () => schedule(120));
   window.addEventListener('storage', () => schedule(100));
   window.addEventListener('polanco:update-operation', () => schedule(180));
