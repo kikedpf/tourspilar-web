@@ -2,90 +2,14 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#173A63">
-  <meta name="description" content="Polanco OS Deal Lab: sistema de análisis y gestión de operaciones de flipping inmobiliario.">
-  <title>Polanco OS · Deal Lab</title>
-  <link rel="manifest" href="manifest.webmanifest?v=340">
-  <link rel="icon" href="icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="icon.svg">
-  <link rel="stylesheet" href="styles.css?v=340">
-  <link rel="stylesheet" href="mobile.css?v=340">
-  <link rel="stylesheet" href="deal-prices.css?v=340">
-  <script>
-    (function(){
-      const version='polanco-ui-340';
-      if(localStorage.getItem('polanco-ui-version')!==version){
-        if('caches' in window){caches.keys().then(keys=>Promise.all(keys.map(key=>caches.delete(key))));}
-        if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(reg=>reg.update()));}
-        localStorage.setItem('polanco-ui-version',version);
-      }
-    })();
-  </script>
+  <title>Polanco OS</title>
+  <meta http-equiv="refresh" content="0; url=./polanco-os-v2/">
+  <link rel="canonical" href="./polanco-os-v2/">
+  <script>location.replace('./polanco-os-v2/');</script>
 </head>
 <body>
-  <div class="app-shell">
-    <aside class="sidebar" id="sidebar">
-      <div class="brand">
-        <div class="brand-icon">PI</div>
-        <div>
-          <strong>POLANCO OS</strong>
-          <span>INVERSIÓN INMOBILIARIA</span>
-        </div>
-      </div>
-
-      <nav class="nav" aria-label="Navegación principal">
-        <button class="nav-item active" data-view="dashboard"><span>◫</span>Panel ejecutivo</button>
-        <button class="nav-item" data-view="analyzer"><span>◎</span>Analizador</button>
-        <button class="nav-item" data-view="opportunities"><span>⌂</span>Oportunidades</button>
-        <button class="nav-item" data-view="comparables"><span>≋</span>Comparables</button>
-        <button class="nav-item" data-view="renovation"><span>⌁</span>Reforma</button>
-        <button class="nav-item" data-view="finance"><span>↗</span>Financiación</button>
-        <button class="nav-item" data-view="risk"><span>▦</span>Sensibilidad y riesgos</button>
-        <button class="nav-item" data-view="pipeline"><span>⋮</span>Pipeline</button>
-        <button class="nav-item" data-view="reports"><span>▤</span>Informes</button>
-        <button class="nav-item" data-view="settings"><span>⚙</span>Configuración</button>
-      </nav>
-
-      <div class="sidebar-footer">
-        <div class="connection"><span id="connection-dot"></span><span id="connection-label">Datos locales protegidos</span></div>
-        <button class="ghost-btn full" id="install-app" hidden>Instalar aplicación</button>
-        <small>v3.4 · Separadores de miles en vivo</small>
-      </div>
-    </aside>
-
-    <main class="main">
-      <header class="topbar">
-        <button class="menu-btn" id="menu-btn" aria-label="Abrir menú">☰</button>
-        <div class="title-block">
-          <h1 id="page-title">Panel ejecutivo</h1>
-          <p id="page-subtitle">El capital va a la mejor operación, no a la más bonita.</p>
-        </div>
-        <div class="context-actions">
-          <select id="current-operation" aria-label="Operación activa"></select>
-          <button class="icon-btn" id="theme-toggle" title="Cambiar tema">◐</button>
-          <button class="secondary-btn" id="new-operation">Nueva</button>
-          <button class="primary-btn" id="save-operation">Guardar</button>
-        </div>
-      </header>
-
-      <div id="view-root" class="content"></div>
-    </main>
-  </div>
-
-  <div class="toast" id="toast" role="status"></div>
-
-  <template id="empty-template">
-    <div class="empty-state">
-      <div class="empty-icon">⌂</div>
-      <h3>No hay datos todavía</h3>
-      <p>Crea una operación para empezar.</p>
-    </div>
-  </template>
-
-  <script src="engine.js?v=340"></script>
-  <script src="app.js?v=340"></script>
-  <script src="mobile-dashboard.js?v=340"></script>
-  <script src="live-money-format.js?v=340"></script>
+  <p>Abriendo <a href="./polanco-os-v2/">Polanco OS</a>…</p>
 </body>
 </html>
