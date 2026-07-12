@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'polanco-os-v2/**'
+      - 'index.html'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -32,10 +33,10 @@ jobs:
         with:
           enablement: true
 
-      - name: Upload Polanco OS
+      - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: polanco-os-v2
+          path: .
 
       - name: Deploy
         id: deployment
