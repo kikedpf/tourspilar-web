@@ -1,5 +1,5 @@
-const CACHE='polanco-os-v4.1.0';
-const ASSETS=['./','index.html','styles.css?v=410','mobile.css?v=410','deal-prices.css?v=410','excel-model-migration.js?v=410','engine.js?v=410','app.js?v=410','mobile-dashboard-fixed.js?v=410','app.part01.txt?v=410','app.part02.txt?v=410','app.part03.txt?v=410','app.part04.txt?v=410','app.part05.txt?v=410','app.part06.txt?v=410','app.part07.txt?v=410','app.part08.txt?v=410','app.part09.txt?v=410','manifest.webmanifest?v=410','icon.svg'];
+const CACHE='polanco-os-v4.2.0';
+const ASSETS=['./','index.html','styles.css?v=420','mobile.css?v=420','deal-prices.css?v=420','excel-model-migration.js?v=420','engine.js?v=420','app.js?v=420','mobile-dashboard-fixed.js?v=420','tax-breakdown.js?v=420','app.part01.txt?v=420','app.part02.txt?v=420','app.part03.txt?v=420','app.part04.txt?v=420','app.part05.txt?v=420','app.part06.txt?v=420','app.part07.txt?v=420','app.part08.txt?v=420','app.part09.txt?v=420','manifest.webmanifest?v=420','icon.svg'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',event=>{
