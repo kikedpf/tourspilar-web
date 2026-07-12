@@ -10,23 +10,31 @@
   if (!root) return;
 
   const money = value => new Intl.NumberFormat('es-CO', {
-    style: 'currency', currency: 'COP', maximumFractionDigits: 0
+    style: 'currency',
+    currency: 'COP',
+    maximumFractionDigits: 0
   }).format(Number(value) || 0);
-  const compact = value => {
-    const n = Number(value) || 0;
-    if (Math.abs(n) >= 1e9) return `${(n / 1e9).toFixed(2)} mil M`;
-    if (Math.abs(n) >= 1e6) return `${(n / 1e6).toFixed(Math.abs(n) % 1e6 === 0 ? 0 : 1)} M`;
-    return money(n);
-  };
-  const integer = value => new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(Number(value) || 0);
+
+  const integer = value => new Intl.NumberFormat('es-CO', {
+    maximumFractionDigits: 0
+  }).format(Number(value) || 0);
+
   const pct = value => new Intl.NumberFormat('es-ES', {
-    style: 'percent', minimumFractionDigits: 2, maximumFractionDigits: 2
+    style: 'percent',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
   }).format(Number(value) || 0);
+
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
   }[char]));
-  const clamp = (value, min, max) => Math.max(min, Math.min(max, Number(value) || 0));
+
   const parseMoney = value => Math.max(0, Number(String(value ?? '').replace(/[^0-9]/g, '')) || 0);
+  const clamp = (value, min, max) => Math.max(min, Math.min(max, Number(value) || 0));
 
   function readOperations() {
     try {
@@ -45,127 +53,196 @@
   }
 
   function isDashboard() {
-    return document.querySelector('.nav-item.active')?.dataset.view === 'dashboard' ||
-      document.getElementById('page-title')?.textContent.trim() === 'Panel ejecutivo';
+    return document.querySelector('.nav-item.active')?.dataset?.view === 'dashboard' ||
+      document.getElementById('page-title')?.textContent?.trim() === 'Panel ejecutivo';
   }
 
   function calculate(operation) {
     try {
       return window.PolancoEngine?.calculate(operation) || null;
     } catch (error) {
-      console.error('No se pudo calcular el resumen móvil', error);
+      console.error('No se pudo calcular el dashboard móvil', error);
       return null;
     }
   }
 
-  function priceRow({ key, eyebrow, label, value, tone }) {
-    return `<div class="mobile-price-row ${tone}">
-      <div class="mobile-price-label"><span>${eyebrow}</span><strong>${label}</strong></div>
-      <div class="mobile-price-editor">
-        <button class="mobile-price-step" data-price-key="${key}" data-price-delta="-5000000" type="button" aria-label="Restar cinco millones">−5M</button>
-        <label class="mobile-price-input">
-          <span>$</span>
-          <input id="mobile-${key}" data-price-input="${key}" type="text" inputmode="numeric" autocomplete="off" value="${esc(integer(value))}" aria-label="${label}">
-          <em>COP</em>
-        </label>
-        <button class="mobile-price-step" data-price-key="${key}" data-price-delta="5000000" type="button" aria-label="Sumar cinco millones">+5M</button>
-      </div>
+  function signedMoney(value) {
+    const amount = Number(value) || 0;
+    if (amount > 0) return `+${money(amount)}`;
+    if (amount < 0) return `−${money(Math.abs(amount))}`;
+    return money(0);
+  }
+
+  function decisionDetail(room, pass) {
+    const amount = Math.abs(Number(room) || 0);
+    if (room >= 0) return `Tienes ${money(amount)} de colchón frente al máximo.`;
+    if (!pass) return `Estás ${money(amount)} por encima del precio máximo.`;
+    return 'La operación necesita una revisión adicional.';
+  }
+
+  function actionText(operation, result) {
+    if (operation.nextAction?.trim()) return operation.nextAction.trim();
+    const room = Number(result?.actual?.roomVsMax) || 0;
+    if (room < 0) return 'Bajar compra, subir venta o recortar reforma antes de ofertar.';
+    if ((Number(result?.comparables?.count) || 0) < 5) return 'Validar cierres reales antes de presentar oferta.';
+    return 'Validar cierres reales y presentar oferta.';
+  }
+
+  function metric(label, value, helper, tone = '') {
+    return `<div class="exec-metric ${tone}">
+      <div><span>${esc(label)}</span><small>${esc(helper)}</small></div>
+      <strong>${esc(value)}</strong>
+    </div>`;
+  }
+
+  function editablePrice(key, label, value, helper, tone) {
+    return `<div class="exec-metric exec-editable ${tone}">
+      <div><span>${esc(label)}</span><small>${esc(helper)}</small></div>
+      <label class="exec-price-input ${tone}">
+        <b>$</b>
+        <input data-price-input="${esc(key)}" type="text" inputmode="numeric" autocomplete="off" value="${esc(integer(value))}" aria-label="${esc(label)}">
+        <em>COP</em>
+      </label>
     </div>`;
   }
 
   function summaryHtml(operation, result) {
     if (!operation || !result) {
       return `<section class="mobile-command-center">
-        <div class="mobile-operation-bar"><div class="mobile-brand-kicker"><i></i>POLANCO DEAL LAB</div></div>
-        <article class="mobile-decision-card fail"><div class="mobile-decision-copy"><span>OPERACIÓN ACTIVA</span><h2>Sin operación</h2><p>Crea o selecciona una operación para activar el cockpit.</p></div><div class="mobile-score-orbit"><div><strong>—</strong><small>SCORE</small></div></div></article>
+        <div class="exec-empty">
+          <strong>Sin operación activa</strong>
+          <span>Crea o selecciona una operación para ver la pantalla de decisión.</span>
+        </div>
       </section>`;
     }
 
     const pass = result.actual.decision === 'PASA';
     const room = Number(result.actual.roomVsMax) || 0;
     const score = clamp(result.score?.total, 0, 100);
-    const comparableCount = Number(result.comparables?.count) || 0;
-    const highRisk = (result.risks || []).find(risk => risk.severity === 'high');
     const salePrice = Number(operation.salePrice) || 0;
     const purchasePrice = Number(operation.purchasePrice) || 0;
-    const spread = salePrice - purchasePrice;
-    const pricePerSqm = operation.area ? salePrice / Number(operation.area) : 0;
-    const purchasePerSqm = operation.area ? purchasePrice / Number(operation.area) : 0;
-    const grossMargin = Number(result.actual.grossMargin) || 0;
+    const area = Number(operation.area) || 0;
+    const renovationPerSqm = Number(operation.renovationPerSqm) || 0;
     const targetMargin = Number(result.operation?.targetMargin ?? operation.targetMargin) || 0;
-    const meterScale = Math.max(.25, targetMargin * 1.35, Math.max(0, grossMargin) * 1.15);
-    const marginPosition = clamp((grossMargin / meterScale) * 100, 0, 100);
-    const targetPosition = clamp((targetMargin / meterScale) * 100, 0, 100);
 
-    let alert = 'La operación tiene margen, pero valida cierres reales antes de ofertar.';
-    if (!pass && room < 0) alert = `Supera el precio máximo en ${money(Math.abs(room))}.`;
-    else if (comparableCount < 5) alert = `Solo hay ${comparableCount} comparables válidos. La salida todavía no está demostrada.`;
-    else if (highRisk) alert = highRisk.title || highRisk.detail || 'Existe un riesgo alto pendiente de resolver.';
-
-    const decisionDetail = pass
-      ? `Tienes ${money(Math.max(0, room))} de colchón frente al máximo.`
-      : room < 0
-        ? `La compra está ${money(Math.abs(room))} por encima del máximo.`
-        : 'No alcanza el margen bruto objetivo.';
-
-    const nextAction = operation.nextAction?.trim() || (pass
-      ? 'Validar documentación, comparables y presupuesto antes de ofertar.'
-      : 'Renegociar la compra o demostrar un precio de salida mayor.');
-
-    return `<section class="mobile-command-center" aria-label="Cockpit financiero de la operación">
-      <div class="mobile-operation-bar">
-        <div class="mobile-brand-kicker"><i></i>POLANCO DEAL LAB</div>
-        <span class="mobile-status-pill">${esc(operation.status || 'Detectado')}</span>
+    return `<section class="mobile-command-center" aria-label="Dashboard ejecutivo móvil">
+      <div class="exec-topline">
+        <div class="exec-kicker"><i></i><span>Dashboard ejecutivo · Flipping Bogotá VIS</span></div>
+        <button type="button" id="mobile-open-analyzer" class="exec-open-btn">Abrir ficha</button>
       </div>
 
-      <article class="mobile-decision-card ${pass ? 'pass' : 'fail'}" style="--score:${score}">
-        <div class="mobile-decision-glow"></div>
-        <div class="mobile-decision-copy">
-          <span>${esc(operation.name || 'Nueva operación')}</span>
-          <div class="mobile-decision-line"><h2>${esc(result.actual.decision)}</h2><b>${pass ? 'LISTA PARA VALIDAR' : 'TOCA RENEGOCIAR'}</b></div>
-          <p>${esc(decisionDetail)}</p>
+      <article class="exec-decision ${pass ? 'pass' : 'fail'}">
+        <div class="exec-decision-copy">
+          <span>${esc(operation.name || 'Operación activa')}</span>
+          <h2>${esc(result.actual.decision)}</h2>
+          <p>${esc(decisionDetail(room, pass))}</p>
         </div>
-        <div class="mobile-score-orbit"><div><strong>${score}</strong><small>SCORE</small></div></div>
-      </article>
-
-      <article class="mobile-deal-card">
-        <div class="mobile-deal-head">
-          <div><span>ESTRUCTURA DEL DEAL</span><strong>Entrada ↔ Salida</strong></div>
-          <small>EDITABLE EN VIVO</small>
-        </div>
-        ${priceRow({ key: 'purchasePrice', eyebrow: 'ENTRADA', label: 'Precio de compra', value: purchasePrice, tone: 'purchase' })}
-        <div class="mobile-spread-bridge">
-          <span></span><b>SPREAD BRUTO ${compact(spread)}</b><span></span>
-        </div>
-        ${priceRow({ key: 'salePrice', eyebrow: 'SALIDA', label: 'Precio de venta', value: salePrice, tone: 'sale' })}
-        <div class="mobile-price-foot">
-          <span>Compra por m² <strong>${compact(purchasePerSqm)}</strong></span>
-          <span>Venta por m² <strong>${compact(pricePerSqm)}</strong></span>
+        <div class="exec-score">
+          <strong>${integer(score)}</strong>
+          <small>SCORE</small>
         </div>
       </article>
 
-      <div class="mobile-kpi-grid">
-        <article class="mobile-kpi-max"><span>Precio máximo</span><strong>${compact(result.actual.maxPurchase)}</strong><small>${room >= 0 ? 'Tienes colchón' : 'La compra lo supera'}</small></article>
-        <article class="mobile-kpi-invest"><span>Inversión total</span><strong>${compact(result.breakdown.cashCost)}</strong><small>Caja del proyecto</small></article>
-        <article class="mobile-kpi-profit"><span>Utilidad neta</span><strong class="${result.actual.netProfit >= 0 ? 'positive' : 'negative'}">${compact(result.actual.netProfit)}</strong><small>Después de renta</small></article>
-        <article class="mobile-kpi-roi"><span>ROI proyecto</span><strong class="${result.actual.roi >= 0 ? 'positive' : 'negative'}">${pct(result.actual.roi)}</strong><small>Utilidad / caja</small></article>
+      <div class="exec-two-columns">
+        <section class="exec-panel">
+          <header><span>Calculadora rápida</span><small>Edita compra y venta</small></header>
+          ${editablePrice('salePrice', 'Precio de venta esperado', salePrice, 'Salida probable según comparables', 'sale')}
+          ${editablePrice('purchasePrice', 'Oferta / precio de compra', purchasePrice, 'Aquí se decide el negocio', 'buy')}
+          ${metric('Área del inmueble', `${integer(area)} m²`, 'Variable para cada apartamento')}
+          ${metric('Costo de reforma por m²', money(renovationPerSqm), 'Materiales y mano de obra')}
+          ${metric('Margen bruto objetivo', pct(targetMargin), 'Antes de renta e intereses')}
+        </section>
+
+        <section class="exec-panel">
+          <header><span>Resultado</span><small>Lo que decide la compra</small></header>
+          ${metric('Precio máximo de compra', money(result.actual.maxPurchase), 'No deberías pagar más', 'good')}
+          ${metric('Margen frente al máximo', signedMoney(room), room >= 0 ? 'Colchón disponible' : 'Estás pagando de más', room >= 0 ? 'good' : 'bad')}
+          ${metric('Inversión total', money(result.breakdown.cashCost), 'Compra + reforma + costes')}
+          ${metric('Utilidad neta', money(result.actual.netProfit), 'Después de costes, sin deuda', result.actual.netProfit >= 0 ? 'good' : 'bad')}
+          ${metric('Margen neto', pct(result.actual.netMargin), 'Utilidad neta / venta')}
+          ${metric('Rentabilidad del proyecto', pct(result.actual.roi), 'Utilidad neta / inversión')}
+        </section>
       </div>
 
-      <article class="mobile-margin-visual ${pass ? 'pass' : 'fail'}" style="--margin-position:${marginPosition}%;--target-position:${targetPosition}%">
-        <div class="mobile-meter-head"><span>MARGEN BRUTO REAL</span><strong>${pct(grossMargin)}</strong><small>Objetivo ${pct(targetMargin)}</small></div>
-        <div class="mobile-meter-track"><span></span><i title="Objetivo"></i></div>
-        <div class="mobile-meter-foot"><span>0%</span><b class="${room >= 0 ? 'positive' : 'negative'}">${room >= 0 ? '+' : '−'}${compact(Math.abs(room))} vs. máximo</b></div>
+      <article class="exec-action ${pass ? 'pass' : 'fail'}">
+        <div><span>Decisión</span><strong>${esc(result.actual.decision)}</strong></div>
+        <p>${esc(actionText(operation, result))}</p>
       </article>
 
-      <article class="mobile-signal mobile-alert">
-        <div class="mobile-signal-icon">!</div><div><span>ALERTA DE OPERACIÓN</span><strong>${esc(alert)}</strong></div>
-      </article>
-      <article class="mobile-signal mobile-action">
-        <div class="mobile-signal-icon">→</div><div><span>SIGUIENTE MOVIMIENTO</span><strong>${esc(nextAction)}</strong></div>
-        <button id="mobile-edit-operation" type="button">Abrir ficha</button>
-      </article>
-      <button class="mobile-more-btn" id="mobile-more-dashboard" type="button"><span>Ver cartera completa</span><b>⌄</b></button>
+      <button type="button" id="mobile-more-dashboard" class="exec-more-btn">
+        <span>Ver cartera completa</span><b>⌄</b>
+      </button>
     </section>`;
+  }
+
+  function injectStyles() {
+    if (document.getElementById('mobile-executive-dashboard-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'mobile-executive-dashboard-styles';
+    style.textContent = `
+      @media (min-width:761px){
+        .mobile-command-center{display:none!important}
+      }
+      @media (max-width:760px){
+        .mobile-command-center{display:grid!important;gap:8px;margin:0 0 12px!important}
+        .exec-topline{display:flex;align-items:center;justify-content:space-between;gap:8px}
+        .exec-kicker{display:flex;align-items:center;gap:7px;min-width:0;color:#68768a;font-size:9px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+        .exec-kicker i{width:8px;height:8px;flex:0 0 auto;border-radius:999px;background:#2da49d;box-shadow:0 0 0 5px rgba(45,164,157,.13)}
+        .exec-kicker span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .exec-open-btn,.exec-more-btn{border:1px solid rgba(23,58,99,.17);background:#fff;color:#173A63;border-radius:13px;padding:8px 11px;font-size:11px;font-weight:900;box-shadow:0 5px 14px rgba(16,37,63,.07)}
+        .exec-open-btn{white-space:nowrap}
+        .exec-decision{display:flex;align-items:center;justify-content:space-between;gap:10px;border-radius:19px;padding:11px 13px;color:#fff;box-shadow:0 12px 24px rgba(16,37,63,.16)}
+        .exec-decision.pass{background:linear-gradient(135deg,#174c43,#2e8b61 58%,#75bf8e)}
+        .exec-decision.fail{background:linear-gradient(135deg,#592632,#963a4d 58%,#d67f70)}
+        .exec-decision-copy{min-width:0}
+        .exec-decision-copy>span{display:block;margin-bottom:3px;font-size:9px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;opacity:.78;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .exec-decision-copy h2{margin:0;font-size:29px;line-height:1;font-weight:950;letter-spacing:-.04em}
+        .exec-decision-copy p{margin:5px 0 0;font-size:11px;line-height:1.25;color:rgba(255,255,255,.91)}
+        .exec-score{width:64px;height:64px;flex:0 0 auto;border-radius:999px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,28,47,.25);border:4px solid rgba(139,224,255,.68);box-shadow:inset 0 0 0 3px rgba(255,255,255,.12)}
+        .exec-score strong{font-size:24px;line-height:1;font-weight:950}
+        .exec-score small{margin-top:2px;font-size:7px;font-weight:900;letter-spacing:.14em}
+        .exec-two-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px;align-items:start}
+        .exec-panel{display:grid;gap:5px;min-width:0;padding:7px;border:1px solid rgba(23,58,99,.11);border-radius:17px;background:#fff;box-shadow:0 9px 20px rgba(16,37,63,.06)}
+        .exec-panel header{display:grid;gap:1px;padding:1px 3px 4px}
+        .exec-panel header span{font-size:9px;font-weight:950;letter-spacing:.11em;text-transform:uppercase;color:#315c88}
+        .exec-panel header small{font-size:8px;line-height:1.15;color:#8793a5}
+        .exec-metric{display:grid;gap:3px;min-width:0;padding:6px 7px;border:1px solid #dde7f0;border-radius:11px;background:#f8fbfe}
+        .exec-metric.good{border-color:#c9e5d3;background:#f3fbf6}
+        .exec-metric.bad{border-color:#edc4ca;background:#fff5f6}
+        .exec-metric>div{display:grid;gap:1px;min-width:0}
+        .exec-metric span{font-size:7.8px;line-height:1.05;font-weight:950;letter-spacing:.055em;text-transform:uppercase;color:#657286}
+        .exec-metric small{font-size:7.4px;line-height:1.1;color:#8a95a7}
+        .exec-metric>strong{font-size:13.5px;line-height:1.05;font-weight:950;color:#17263c;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .exec-price-input{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:3px;padding:5px 6px;border:1px solid #d9e4ed;border-radius:9px;background:#fff;min-width:0}
+        .exec-price-input.sale{border-color:#add5bd;background:#f2fbf5}
+        .exec-price-input.buy{border-color:#dcc89f;background:#fffaf0}
+        .exec-price-input b,.exec-price-input em{font-style:normal;font-size:8px;font-weight:950;color:#8994a5}
+        .exec-price-input input{width:100%;min-width:0;border:0!important;background:transparent!important;outline:0!important;padding:0!important;margin:0!important;box-shadow:none!important;font-size:13px!important;line-height:1!important;font-weight:950!important;color:#173A63!important}
+        .exec-price-input.sale input{color:#1a724d!important}
+        .exec-price-input.buy input{color:#956419!important}
+        .exec-action{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:10px;padding:9px 11px;border-radius:15px;color:#fff;box-shadow:0 8px 18px rgba(16,37,63,.13)}
+        .exec-action.pass{background:linear-gradient(135deg,#173A63,#356ca6)}
+        .exec-action.fail{background:linear-gradient(135deg,#5e2a38,#9f4558)}
+        .exec-action>div{display:grid;gap:1px}
+        .exec-action span{font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;opacity:.8}
+        .exec-action strong{font-size:18px;line-height:1;font-weight:950}
+        .exec-action p{margin:0;font-size:10px;line-height:1.25;color:rgba(255,255,255,.92)}
+        .exec-more-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:8px 11px}
+        .exec-more-btn b{font-size:12px}
+        .mobile-secondary-dashboard{display:none!important}
+        #view-root.show-mobile-secondary .mobile-secondary-dashboard{display:block!important}
+        .exec-empty{display:grid;gap:3px;padding:14px;border:1px solid rgba(23,58,99,.13);border-radius:17px;background:#fff;color:#627084}
+        .exec-empty strong{color:#173A63}
+        .exec-empty span{font-size:11px}
+        html[data-theme="dark"] .exec-panel,html[data-theme="dark"] .exec-open-btn,html[data-theme="dark"] .exec-more-btn,html[data-theme="dark"] .exec-empty{background:#152235;border-color:#2a3b55;color:#e7eef8;box-shadow:none}
+        html[data-theme="dark"] .exec-metric{background:#1a2940;border-color:#2b415e}
+        html[data-theme="dark"] .exec-metric.good{background:#142c24;border-color:#28533f}
+        html[data-theme="dark"] .exec-metric.bad{background:#351f29;border-color:#6e3747}
+        html[data-theme="dark"] .exec-metric>strong,html[data-theme="dark"] .exec-price-input input{color:#f2f6fb!important}
+        html[data-theme="dark"] .exec-price-input{background:#101b2b;border-color:#2b405d}
+      }
+    `;
+    document.head.appendChild(style);
   }
 
   function markSecondaryContent() {
@@ -178,22 +255,17 @@
     const price = parseMoney(value);
     const input = document.querySelector(`[data-price-input="${key}"]`);
     if (price <= 0) {
-      input?.classList.add('invalid');
       input?.focus();
       return;
     }
     window.dispatchEvent(new CustomEvent('polanco:update-operation', {
-      detail: { key, value: price, source: 'mobile-cockpit' }
+      detail: { key, value: price, source: 'mobile-executive-dashboard' }
     }));
   }
 
   function bindPriceInput(input) {
     const key = input.dataset.priceInput;
-    input.addEventListener('focus', () => {
-      input.classList.remove('invalid');
-      input.value = String(parseMoney(input.value));
-      input.select();
-    });
+    input.addEventListener('focus', () => input.select());
     input.addEventListener('keydown', event => {
       if (event.key === 'Enter') {
         event.preventDefault();
@@ -201,13 +273,11 @@
       }
     });
     input.addEventListener('change', () => commitPrice(key, input.value));
-    input.addEventListener('blur', () => {
-      if (document.body.contains(input)) input.value = integer(parseMoney(input.value));
-    });
+    input.addEventListener('blur', () => commitPrice(key, input.value));
   }
 
   function bindSummaryActions() {
-    document.getElementById('mobile-edit-operation')?.addEventListener('click', () => {
+    document.getElementById('mobile-open-analyzer')?.addEventListener('click', () => {
       document.querySelector('.nav-item[data-view="analyzer"]')?.click();
     });
 
@@ -218,17 +288,10 @@
     });
 
     document.querySelectorAll('[data-price-input]').forEach(bindPriceInput);
-
-    document.querySelectorAll('[data-price-delta]').forEach(button => {
-      button.addEventListener('click', () => {
-        const key = button.dataset.priceKey;
-        const current = parseMoney(document.querySelector(`[data-price-input="${key}"]`)?.value || activeOperation()?.[key]);
-        commitPrice(key, Math.max(1000000, current + Number(button.dataset.priceDelta || 0)));
-      });
-    });
   }
 
   function renderSummary() {
+    injectStyles();
     if (!isDashboard()) return;
     const operation = activeOperation();
     const result = operation ? calculate(operation) : null;
@@ -240,9 +303,9 @@
   }
 
   let timer;
-  function schedule() {
+  function schedule(delay = 60) {
     clearTimeout(timer);
-    timer = setTimeout(renderSummary, 50);
+    timer = setTimeout(renderSummary, delay);
   }
 
   function isOwnSummaryMutation(mutation) {
@@ -258,9 +321,10 @@
   observer.observe(root, { childList: true });
 
   document.addEventListener('click', event => {
-    if (event.target.closest('.nav-item,.primary-btn,.secondary-btn,[data-edit],[data-go]')) setTimeout(schedule, 100);
+    if (event.target.closest('.nav-item,.primary-btn,.secondary-btn,[data-edit],[data-go]')) schedule(110);
   });
-  document.getElementById('current-operation')?.addEventListener('change', () => setTimeout(schedule, 100));
-  window.addEventListener('storage', schedule);
-  setTimeout(schedule, 0);
+  document.getElementById('current-operation')?.addEventListener('change', () => schedule(100));
+  window.addEventListener('storage', () => schedule(80));
+  window.addEventListener('polanco:update-operation', () => schedule(160));
+  setTimeout(() => schedule(0), 0);
 })();
