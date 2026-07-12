@@ -6,15 +6,15 @@
   <meta name="theme-color" content="#173A63">
   <meta name="description" content="Polanco OS Deal Lab: sistema de análisis y gestión de operaciones de flipping inmobiliario.">
   <title>Polanco OS · Deal Lab</title>
-  <link rel="manifest" href="manifest.webmanifest?v=340">
+  <link rel="manifest" href="manifest.webmanifest?v=350">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon.svg">
-  <link rel="stylesheet" href="styles.css?v=340">
-  <link rel="stylesheet" href="mobile.css?v=340">
-  <link rel="stylesheet" href="deal-prices.css?v=340">
+  <link rel="stylesheet" href="styles.css?v=350">
+  <link rel="stylesheet" href="mobile.css?v=350">
+  <link rel="stylesheet" href="deal-prices.css?v=350">
   <script>
     (function(){
-      const version='polanco-ui-340';
+      const version='polanco-ui-350';
       if(localStorage.getItem('polanco-ui-version')!==version){
         if('caches' in window){caches.keys().then(keys=>Promise.all(keys.map(key=>caches.delete(key))));}
         if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(reg=>reg.update()));}
@@ -50,7 +50,7 @@
       <div class="sidebar-footer">
         <div class="connection"><span id="connection-dot"></span><span id="connection-label">Datos locales protegidos</span></div>
         <button class="ghost-btn full" id="install-app" hidden>Instalar aplicación</button>
-        <small>v3.4 · Puntos mientras escribes</small>
+        <small>v3.5 · Dashboard móvil de decisión</small>
       </div>
     </aside>
 
@@ -83,9 +83,9 @@
     </div>
   </template>
 
-  <script src="engine.js?v=340"></script>
-  <script src="app.js?v=340"></script>
-  <script src="mobile-dashboard.js?v=340"></script>
+  <script src="engine.js?v=350"></script>
+  <script src="app.js?v=350"></script>
+  <script src="mobile-dashboard.js?v=350"></script>
   <script>
     (function(){
       'use strict';
