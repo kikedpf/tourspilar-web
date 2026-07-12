@@ -12,15 +12,15 @@
   <meta name="apple-mobile-web-app-title" content="Polanco OS">
   <title>Polanco OS · Deal Lab</title>
   <link rel="canonical" href="https://kikedpf.github.io/tourspilar-web/">
-  <link rel="manifest" href="manifest.webmanifest?v=520">
-  <link rel="icon" href="icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="manifest" href="manifest.webmanifest?v=560">
+  <link rel="icon" type="image/png" sizes="180x180" href="apple-touch-icon.png?v=560">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=560">
   <link rel="stylesheet" href="styles.css?v=520">
   <link rel="stylesheet" href="mobile.css?v=520">
   <link rel="stylesheet" href="deal-prices.css?v=520">
   <script>
     (function(){
-      const version='polanco-ui-540';
+      const version='polanco-ui-560';
       if(localStorage.getItem('polanco-ui-version')!==version){
         if('caches' in window){caches.keys().then(keys=>Promise.all(keys.map(key=>caches.delete(key))));}
         if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(reg=>reg.update()));}
@@ -55,7 +55,7 @@
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
       <div class="brand">
-        <div class="brand-icon">PI</div>
+        <div class="brand-icon"><img src="icon.svg?v=550" alt="P &amp; B" width="46" height="46" style="display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit"></div>
         <div><strong>POLANCO OS</strong><span>INVERSIÓN INMOBILIARIA</span></div>
       </div>
       <nav class="nav" aria-label="Navegación principal">
@@ -65,7 +65,7 @@
       <div class="sidebar-footer">
         <div class="connection"><span id="connection-dot"></span><span id="connection-label">Datos locales protegidos</span></div>
         <button class="ghost-btn full" id="install-app" hidden>Instalar aplicación</button>
-        <small>v5.4 · Instrucciones exactas de Safari</small>
+        <small>v5.6 · Icono PNG para iPhone</small>
       </div>
     </aside>
     <main class="main">
@@ -88,7 +88,7 @@
   <script src="excel-model-migration.js?v=520"></script>
   <script src="engine.js?v=520"></script>
   <script src="app.js?v=520"></script>
-  <script src="pwa-install.js?v=540"></script>
+  <script src="pwa-install.js?v=560"></script>
   <script>
     (function(){
       'use strict';
