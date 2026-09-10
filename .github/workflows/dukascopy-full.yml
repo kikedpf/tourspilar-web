@@ -7,6 +7,10 @@ on:
       - 'trading_pipeline/full_download.py'
       - '.github/workflows/dukascopy-full.yml'
 
+concurrency:
+  group: dukascopy-full-historical-data
+  cancel-in-progress: true
+
 jobs:
   generate-matrix:
     runs-on: ubuntu-latest
@@ -70,4 +74,4 @@ jobs:
           retention-days: 30
           compression-level: 6
 
-# trigger: full pipeline v1
+# v2: serialize whole workflow and tolerate recoverable tick rate limits
