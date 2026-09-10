@@ -69,3 +69,5 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
           compression-level: 6
+
+# trigger: full pipeline v1
