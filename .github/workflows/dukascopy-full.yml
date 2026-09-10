@@ -22,24 +22,21 @@ jobs:
         run: |
           python - <<'PY' >> "$GITHUB_OUTPUT"
           import json
-          from datetime import date
+          from datetime import date, timedelta
           windows=[]
           start=date(2021,8,29)
           end=date(2026,8,29)
           cur=start
+          block=timedelta(days=14)
           while cur < end:
-              if cur.month == 12:
-                  nxt=date(cur.year+1,1,1)
-              else:
-                  nxt=date(cur.year,cur.month+1,1)
-              if nxt > end:
-                  nxt=end
+              nxt=min(cur+block,end)
               windows.append(f'{cur.isoformat()}__{nxt.isoformat()}')
               cur=nxt
+          assert len(windows) < 256, len(windows)
           print('windows='+json.dumps(windows,separators=(',',':')))
           PY
 
-  monthly:
+  block:
     needs: generate-matrix
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -60,11 +57,13 @@ jobs:
         run: |
           pip install pandas pyarrow numpy
           npm install -g dukascopy-node@1.50.0
-      - name: Download and validate month
+      - name: Cooldown before Dukascopy
+        run: sleep 45
+      - name: Download and validate block
         env:
           WINDOW: ${{ matrix.window }}
         run: python trading_pipeline/full_download.py
-      - name: Upload monthly verified dataset
+      - name: Upload verified dataset block
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -74,4 +73,4 @@ jobs:
           retention-days: 30
           compression-level: 6
 
-# v2: serialize whole workflow and tolerate recoverable tick rate limits
+# v3: 14-day serialized blocks + cooldown to reduce Dukascopy 429 rate limits
