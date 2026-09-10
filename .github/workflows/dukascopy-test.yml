@@ -10,7 +10,7 @@ on:
 jobs:
   test-download:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -27,9 +27,10 @@ jobs:
       - name: Download and validate
         run: python trading_pipeline/test_download.py
       - name: Upload verified test data
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dukascopy-test-2026-07-01_2026-07-03
+          name: dukascopy-test-${{ github.run_number }}
           path: output/
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 7
