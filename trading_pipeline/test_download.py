@@ -1,4 +1,4 @@
-import subprocess, hashlib, json
+import subprocess, hashlib, json, time
 from pathlib import Path
 import pandas as pd
 import numpy as np
@@ -18,9 +18,17 @@ def stem(label, tf, side):
 def download(label, instrument, tf, side):
     s=stem(label,tf,side)
     target=RAW/f'{s}.csv'
-    cmd=['dukascopy-node','-i',instrument,'-from',START_DATE,'-to',END_DATE,'-t',tf,'-p',side,'-f','csv','-dir',str(RAW),'-fn',s,'-bs','4','-bp','1200','-r','4','-rp','2500']
-    print('RUN', ' '.join(cmd), flush=True)
-    subprocess.run(cmd, check=True)
+    cmd=['dukascopy-node','-i',instrument,'-from',START_DATE,'-to',END_DATE,'-t',tf,'-p',side,'-f','csv','-dir',str(RAW),'-fn',s,'-bs','1','-bp','2500','-r','5','-rp','5000']
+    for attempt in range(1,7):
+        print(f'ATTEMPT {attempt}/6:', ' '.join(cmd), flush=True)
+        result=subprocess.run(cmd)
+        if result.returncode==0:
+            break
+        if attempt==6:
+            raise subprocess.CalledProcessError(result.returncode,cmd)
+        delay=20*attempt
+        print(f'Download failed; cooling down {delay}s before retry',flush=True)
+        time.sleep(delay)
     if not target.exists():
         matches=list(RAW.glob(s+'*.csv'))
         if not matches:
@@ -38,16 +46,20 @@ def compact(csv_path):
     if list(df.columns)!=list(vr.columns) or len(df)!=len(vr):
         raise RuntimeError(f'Verification failed: {pq}')
     for c in df.columns:
-        if pd.api.types.is_numeric_dtype(df[c]):
-            if not np.array_equal(df[c].to_numpy(),vr[c].to_numpy(),equal_nan=True):
-                raise RuntimeError(f'Numeric mismatch {c} in {pq}')
+        if pd.api.types.is_numeric_dtype(df[c]) and not np.array_equal(df[c].to_numpy(),vr[c].to_numpy(),equal_nan=True):
+            raise RuntimeError(f'Numeric mismatch {c} in {pq}')
     csv_path.unlink()
     return pq
 
 created=[]
+failures=[]
 for label,inst in INSTRUMENTS.items():
     for tf,side in [('m1','bid'),('m1','ask'),('tick','bid')]:
-        created.append(compact(download(label,inst,tf,side)))
+        try:
+            created.append(compact(download(label,inst,tf,side)))
+        except Exception as e:
+            failures.append({'label':label,'timeframe':tf,'side':side,'error':repr(e)})
+        time.sleep(5 if tf!='tick' else 20)
 
 rows=[]
 for p in created:
@@ -57,6 +69,8 @@ for p in created:
             h.update(chunk)
     rows.append({'file':str(p),'bytes':p.stat().st_size,'sha256':h.hexdigest()})
 pd.DataFrame(rows).to_csv(REPORTS/'checksums.csv',index=False)
-manifest={'start':START_DATE,'end':END_DATE,'instruments':INSTRUMENTS,'files':[str(p) for p in created]}
+manifest={'start':START_DATE,'end':END_DATE,'instruments':INSTRUMENTS,'files':[str(p) for p in created],'failures':failures}
 (REPORTS/'manifest.json').write_text(json.dumps(manifest,indent=2),encoding='utf-8')
 print(json.dumps(manifest,indent=2))
+if failures:
+    raise RuntimeError(f'{len(failures)} download(s) failed after retries')
