@@ -1,0 +1,71 @@
+name: Dukascopy full historical data
+
+on:
+  push:
+    branches: [trading-data-pipeline]
+    paths:
+      - 'trading_pipeline/full_download.py'
+      - '.github/workflows/dukascopy-full.yml'
+
+jobs:
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      windows: ${{ steps.matrix.outputs.windows }}
+    steps:
+      - id: matrix
+        shell: bash
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from datetime import date
+          windows=[]
+          start=date(2021,8,29)
+          end=date(2026,8,29)
+          cur=start
+          while cur < end:
+              if cur.month == 12:
+                  nxt=date(cur.year+1,1,1)
+              else:
+                  nxt=date(cur.year,cur.month+1,1)
+              if nxt > end:
+                  nxt=end
+              windows.append(f'{cur.isoformat()}__{nxt.isoformat()}')
+              cur=nxt
+          print('windows='+json.dumps(windows,separators=(',',':')))
+          PY
+
+  monthly:
+    needs: generate-matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        window: ${{ fromJson(needs.generate-matrix.outputs.windows) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install pandas pyarrow numpy
+          npm install -g dukascopy-node@1.50.0
+      - name: Download and validate month
+        env:
+          WINDOW: ${{ matrix.window }}
+        run: python trading_pipeline/full_download.py
+      - name: Upload monthly verified dataset
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dukascopy-${{ matrix.window }}
+          path: output/
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 6
