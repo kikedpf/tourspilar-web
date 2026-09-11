@@ -11,8 +11,8 @@ REPORTS = ROOT / "reports"
 RAW.mkdir(parents=True, exist_ok=True)
 REPORTS.mkdir(parents=True, exist_ok=True)
 
-# Full pass = mandatory M1 bid/ask only. Ticks are recovered in a separate pipeline
-# so Dukascopy rate limits cannot block the five-year bar dataset.
+# Core pass: mandatory M1 bid/ask only. Ticks are recovered separately so
+# Dukascopy rate limiting cannot block completion of the five-year bar dataset.
 CORE_TASKS = [
     ("EURUSD","eurusd","m1","bid"),
     ("EURUSD","eurusd","m1","ask"),
@@ -26,14 +26,16 @@ def stem(label, tf, side):
 def run_download(label, instrument, tf, side):
     s = stem(label, tf, side)
     csv = RAW / f"{s}.csv"
-    delays = [0, 45, 120, 240]
+    # External backoff deliberately much slower than dukascopy-node's own retry.
+    delays = [0, 120, 360]
     for attempt, delay in enumerate(delays, 1):
         if delay:
+            print(f"Rate-limit cooldown: {delay}s", flush=True)
             time.sleep(delay)
         cmd = [
             "dukascopy-node", "-i", instrument, "-from", START_DATE, "-to", END_DATE,
             "-t", tf, "-p", side, "-f", "csv", "-dir", str(RAW), "-fn", s,
-            "-bs", "1", "-bp", "5000", "-r", "2", "-rp", "7000"
+            "-bs", "1", "-bp", "7000", "-r", "2", "-rp", "10000"
         ]
         print(f"ATTEMPT {attempt}/{len(delays)}:", " ".join(cmd), flush=True)
         rc = subprocess.run(cmd).returncode
@@ -79,13 +81,16 @@ def quality_m1(label, side, df):
 
 created, quality = [], []
 m1_frames = {}
-for label, instrument, tf, side in CORE_TASKS:
+for idx, (label, instrument, tf, side) in enumerate(CORE_TASKS):
     csv = run_download(label, instrument, tf, side)
     pq, df = verify_and_compact(csv)
     created.append(pq)
     quality.append(quality_m1(label, side, df))
     m1_frames[(label,side)] = df
-    time.sleep(15)
+    # Avoid immediately hammering the same Dukascopy endpoint for the next side.
+    if idx < len(CORE_TASKS) - 1:
+        print("Inter-download cooldown: 60s", flush=True)
+        time.sleep(60)
 
 for label in ("EURUSD","DXY_DUKASCOPY"):
     b = m1_frames[(label,"bid")][["timestamp","open","close"]].rename(columns={"open":"bid_open","close":"bid_close"})
