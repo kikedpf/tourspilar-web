@@ -1,0 +1,70 @@
+name: Dukascopy EURUSD tick recovery
+
+on:
+  push:
+    branches: [trading-data-pipeline]
+    paths:
+      - 'trading_pipeline/tick_download.py'
+      - '.github/workflows/dukascopy-ticks.yml'
+
+concurrency:
+  group: dukascopy-eurusd-ticks
+  cancel-in-progress: true
+
+jobs:
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      windows: ${{ steps.matrix.outputs.windows }}
+    steps:
+      - id: matrix
+        shell: bash
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from datetime import date,timedelta
+          windows=[]; cur=date(2021,8,29); end=date(2026,8,29); block=timedelta(days=8)
+          while cur<end:
+              nxt=min(cur+block,end); windows.append(f'{cur.isoformat()}__{nxt.isoformat()}'); cur=nxt
+          assert len(windows)<256, len(windows)
+          print('windows='+json.dumps(windows,separators=(',',':')))
+          PY
+
+  block:
+    needs: generate-matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        window: ${{ fromJson(needs.generate-matrix.outputs.windows) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install pandas pyarrow numpy
+          npm install -g dukascopy-node@1.50.0
+      - name: Cooldown before Dukascopy
+        run: sleep 120
+      - name: Download and validate EURUSD ticks
+        env:
+          WINDOW: ${{ matrix.window }}
+        run: python trading_pipeline/tick_download.py
+      - name: Upload verified tick block
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dukascopy-eurusd-ticks-${{ matrix.window }}
+          path: output/
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 6
+
+# DXY ticks intentionally excluded after persistent Dukascopy HTTP 429 responses.
