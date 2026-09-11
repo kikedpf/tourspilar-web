@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 
 window = os.environ["WINDOW"]
+TARGET = os.environ.get("TARGET", "EURUSD").upper()
 START_DATE, END_DATE = window.split("__", 1)
 ROOT = Path("output")
 RAW = ROOT / "raw"
@@ -11,14 +12,14 @@ REPORTS = ROOT / "reports"
 RAW.mkdir(parents=True, exist_ok=True)
 REPORTS.mkdir(parents=True, exist_ok=True)
 
-# Core pass: mandatory M1 bid/ask only. Ticks are recovered separately so
-# Dukascopy rate limiting cannot block completion of the five-year bar dataset.
-CORE_TASKS = [
-    ("EURUSD","eurusd","m1","bid"),
-    ("EURUSD","eurusd","m1","ask"),
-    ("DXY_DUKASCOPY","dollaridxusd","m1","bid"),
-    ("DXY_DUKASCOPY","dollaridxusd","m1","ask"),
-]
+TARGETS = {
+    "EURUSD": ("EURUSD", "eurusd"),
+    "DXY": ("DXY_DUKASCOPY", "dollaridxusd"),
+}
+if TARGET not in TARGETS:
+    raise ValueError(f"Unknown TARGET={TARGET}")
+LABEL, INSTRUMENT = TARGETS[TARGET]
+CORE_TASKS = [(LABEL, INSTRUMENT, "m1", "bid"), (LABEL, INSTRUMENT, "m1", "ask")]
 
 def stem(label, tf, side):
     return f"{label}_{tf}_{side}_{START_DATE}_{END_DATE}"
@@ -26,8 +27,8 @@ def stem(label, tf, side):
 def run_download(label, instrument, tf, side):
     s = stem(label, tf, side)
     csv = RAW / f"{s}.csv"
-    # External backoff deliberately much slower than dukascopy-node's own retry.
-    delays = [0, 120, 360]
+    # DXY has shown much stricter Dukascopy rate limiting than EURUSD.
+    delays = [0, 120, 360] if TARGET == "EURUSD" else [0, 300, 900]
     for attempt, delay in enumerate(delays, 1):
         if delay:
             print(f"Rate-limit cooldown: {delay}s", flush=True)
@@ -35,7 +36,7 @@ def run_download(label, instrument, tf, side):
         cmd = [
             "dukascopy-node", "-i", instrument, "-from", START_DATE, "-to", END_DATE,
             "-t", tf, "-p", side, "-f", "csv", "-dir", str(RAW), "-fn", s,
-            "-bs", "1", "-bp", "7000", "-r", "2", "-rp", "10000"
+            "-bs", "1", "-bp", "10000", "-r", "1", "-rp", "15000"
         ]
         print(f"ATTEMPT {attempt}/{len(delays)}:", " ".join(cmd), flush=True)
         rc = subprocess.run(cmd).returncode
@@ -79,32 +80,30 @@ def quality_m1(label, side, df):
             "largest_gap":str(gaps.max()) if len(gaps) else "0 days 00:00:00",
             "start_utc":str(ts.min()),"end_utc":str(ts.max())}
 
-created, quality = [], []
-m1_frames = {}
+created, quality, m1_frames = [], [], {}
 for idx, (label, instrument, tf, side) in enumerate(CORE_TASKS):
     csv = run_download(label, instrument, tf, side)
     pq, df = verify_and_compact(csv)
     created.append(pq)
     quality.append(quality_m1(label, side, df))
-    m1_frames[(label,side)] = df
-    # Avoid immediately hammering the same Dukascopy endpoint for the next side.
-    if idx < len(CORE_TASKS) - 1:
-        print("Inter-download cooldown: 60s", flush=True)
-        time.sleep(60)
+    m1_frames[side] = df
+    if idx == 0:
+        cooldown = 90 if TARGET == "EURUSD" else 180
+        print(f"Bid/ask cooldown: {cooldown}s", flush=True)
+        time.sleep(cooldown)
 
-for label in ("EURUSD","DXY_DUKASCOPY"):
-    b = m1_frames[(label,"bid")][["timestamp","open","close"]].rename(columns={"open":"bid_open","close":"bid_close"})
-    a = m1_frames[(label,"ask")][["timestamp","open","close"]].rename(columns={"open":"ask_open","close":"ask_close"})
-    j = b.merge(a, on="timestamp", how="outer", indicator=True)
-    missing = int((j["_merge"]!="both").sum())
-    negative = int(((j["ask_open"]-j["bid_open"]<0) | (j["ask_close"]-j["bid_close"]<0)).fillna(False).sum())
-    if missing or negative:
-        raise RuntimeError(f"{label} bid/ask crosscheck failed: missing={missing} negative={negative}")
-    quality.append({"instrument":label,"kind":"m1_crosscheck","side":"bid_ask",
-                    "rows":len(j),"duplicates":0,"missing_bid_or_ask":missing,"negative_spread":negative})
+b = m1_frames["bid"][["timestamp","open","close"]].rename(columns={"open":"bid_open","close":"bid_close"})
+a = m1_frames["ask"][["timestamp","open","close"]].rename(columns={"open":"ask_open","close":"ask_close"})
+j = b.merge(a, on="timestamp", how="outer", indicator=True)
+missing = int((j["_merge"]!="both").sum())
+negative = int(((j["ask_open"]-j["bid_open"]<0) | (j["ask_close"]-j["bid_close"]<0)).fillna(False).sum())
+if missing or negative:
+    raise RuntimeError(f"{LABEL} bid/ask crosscheck failed: missing={missing} negative={negative}")
+quality.append({"instrument":LABEL,"kind":"m1_crosscheck","side":"bid_ask",
+                "rows":len(j),"duplicates":0,"missing_bid_or_ask":missing,"negative_spread":negative})
 
 q = pd.DataFrame(quality)
-q.to_csv(REPORTS / f"quality_{START_DATE}_{END_DATE}.csv", index=False)
+q.to_csv(REPORTS / f"quality_{LABEL}_{START_DATE}_{END_DATE}.csv", index=False)
 rows=[]
 for p in sorted(created):
     h=hashlib.sha256()
@@ -112,14 +111,14 @@ for p in sorted(created):
         for chunk in iter(lambda:f.read(8*1024*1024), b""):
             h.update(chunk)
     rows.append({"file":str(p.relative_to(ROOT)),"bytes":p.stat().st_size,"sha256":h.hexdigest()})
-pd.DataFrame(rows).to_csv(REPORTS / f"checksums_{START_DATE}_{END_DATE}.csv", index=False)
+pd.DataFrame(rows).to_csv(REPORTS / f"checksums_{LABEL}_{START_DATE}_{END_DATE}.csv", index=False)
 manifest = {
     "source":"Dukascopy public historical data feed",
+    "target":TARGET,"instrument":INSTRUMENT,
     "start_inclusive":START_DATE,"end_exclusive":END_DATE,"timezone":"UTC",
-    "EURUSD":{"m1":["bid","ask"],"ticks":"separate recovery pipeline"},
-    "DXY_DUKASCOPY":{"instrument":"dollaridxusd","m1":["bid","ask"],"ticks":"not used in core bar dataset"},
+    "m1":["bid","ask"],"ticks":"separate recovery pipeline",
     "files":[str(p.relative_to(ROOT)) for p in created]
 }
-(REPORTS / f"manifest_{START_DATE}_{END_DATE}.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+(REPORTS / f"manifest_{LABEL}_{START_DATE}_{END_DATE}.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 print(q.to_string(index=False))
 print(json.dumps(manifest, indent=2))
