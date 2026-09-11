@@ -27,7 +27,7 @@ jobs:
           start=date(2021,8,29)
           end=date(2026,8,29)
           cur=start
-          block=timedelta(days=28)
+          block=timedelta(days=14)
           while cur < end:
               nxt=min(cur+block,end)
               windows.append(f'{cur.isoformat()}__{nxt.isoformat()}')
@@ -39,7 +39,7 @@ jobs:
   block:
     needs: generate-matrix
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       max-parallel: 1
@@ -58,7 +58,7 @@ jobs:
           pip install pandas pyarrow numpy
           npm install -g dukascopy-node@1.50.0
       - name: Cooldown before Dukascopy
-        run: sleep 45
+        run: sleep 90
       - name: Download and validate core M1 block
         env:
           WINDOW: ${{ matrix.window }}
