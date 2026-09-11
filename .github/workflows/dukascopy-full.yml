@@ -12,10 +12,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  generate-matrix:
+  generate-matrices:
     runs-on: ubuntu-latest
     outputs:
-      windows: ${{ steps.matrix.outputs.windows }}
+      eur_windows: ${{ steps.matrix.outputs.eur_windows }}
+      dxy_windows: ${{ steps.matrix.outputs.dxy_windows }}
     steps:
       - id: matrix
         shell: bash
@@ -23,28 +24,31 @@ jobs:
           python - <<'PY' >> "$GITHUB_OUTPUT"
           import json
           from datetime import date, timedelta
-          windows=[]
           start=date(2021,8,29)
           end=date(2026,8,29)
-          cur=start
-          block=timedelta(days=14)
-          while cur < end:
-              nxt=min(cur+block,end)
-              windows.append(f'{cur.isoformat()}__{nxt.isoformat()}')
-              cur=nxt
-          assert len(windows) < 256, len(windows)
-          print('windows='+json.dumps(windows,separators=(',',':')))
+          def make(days):
+              out=[]; cur=start; block=timedelta(days=days)
+              while cur < end:
+                  nxt=min(cur+block,end)
+                  out.append(f'{cur.isoformat()}__{nxt.isoformat()}')
+                  cur=nxt
+              return out
+          eur=make(28)
+          dxy=make(14)
+          assert len(eur) < 256 and len(dxy) < 256
+          print('eur_windows='+json.dumps(eur,separators=(',',':')))
+          print('dxy_windows='+json.dumps(dxy,separators=(',',':')))
           PY
 
-  block:
-    needs: generate-matrix
+  eurusd:
+    needs: generate-matrices
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       fail-fast: false
       max-parallel: 1
       matrix:
-        window: ${{ fromJson(needs.generate-matrix.outputs.windows) }}
+        window: ${{ fromJson(needs.generate-matrices.outputs.eur_windows) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -58,20 +62,61 @@ jobs:
           pip install pandas pyarrow numpy
           npm install -g dukascopy-node@1.50.0
       - name: Cooldown before Dukascopy
-        run: sleep 90
-      - name: Download and validate core M1 block
+        run: sleep 60
+      - name: Download and validate EURUSD M1 block
         env:
           WINDOW: ${{ matrix.window }}
+          TARGET: EURUSD
         run: python trading_pipeline/full_download.py
-      - name: Upload verified dataset block
+      - name: Upload verified EURUSD block
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dukascopy-core-${{ matrix.window }}
+          name: dukascopy-eurusd-${{ matrix.window }}
           path: output/
           if-no-files-found: warn
           retention-days: 30
           compression-level: 6
 
-# Core dataset intentionally excludes ticks. Tick data is recovered separately so
-# Dukascopy HTTP 429 limits cannot block completion of five years of M1 bid/ask.
+  dxy:
+    needs: [generate-matrices, eurusd]
+    if: always() && needs.generate-matrices.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        window: ${{ fromJson(needs.generate-matrices.outputs.dxy_windows) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install pandas pyarrow numpy
+          npm install -g dukascopy-node@1.50.0
+      - name: Extended cooldown before DXY
+        run: sleep 300
+      - name: Download and validate DXY M1 block
+        env:
+          WINDOW: ${{ matrix.window }}
+          TARGET: DXY
+        run: python trading_pipeline/full_download.py
+      - name: Upload verified DXY block
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dukascopy-dxy-${{ matrix.window }}
+          path: output/
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 6
+
+# Core dataset intentionally excludes ticks. Tick data is recovered separately.
+# EURUSD completes first; only then does DXY begin, preventing the repeated
+# EURUSD->DXY request pattern that consistently triggered Dukascopy HTTP 429.
