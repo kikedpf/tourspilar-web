@@ -27,7 +27,7 @@ jobs:
           start=date(2021,8,29)
           end=date(2026,8,29)
           cur=start
-          block=timedelta(days=14)
+          block=timedelta(days=28)
           while cur < end:
               nxt=min(cur+block,end)
               windows.append(f'{cur.isoformat()}__{nxt.isoformat()}')
@@ -39,7 +39,7 @@ jobs:
   block:
     needs: generate-matrix
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       max-parallel: 1
@@ -59,7 +59,7 @@ jobs:
           npm install -g dukascopy-node@1.50.0
       - name: Cooldown before Dukascopy
         run: sleep 45
-      - name: Download and validate block
+      - name: Download and validate core M1 block
         env:
           WINDOW: ${{ matrix.window }}
         run: python trading_pipeline/full_download.py
@@ -67,10 +67,11 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dukascopy-${{ matrix.window }}
+          name: dukascopy-core-${{ matrix.window }}
           path: output/
           if-no-files-found: warn
           retention-days: 30
           compression-level: 6
 
-# v3: 14-day serialized blocks + cooldown to reduce Dukascopy 429 rate limits
+# Core dataset intentionally excludes ticks. Tick data is recovered separately so
+# Dukascopy HTTP 429 limits cannot block completion of five years of M1 bid/ask.
