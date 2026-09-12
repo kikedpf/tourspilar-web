@@ -1,0 +1,73 @@
+name: BeLikeTheAlgo - finalize module 11 progress
+
+on:
+  push:
+    branches: [belikethealgo-course-study]
+    paths: ['.github/workflows/belikethealgo-finalize-module-11.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: belikethealgo-course-study
+      - name: Update study progress
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('projects/belikethealgo-course-study/STUDY_PROGRESS.md')
+          s = p.read_text(encoding='utf-8')
+          marker = '## 11) Confirmaciones de Entrada a un Trade'
+          if marker not in s:
+              raise SystemExit('Module 11 marker not found')
+          head = s.split(marker, 1)[0].rstrip()
+          tail = '''## 11) Confirmaciones de Entrada a un Trade — MODULE COMPLETE
+
+### 1) Confirmaciones de entrada.mp4 — COMPLETE
+- Duration: ~23.8 min; 225 transcript segments; 286 periodic frames; 236 detected chart-state changes.
+- Benjamin explicitly teaches three LTF confirmations after relevant liquidity/location: **cambio de estructura**, **impulso + imbalance**, and **formación de velas**.
+- They are not equally weighted. Under normal conditions, `impulso + imbalance` is the mandatory core and Benjamin asks for at least two of the three confirmations.
+- Preferred normal pair: `impulso + imbalance + cambio de estructura`; alternative pair: `impulso + imbalance + formación de velas`.
+- After retracement into the selected imbalance, execution can be direct/market at the zone or delayed until an extra directional confirmation candle. That candle is an execution refinement, not a fourth universally mandatory setup confirmation.
+- LTF confirmation is invalid in isolation: HTF location/direction, meaningful liquidity interaction and valid session/time must already support the setup.
+- Explicit no-trade evidence: if price reaches the area but gives no confirmation, do not enter; lower-timeframe bullish/bearish signals must not override unresolved higher-priority HTF external liquidity.
+- Conditional news exception: a very large news impulse can make the normal structure-change level impractically distant; Benjamin allows operating without waiting for structure change only when HTF location/liquidity/direction and the other confirmation evidence are exceptionally strong. This is not a generic news exemption.
+- Detailed record: `study/11-confirmaciones-de-entrada/01-confirmaciones-de-entrada.md`.
+- Quantitative research specification: `docs/entry_confirmation_measurement_model.md`.
+
+### Module 11 consolidated rule
+
+```text
+RELEVANT HTF LOCATION + LIQUIDITY EVENT + VALID SESSION
+-> move to 1m–5m
+-> require IMPULSE + IMBALANCE
+-> normally require at least one more confirmation:
+     STRUCTURE CHANGE (preferred) OR CANDLE FORMATION
+-> optional extra directional candle for execution refinement
+-> block trade if unresolved higher-priority HTF liquidity/context contradicts it
+-> if no confirmation: NO TRADE
+```
+
+Exact impulse threshold, structure-break threshold, confirmation-candle geometry and objective HTF-draw detector remain calibration problems for the weekly corpus.
+
+## 12) Trading Plan — NEXT
+
+### 1) Mi trading plan explicado.mp4 — NEXT
+- Next video in verified course order.
+- Study questions: exact full decision sequence, mandatory filters, session/day restrictions, trade frequency, risk per setup/day, stop/target/BE/partial rules, multiple-position rules, cancellation conditions, and reconciliation of earlier conditional risk/management statements.
+'''
+          p.write_text(head + '\n\n' + tail, encoding='utf-8')
+          PY
+      - name: Commit progress update
+        run: |
+          git config user.name "kikedpf"
+          git config user.email "kipolan12@hotmail.es"
+          git add projects/belikethealgo-course-study/STUDY_PROGRESS.md
+          git diff --cached --quiet && exit 0
+          git commit -m "Complete BeLikeTheAlgo module 11 entry confirmations"
+          git push origin HEAD:belikethealgo-course-study
