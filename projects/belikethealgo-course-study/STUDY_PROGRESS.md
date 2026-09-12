@@ -170,11 +170,51 @@ LIQUIDITY + VALID SESSION + LTF REACTION
 
 Orderblocks remain useful as higher-timeframe location/confluence tools — especially clean rejection blocks — but current course evidence does not justify forcing one into every trade.
 
-## 6) Importancia de las Velas Japonesas — NEXT
+## 6) Importancia de las Velas Japonesas — MODULE COMPLETE
 
-### 1) Importancia de las velas japonesas.mp4 — NEXT
-- Verified in MEGA inventory (~110.9 MB).
-- Study questions: what candle properties Benjamin treats as confirmation, how he distinguishes a valid reaction candle from noise, wick/body/close requirements, relationship to liquidity/structure/POI, and whether any rule is mandatory or only additional confirmation.
+### 1) Importancia de las velas japonesas.mp4 — COMPLETE
+- Duration: ~32.8 min; 345 transcript segments; 394 periodic frames; 247 chart-state changes.
+- A candle formation is not an isolated signal: Benjamin first wants relevant liquidity/POI and valid trading time, then reads the LTF reaction.
+- Strong closed-candle rule: do not judge/enter from the apparent candle shape before the candle closes; the wick/body can change in the final seconds.
+- Rejection wick gives useful information, but a rejection wick alone is explicitly insufficient when no strong displacement/imbalance follows.
+- Preferred clean sell sequence: liquidity/high sweep -> rejection information -> strong bearish decision/displacement -> imbalance. Buy logic is mirrored around lows.
+- Benjamin describes a preferred three-candle/staircase formation: first candle, second candle creates/takes the extreme, third candle produces the directional displacement.
+- Doji/indecision is not automatically invalid; one real example is accepted because the relevant wick rejects, the next decision candle is very large, an imbalance is created and session/Asia context aligns.
+- 1m, 2m, 3m and 5m can all be used; lower timeframe offers tighter/faster execution but more false-entry risk.
+- The first geometrically valid imbalance after a zone is not guaranteed to be the correct/best entry; candle quality helps rank it.
+- Exact wick/body/displacement thresholds remain intentionally unresolved.
+- Detailed evidence record: `study/06-velas-japonesas/01-importancia-de-las-velas-japonesas.md`.
 
-### 2) Formación de velas japonesas.mp4 — PENDING
+### 2) Formación de velas japonesas.mp4 — COMPLETE
+- Duration: ~15.3 min; 145 transcript segments; 184 periodic frames; 186 chart-state changes.
+- Benjamin explicitly calls the preferred sequence the **patrón 1-3** and repeatedly contrasts it with poor/unclean formations.
+- In the bearish worked comparison, the preferred third candle closes decisively below the relevant earlier/reference candle; the weaker example is rejected for not producing that clean close/reaction. Bullish logic is mirrored.
+- The pattern matters because candle 2 collects relevant liquidity and price then reacts strongly; similar geometry at an irrelevant location is not equivalent.
+- Positive and negative examples confirm that not every rejection wick or imbalance deserves an entry.
+- A later example combines candle formation + clean rejection block + inducement; Benjamin says the subsequent structure change can be extra confluence but is not necessary in that example.
+- He explicitly warns against blindly entering the first imbalance if the candle formation is poor.
+- Both limit entries and first-confirmation-candle entries remain valid variants.
+- Large favorable impulse can lead him to reduce stop risk or move to break-even, but no objective universal BE threshold is yet taught.
+- Targets again include roughly 1:3 or a definitive next liquidity/minimum objective.
+- Detailed evidence record: `study/06-velas-japonesas/02-formacion-de-velas-japonesas.md`.
+
+### Module 6 consolidated rule
+
+```text
+VALID LOCATION / LIQUIDITY + VALID TIME
+-> CLOSED rejection information
+-> CLEAN 1-3-style directional reaction / displacement
+-> often an imbalance
+-> entry candidate
+```
+
+Candle formation is now a major LTF confirmation/ranking feature, but it does not override liquidity, session, news or higher-timeframe context. The exact OHLC inequality and numerical wick/body thresholds must be calibrated from labelled examples rather than guessed. Quantitative candidate fields are documented in `docs/candlestick_measurement_model.md`.
+
+## 7) Rango de Asia — NEXT
+
+### 1) AMD + Indicador Asia Session.mp4 — NEXT
+- Next video in verified course order.
+- Study questions: exact Asia-session boundaries/timezone, how accumulation/manipulation/distribution are defined, which Asia high/low becomes liquidity, and any indicator settings required.
+
+### 2) Tipos de escenarios (Judas y Retest).mp4 — PENDING
 - Must be studied after video 1 is complete.
