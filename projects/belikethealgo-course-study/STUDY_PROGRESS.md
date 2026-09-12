@@ -129,15 +129,52 @@ Study strictly in published order: folder 1 -> folder 2 -> ... -> last folder. W
 - Break-even management is introduced around interaction with the next max/min/liquidity, but no universal BE algorithm is accepted yet.
 - Detailed evidence record: `study/04-imbalances/02-imbalances-vol-2.md`.
 
-## 5) Orderblocks — NEXT / PROCESSING
+## 5) Orderblocks — MODULE COMPLETE
 
-### 1) Tipos de Orderblocks.mp4 — NEXT
-- Module 5 verified directly from the MEGA course inventory.
-- Coarse processing pipeline has been launched: transcription + periodic frames + visual-event extraction.
-- Study questions: Benjamin's exact orderblock definition(s), candle/range geometry, bullish/bearish variants, creation conditions, mitigation/invalidation, timeframe role, interaction with liquidity/structure/imbalance, and whether every displayed orderblock is actionable.
+### 1) Tipos de Orderblocks.mp4 — COMPLETE
+- Duration: ~11.25 min.
+- Full transcript plus 135 periodic frames and visual-event/state-change evidence reviewed.
+- Core definition: one relevant candle, generally opposite to the subsequent strong impulse; Benjamin rejects treating an arbitrary multi-candle supply/demand range as the orderblock.
+- Classic orderblock: higher-timeframe point of interest; prior max/min inducement materially increases relevance.
+- Rejection block: wick liquidates the previous wick/extreme, strong displacement follows, and the area must remain untouched before the intended first retest; Benjamin says this is the subtype that works best for him.
+- Already-touched rejection block is explicitly invalidated for future first-touch use.
+- Breaker block: broken prior POI/orderblock role later retested from the opposite side; Benjamin uses it least and treats it mainly as added confluence.
+- POI timeframes explicitly named: Daily, 4H, 1H, 30m, minimum 15m. Execution reaction is sought on lower timeframe.
+- Exact classic-zone body/wick boundaries and numerical displacement threshold remain unresolved rather than invented.
+- Detailed evidence record: `study/05-orderblocks/01-tipos-de-orderblocks.md`.
 
-### 2) Ejemplos de Orderblocks.mp4 — PENDING
-- Must be studied after video 1 is COMPLETE.
+### 2) Ejemplos de Orderblocks.mp4 — COMPLETE
+- Duration: ~4.28 min.
+- All three worked examples indexed: classic, rejection block and breaker block.
+- Classic counterfactual confirms that a direct touch before inducement is lower probability / not Benjamin's preferred setup.
+- Rejection example confirms previous-wick sweep + untouched state + intermediate liquidity before retest.
+- Explicit timeframe workflow: Daily/4H/1H/30m/15m for POI; roughly 1–5m for lower-timeframe reaction/entry search.
+- Breaker example overlaps an imbalance; Benjamin says the imbalance would already have been his main POI and the breaker increases confluence rather than replacing it.
+- Detailed evidence record: `study/05-orderblocks/02-ejemplos-de-orderblocks.md`.
 
-### 3) Las Orderblocks funcionan.mp4 — PENDING
-- Must be studied after video 2 is COMPLETE.
+### 3) Las Orderblocks funcionan.mp4 — COMPLETE
+- Duration: ~5.81 min.
+- Module hierarchy is made explicit: maxima/minima/liquidity + valid trading hours are more important than orderblocks.
+- Benjamin says he practically no longer needs orderblocks and can trade a valid liquidity + timing + LTF-reaction setup even when no orderblock exists.
+- Reverse case is rejected: orderblock present but no prior relevant liquidity -> the orderblock itself can become the liquidity price takes.
+- Therefore `orderblock_required_for_trade = false`; orderblock is an optional confluence, not a universal strategy gate.
+- Valid London/New York session remains required for the POI/liquidity interaction.
+- Detailed evidence record: `study/05-orderblocks/03-las-orderblocks-funcionan.md`.
+
+### Module 5 consolidated rule
+
+```text
+LIQUIDITY + VALID SESSION + LTF REACTION
+> ORDERBLOCK
+```
+
+Orderblocks remain useful as higher-timeframe location/confluence tools — especially clean rejection blocks — but current course evidence does not justify forcing one into every trade.
+
+## 6) Importancia de las Velas Japonesas — NEXT
+
+### 1) Importancia de las velas japonesas.mp4 — NEXT
+- Verified in MEGA inventory (~110.9 MB).
+- Study questions: what candle properties Benjamin treats as confirmation, how he distinguishes a valid reaction candle from noise, wick/body/close requirements, relationship to liquidity/structure/POI, and whether any rule is mandatory or only additional confirmation.
+
+### 2) Formación de velas japonesas.mp4 — PENDING
+- Must be studied after video 1 is complete.
