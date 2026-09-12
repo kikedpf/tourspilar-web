@@ -116,6 +116,109 @@ Menor solapamiento puede corresponder a un desplazamiento más limpio; la relaci
 
 No se construirá un único `displacement_score` hasta comprobar qué combinación reproduce mejor los ejemplos que Benjamín llama desplazamiento.
 
+## Imbalances
+
+La geometría base ya está confirmada en `Imbalances Vol 1`: Benjamín define el imbalance mediante **tres velas consecutivas** y la ausencia de contacto entre el rango/mecha de la vela 1 y el rango/mecha de la vela 3.
+
+### Detector geométrico base
+
+Para velas consecutivas `c1, c2, c3`:
+
+**Imbalance alcista:**
+
+`high(c1) < low(c3)`
+
+con zona:
+
+`zone = [high(c1), low(c3)]`
+
+**Imbalance bajista:**
+
+`low(c1) > high(c3)`
+
+con zona:
+
+`zone = [high(c3), low(c1)]`
+
+Si vela 1 y vela 3 se tocan o solapan, no existe el hueco/ineficiencia que Benjamín está definiendo en esa lección.
+
+No se añade por ahora ningún umbral mínimo de pips, ATR o porcentaje porque el curso todavía no lo ha establecido.
+
+### Tamaño normalizado — métrica auxiliar
+
+`gap_size = zone_high - zone_low`
+
+`gap_size_atr = gap_size / ATR_ref`
+
+Esta medida permitirá investigar si el tamaño de la ineficiencia cambia la probabilidad o magnitud de la reacción, pero **no forma parte aún de la definición mínima de Benjamín**.
+
+### Estado limpio / mitigado
+
+Vol. 1 establece una regla fuerte: el imbalance que Benjamín quiere usar debe permanecer **limpio**, es decir, no haber sido tocado desde su formación.
+
+Para una zona `[zone_low, zone_high]`, una vela posterior `k` intersecta/toca la zona cuando:
+
+`touch(k) = (high_k >= zone_low) AND (low_k <= zone_high)`
+
+Estado:
+
+`clean = true` al quedar formado/conocido el imbalance.
+
+En el primer `touch(k)` posterior:
+
+`clean = false`
+
+`first_touch_time = k`
+
+`state = mitigated`
+
+Benjamín trata esa primera interacción como suficiente para perder el estatus de imbalance limpio; no exige que la zona se rellene al 50% o al 100%.
+
+Por prudencia, hasta que otra lección diga lo contrario, la igualdad exacta con el borde se contará como toque.
+
+### Profundidad de mitigación — métricas auxiliares
+
+Aunque la primera interacción ya invalide el estado `clean` para el uso enseñado, almacenaremos cuánto entra el precio:
+
+`fill_fraction = penetration_into_zone / gap_size`
+
+acotado descriptivamente entre 0 y 1 para el relleno de la zona; sobrepasar totalmente la zona puede registrarse por separado.
+
+También se guardarán:
+
+- `bars_until_first_touch`;
+- `reaction_distance_atr` después del primer toque;
+- `max_penetration_before_reaction`;
+- `touch_count` para análisis, aunque el segundo toque ya no sea una entrada limpia bajo Vol. 1.
+
+### Contexto de creación — métricas auxiliares
+
+Para comprobar la asociación que Benjamín hace entre impulso e imbalance se guardará:
+
+- `middle_candle_range_atr`;
+- `middle_candle_body_ratio`;
+- `creation_displacement_efficiency`;
+- `creation_range_expansion`;
+- número de imbalances creados dentro del impulso;
+- relación con el quiebre/cambio de estructura.
+
+No se fija aún qué valores hacen obligatorio un imbalance de alta calidad.
+
+### Jerarquía y función
+
+Cada imbalance debe guardar:
+
+- `tf`;
+- `role ∈ {zona_HTF, entrada_LTF}`;
+- `liquidity_confluence`;
+- `structure_context`;
+- `direction`;
+- `created_at`;
+- `known_time` (no anterior a que la vela 3 esté disponible/cerrada conforme a la lógica usada en el backtest);
+- `clean/mitigated`.
+
+Vol. 1 da prioridad contextual a timeframes mayores (Daily > 4H > 1H en el ejemplo de búsqueda descendente), pero todavía no existe una fórmula numérica de ranking.
+
 ## Antes y después de liquidez / quiebre
 
 Para cada evento principal se medirán ventanas separadas:
