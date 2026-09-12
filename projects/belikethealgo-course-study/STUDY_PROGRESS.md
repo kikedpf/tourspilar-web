@@ -95,7 +95,7 @@ Study strictly in published order: folder 1 -> folder 2 -> ... -> last folder. W
 - V2 provides the first strong basis for a quantitative break-quality vector: close penetration, body/range, candles-to-break, directional efficiency, expansion, overlap, imbalance creation/size and follow-through.
 - Detailed evidence record: `study/03-estructura/02-estructura-v2.md`.
 
-## 4) Imbalances
+## 4) Imbalances — MODULE COMPLETE
 
 ### 1) Imbalances Vol 1.mp4 — COMPLETE
 - Duration: ~12.22 min.
@@ -112,7 +112,22 @@ Study strictly in published order: folder 1 -> folder 2 -> ... -> last folder. W
 - Mathematical detector and clean/mitigated state machine added to `docs/measurement_model.md`, including gap size/ATR and penetration/reaction metrics without invented thresholds.
 - Detailed evidence record: `study/04-imbalances/01-imbalances-vol-1.md`.
 
-### 2) Imbalances Vol 2.mp4 — NEXT / IN ANALYSIS
-- Coarse transcript, periodic frames and state-change evidence are available from the processed artifact.
-- Priority: identify any refinements to imbalance validity/mitigation, multi-timeframe selection, entry choice, confirmation, stop/target use, and additional positive/negative examples.
-- V2 must be checked against the mathematical detector created from Vol. 1 before the imbalance module is finalized.
+### 2) Imbalances Vol 2.mp4 — COMPLETE
+- Duration: ~9.74 min.
+- Dense full-video evidence: 1,169 timestamped frames at 2 fps.
+- This lesson integrates the earlier theory into one near-complete EUR/USD trade example rather than introducing a new geometric imbalance definition.
+- Explicit search order: valid session -> HTF liquidity/imbalance zone -> LTF entry search.
+- For beginners Benjamin recommends zones at 1H or above; 15m zone selection is presented as an advanced refinement. Entry search remains 1–5m.
+- Liquidity (max/min) coinciding with an imbalance is described as a very strong/“combo perfecto” confluence but is not yet proven mandatory for every trade.
+- Example date/time visually confirmed: EUR/USD, 30 Nov 2023, New York session, TradingView timezone UTC-5; 1m chart around 08:20–08:40.
+- Benjamin explicitly waits for the 08:30 news event before evaluating the LTF execution.
+- Entry sequence in the example: price reaches HTF zone -> 1m change of structure -> no entry imbalance initially -> first LTF imbalance forms -> candidate entry.
+- Two allowed execution paths are shown: limit order at the entry imbalance or later candle confirmation.
+- Stop is not chosen from a fixed pip count. Benjamin balances structural protection with R:R and rejects an unnecessarily wide stop that would collapse the trade toward ~1:1.
+- Target is tied to the next relevant minimum/liquidity. Benjamin repeatedly states a minimum target framework of roughly 1:2 R:R for this example/approach.
+- Final position tool visually shows approximately 9.2-pip stop, 19-pip target and ~2.07R. This is one example, not an expectancy claim.
+- Break-even management is introduced around interaction with the next max/min/liquidity, but no universal BE algorithm is accepted yet.
+- Detailed evidence record: `study/04-imbalances/02-imbalances-vol-2.md`.
+
+## 5) NEXT MODULE
+- Pending exact MEGA folder inventory. Continue only after verifying the published module 5 name and its internal video order; do not infer it from outside sources.
