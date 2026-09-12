@@ -63,7 +63,7 @@ Study strictly in published order: folder 1 -> folder 2 -> ... -> last folder. W
 - Exact European-bank count is unresolved because Benjamin gives inconsistent wording ('4 or 5' in one example, later 'more than 2 or 3').
 - Detailed evidence record: `study/02-principios-basicos/04-cuidado-con-las-noticias.md`.
 
-## 3) Estructura
+## 3) Estructura — MODULE COMPLETE
 
 ### 1) Estructura V1.mp4 — COMPLETE
 - Duration: ~15.4 min.
@@ -81,7 +81,23 @@ Study strictly in published order: folder 1 -> folder 2 -> ... -> last folder. W
 - Quantitative measurements queued: close penetration/ATR, body/range, range expansion, directional efficiency, follow-through, pullback, aggressive/conservative reference selector, internal/external context.
 - Detailed evidence record: `study/03-estructura/01-estructura-v1.md`.
 
-### 2) Estructura V2.mp4 — NEXT / IN ANALYSIS
+### 2) Estructura V2.mp4 — COMPLETE
+- Duration: ~15.65 min.
+- Dense full-video evidence: 1,879 timestamped frames at 2 fps.
+- External liquidity is mapped to the structural range endpoints; smaller eligible highs/lows inside are internal liquidity.
+- HTF 4H structure changes trade priority/probability rather than imposing an absolute directional ban: with-trend setups are preferred, counter-trend retracements remain possible.
+- LTF confirmation is stricter: body break + force/impulse + imbalances are strongly supported; wick-only or slow multi-candle/grinding breaks are rejected.
+- Clean candle formation, immediate internal-liquidity take and a later confirmation candle act as additional/preferred confirmations rather than proven universal requirements.
+- Negative 1m example is explicitly rejected for poor body break, poor candle formation and lack of force/confirmation.
+- Aggressive vs conservative structural references are reinforced. An aggressive level can be used earlier when break quality is strong and an imbalance is created/respected.
+- Additional confirmation has a cost: later entry, wider/more compromised stop and worse R:R.
+- Counter-trend 1m example confirms more conservative management when 4H context opposes the trade, including more defensive break-even behavior.
+- V2 provides the first strong basis for a quantitative break-quality vector: close penetration, body/range, candles-to-break, directional efficiency, expansion, overlap, imbalance creation/size and follow-through.
+- Detailed evidence record: `study/03-estructura/02-estructura-v2.md`.
+
+## 4) Imbalances
+
+### 1) Imbalances Vol 1.mp4 — NEXT / IN ANALYSIS
 - Coarse transcript, periodic frames and state-change evidence already available.
-- Priority: determine which V1 rules are reinforced, modified or qualified; inventory all HTF/LTF structure examples and any additional entry-confirmation logic.
-- Completion requires dense visual reconstruction before any final structure detector is accepted.
+- Priority: derive Benjamin's exact three-candle imbalance/FVG definition, directionality, mitigation/fill rules, validity/invalidation, relationship to impulse/structure and every visual example.
+- No numerical gap-size threshold will be invented before the examples are measured.
