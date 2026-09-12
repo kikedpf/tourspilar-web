@@ -97,7 +97,22 @@ Study strictly in published order: folder 1 -> folder 2 -> ... -> last folder. W
 
 ## 4) Imbalances
 
-### 1) Imbalances Vol 1.mp4 — NEXT / IN ANALYSIS
-- Coarse transcript, periodic frames and state-change evidence already available.
-- Priority: derive Benjamin's exact three-candle imbalance/FVG definition, directionality, mitigation/fill rules, validity/invalidation, relationship to impulse/structure and every visual example.
-- No numerical gap-size threshold will be invented before the examples are measured.
+### 1) Imbalances Vol 1.mp4 — COMPLETE
+- Duration: ~12.22 min.
+- Dense full-video evidence: 1,528 timestamped frames at ~2 fps.
+- Exact base geometry: three candles; an imbalance exists when candle 1 and candle 3 ranges/wicks do not touch, leaving a gap. Bullish and bearish forms are visually confirmed.
+- No minimum pip/ATR/percentage gap-size threshold is taught in this lesson.
+- Two distinct roles: higher-timeframe zone of interest and lower-timeframe entry tool.
+- HTF zone hierarchy is explicit: Weekly, Daily, 4H, 1H, with 15m as Benjamin's minimum when necessary; beginners are advised not to go below 1H for zones.
+- Multiple 1H examples show strong impulse -> imbalance -> later first touch/mitigation -> reaction. These examples are evidence of the pattern, not statistical proof of expectancy.
+- Liquidity/max-min confluence increases probability but is explicitly not mandatory for an imbalance to have relevance.
+- Strong clean-state rule: the imbalance Benjamin wants to use must be untouched. First later touch makes it mitigated; he says he would delete it and not treat a second return as the same relevant clean zone.
+- Full fill is not required for mitigation; first touch is enough under the wording/examples in Vol. 1.
+- 15m -> 1m example: mark clean 15m bearish imbalance after high manipulation/displacement, wait for price to enter it, observe 1m imbalances + structure change, then use a still-clean LTF imbalance as possible limit/confirmation entry location toward next low/liquidity.
+- Mathematical detector and clean/mitigated state machine added to `docs/measurement_model.md`, including gap size/ATR and penetration/reaction metrics without invented thresholds.
+- Detailed evidence record: `study/04-imbalances/01-imbalances-vol-1.md`.
+
+### 2) Imbalances Vol 2.mp4 — NEXT / IN ANALYSIS
+- Coarse transcript, periodic frames and state-change evidence are available from the processed artifact.
+- Priority: identify any refinements to imbalance validity/mitigation, multi-timeframe selection, entry choice, confirmation, stop/target use, and additional positive/negative examples.
+- V2 must be checked against the mathematical detector created from Vol. 1 before the imbalance module is finalized.
