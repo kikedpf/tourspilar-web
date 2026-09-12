@@ -85,21 +85,20 @@ def main():
         meta=probe(video)
         (lesson_dir/'ffprobe.json').write_text(json.dumps(meta,indent=2),encoding='utf-8')
 
-        # Periodic frames for continuous visual context.
         run(['ffmpeg','-hide_banner','-loglevel','error','-y','-i',str(video),
              '-vf',f'fps=1/{FRAME_INTERVAL},scale=1280:-2', '-q:v','4',str(frames_dir/'frame_%05d.jpg')])
-        # Scene-change frames catch slides/chart switches/annotations.
         run(['ffmpeg','-hide_banner','-loglevel','error','-y','-i',str(video),
              '-vf',f"select='gt(scene,{SCENE_THRESHOLD})',scale=1280:-2",'-vsync','vfr','-q:v','4',str(scene_dir/'scene_%05d.jpg')])
 
-        info, segments_gen = model.transcribe(str(video), language='es', vad_filter=True, beam_size=5,
+        segments_gen, info = model.transcribe(str(video), language='es', vad_filter=True, beam_size=5,
                                              word_timestamps=False, condition_on_previous_text=True)
         segments=[]
         srt=[]
         text=[]
         for idx, seg in enumerate(segments_gen,1):
             t=seg.text.strip()
-            if not t: continue
+            if not t:
+                continue
             row={'id':idx,'start':round(seg.start,3),'end':round(seg.end,3),'text':t}
             segments.append(row)
             text.append(f'[{seg.start:8.2f}-{seg.end:8.2f}] {t}')
