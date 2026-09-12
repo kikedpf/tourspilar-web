@@ -1,4 +1,4 @@
-name: Dukascopy DXY resumable five-year
+name: Dukascopy DXY split BID ASK five-year
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 concurrency:
   group: dukascopy-dxy-resumable-five-year
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   windows:
@@ -34,10 +34,10 @@ jobs:
           print('matrix='+json.dumps(out,separators=(',',':')))
           PY
 
-  dxy:
+  bid:
     needs: windows
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 35
     strategy:
       fail-fast: false
       max-parallel: 1
@@ -55,24 +55,64 @@ jobs:
         run: |
           pip install pandas pyarrow numpy
           npm install -g dukascopy-node@1.50.0
-      - name: Cooldown before Dukascopy
-        run: sleep 300
-      - name: Download, compact and validate DXY block
+      - name: Small stagger
+        run: sleep 15
+      - name: Download and validate DXY BID
         env:
           WINDOW: ${{ matrix.window }}
           TARGET: DXY
-        run: python trading_pipeline/full_download.py
-      - name: Upload DXY block or partial diagnostics
+          SIDE: bid
+        run: python trading_pipeline/side_download.py
+      - name: Upload verified DXY BID or diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dukascopy-dxy-resumable-${{ matrix.window }}
+          name: dukascopy-dxy-bid-${{ matrix.window }}
           path: output/
           if-no-files-found: warn
           retention-days: 30
           compression-level: 6
 
-# Each matrix job is an independent resumable block. A failed block does not
-# cancel later blocks. full_download.py writes Parquet Zstandard, SHA-256
-# checksums, manifest and quality reports; complete blocks also cross-check
-# BID/ASK timestamps and negative spreads.
+  ask:
+    needs: windows
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        window: ${{ fromJson(needs.windows.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install pandas pyarrow numpy
+          npm install -g dukascopy-node@1.50.0
+      - name: Small stagger
+        run: sleep 45
+      - name: Download and validate DXY ASK
+        env:
+          WINDOW: ${{ matrix.window }}
+          TARGET: DXY
+          SIDE: ask
+        run: python trading_pipeline/side_download.py
+      - name: Upload verified DXY ASK or diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dukascopy-dxy-ask-${{ matrix.window }}
+          path: output/
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 6
+
+# BID and ASK now run independently on separate GitHub runners. A failure on one
+# side never discards or re-downloads a verified opposite side. Each side is
+# Parquet Zstandard + SHA-256 + structural/OHLC validation. Cross-spread checks
+# are performed later only when both verified sides for a window exist.
