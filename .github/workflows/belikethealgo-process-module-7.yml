@@ -1,4 +1,4 @@
-name: BeLikeTheAlgo - process module 7 Asia range
+name: BeLikeTheAlgo - process module 8 London Killzone
 
 on:
   push:
@@ -39,10 +39,10 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install faster-whisper pillow scenedetect opencv-python-headless
 
-      - name: Download module 7 from MEGA
+      - name: Download module 8 from MEGA
         env:
           MEGA_PUBLIC_LINK: 'https://mega.nz/folder/QvEXiZpB#dFIeSfaKPvzSLnOEmzleTg'
-          MODULES: '7'
+          MODULES: '8'
         run: node projects/belikethealgo-course-study/scripts/mega_download_modules.mjs
 
       - name: Transcribe and extract visual evidence
@@ -52,10 +52,10 @@ jobs:
           SCENE_THRESHOLD: '0.25'
         run: python projects/belikethealgo-course-study/scripts/process_videos.py
 
-      - name: Upload module 7 evidence
+      - name: Upload module 8 evidence
         uses: actions/upload-artifact@v4
         with:
-          name: belikethealgo-module-7-asia-range-processed-v1
+          name: belikethealgo-module-8-london-killzone-processed-v1
           path: projects/belikethealgo-course-study/processed/
           if-no-files-found: error
           retention-days: 2
