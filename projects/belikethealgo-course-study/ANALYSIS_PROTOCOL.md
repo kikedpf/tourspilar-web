@@ -6,6 +6,12 @@ Reverse-engineer the course into an explicit, measurable and reproducible tradin
 
 The standard is not "this looks similar". Every concept must be tied to evidence, converted into an operational definition, tested on unseen course examples and revised when it fails.
 
+## Terminology policy
+
+Use Benjamin's own terminology as the primary vocabulary for the strategy. Terms such as **liquidity, structure break / quiebre de estructura, displacement / desplazamiento, imbalance, orderblock, sessions, entry, stop and target** must be defined exactly as he uses them in the course.
+
+If we introduce an auxiliary concept that Benjamin does not explicitly name, it must be labeled **OUR METRIC** or **OUR AUXILIARY TERM**, immediately defined in plain language, and never presented as if it were part of Benjamin's method.
+
 ## Evidence hierarchy
 
 Every extracted rule is tagged as one of:
@@ -69,29 +75,37 @@ For every instructor-labeled structure break record:
 - whether displacement is required;
 - whether an imbalance is created;
 - relationship to higher-timeframe structure;
+- what happens immediately before the break;
+- what happens immediately after the break;
 - whether the event is BOS, CHoCH/MSS or another term used by the instructor.
 
 Candidate measurable features include close distance normalized by ATR, candle range/ATR, body/range ratio, consecutive directional candles and FVG creation. No threshold becomes a rule merely because it is convenient: thresholds are derived from instructor-labeled examples and validated on held-out examples.
 
 ## Displacement
 
-Measure displacement both **before and after** important structure events.
+Measure displacement both **before and after** important liquidity events and structure events.
 
 Record:
 - number of candles;
 - total directional move;
+- slope / inclination normalized by local volatility;
 - largest candle range;
 - median/mean candle range;
 - body-to-range ratios;
 - move normalized by ATR or recent local volatility;
+- directional efficiency (net move divided by total path travelled) — **OUR METRIC**;
 - overlap between consecutive candles;
 - wick proportions;
+- directional consistency;
+- local expansion versus preceding candles;
 - FVG/imbalance generated;
 - time required for the move;
 - distance from origin to broken structure;
-- continuation after the break before retracement.
+- continuation after the break before retracement;
+- immediate retracement depth;
+- whether the displacement occurred immediately after taking liquidity, before a structure break, after a structure break, or in another sequence used by Benjamin.
 
-We test whether the instructor uses displacement as a prerequisite, confirmation, quality filter or consequence of the break.
+We do not create a final "displacement score" until enough Benjamin-labeled examples exist to determine which measurements actually distinguish his valid displacements from ordinary price movement.
 
 ## Liquidity map
 
@@ -112,6 +126,7 @@ Potential categories are only accepted after evidence:
 For each liquidity point record:
 - timeframe of origin;
 - formation timestamp;
+- **known timestamp**: first moment it could have been identified without future information;
 - price;
 - category;
 - number of touches;
@@ -122,7 +137,9 @@ For each liquidity point record:
 - whether a close through it invalidates it;
 - distance from current price;
 - priority assigned by the instructor;
-- interaction with higher/lower-timeframe liquidity.
+- interaction with higher/lower-timeframe liquidity;
+- price behavior while approaching it;
+- exact reaction immediately after it is taken.
 
 The objective is an algorithm that can detect the same liquidity points on raw OHLC data without seeing the future.
 
@@ -136,7 +153,7 @@ For every entry or near-entry record:
 - directional bias and how it was derived;
 - required liquidity event;
 - required structure event;
-- required displacement;
+- required displacement and where in the sequence it occurs;
 - required imbalance/orderblock;
 - confirmation sequence;
 - exact trigger candle/event;
@@ -164,6 +181,7 @@ Extract every example or statement involving:
 - insufficient displacement;
 - weak/invalid structure break;
 - liquidity not yet taken;
+- wrong liquidity point or lower-priority liquidity still active;
 - target already consumed;
 - poor RR;
 - entry too late;
@@ -173,6 +191,16 @@ Extract every example or statement involving:
 - any instructor-specific exclusion.
 
 Each exclusion must state exactly what observable condition blocks the trade.
+
+## Measurement-before-interpretation rule
+
+Knowing retrospectively that an event occurred is not enough. Every concept must have a measurable detector that can identify it from raw market data using only information available at that time.
+
+For every detected event keep both:
+- **event_time** — where it appears on the chart;
+- **known_time** — when it became objectively detectable.
+
+A rule that cannot reproduce Benjamin's labels on unseen examples is not considered solved, even if a human can explain the chart afterward.
 
 ## Rule calibration and correction loop
 
@@ -191,6 +219,8 @@ Each exclusion must state exactly what observable condition blocks the trade.
    - data ambiguity.
 7. Revise and retest.
 8. A rule is not promoted to backtesting until its reproducibility is high and remaining exceptions are explicitly documented.
+
+For automated detectors track at least precision, recall, false positives, false negatives and detection timing relative to Benjamin-labeled events.
 
 ## Anti-lookahead discipline
 
