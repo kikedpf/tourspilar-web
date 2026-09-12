@@ -1,0 +1,66 @@
+name: BeLikeTheAlgo - dense study Imbalances V1
+
+on:
+  push:
+    branches:
+      - belikethealgo-course-study
+    paths:
+      - '.github/workflows/belikethealgo-dense-imbalances-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dense-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout study branch
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install evidence dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ffmpeg
+          cd projects/belikethealgo-course-study
+          npm init -y >/dev/null 2>&1
+          npm install --no-save megajs@1.3.10
+          python -m pip install --upgrade pip
+          python -m pip install pillow opencv-python-headless
+
+      - name: Download module 4 from MEGA
+        env:
+          MEGA_PUBLIC_LINK: 'https://mega.nz/folder/QvEXiZpB#dFIeSfaKPvzSLnOEmzleTg'
+          MODULES: '4'
+        run: node projects/belikethealgo-course-study/scripts/mega_download_modules.mjs
+
+      - name: Extract dense evidence from Imbalances Vol 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          VIDEO="$(find projects/belikethealgo-course-study/work/raw -type f -name '1) Imbalances Vol 1.mp4' -print -quit)"
+          test -n "$VIDEO"
+          python projects/belikethealgo-course-study/scripts/dense_extract.py \
+            "$VIDEO" \
+            projects/belikethealgo-course-study/dense/imbalances-v1 \
+            --interval 0:733 \
+            --fps 2
+
+      - name: Upload dense evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: belikethealgo-imbalances-v1-dense-v1
+          path: projects/belikethealgo-course-study/dense/imbalances-v1/
+          if-no-files-found: error
+          retention-days: 2
