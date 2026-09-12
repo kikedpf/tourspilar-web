@@ -1,0 +1,51 @@
+name: BeLikeTheAlgo - process module 12 Trading Plan
+
+on:
+  push:
+    branches: [belikethealgo-course-study]
+    paths: ['.github/workflows/belikethealgo-process-module-12.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: belikethealgo-course-study
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install analysis dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ffmpeg
+          cd projects/belikethealgo-course-study
+          npm init -y >/dev/null 2>&1
+          npm install --no-save megajs@1.3.10
+          python -m pip install --upgrade pip
+          python -m pip install faster-whisper pillow scenedetect opencv-python-headless
+      - name: Download course module 12
+        env:
+          MEGA_PUBLIC_LINK: 'https://mega.nz/folder/QvEXiZpB#dFIeSfaKPvzSLnOEmzleTg'
+          MODULES: '12'
+        run: node projects/belikethealgo-course-study/scripts/mega_download_modules.mjs
+      - name: Process module 12 evidence
+        env:
+          WHISPER_MODEL: small
+          FRAME_INTERVAL: '5'
+          SCENE_THRESHOLD: '0.25'
+        run: python projects/belikethealgo-course-study/scripts/process_videos.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: belikethealgo-module-12-trading-plan-processed-v1
+          path: projects/belikethealgo-course-study/processed/
+          if-no-files-found: error
+          retention-days: 2
