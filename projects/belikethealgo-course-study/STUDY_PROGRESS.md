@@ -129,5 +129,15 @@ Study strictly in published order: folder 1 -> folder 2 -> ... -> last folder. W
 - Break-even management is introduced around interaction with the next max/min/liquidity, but no universal BE algorithm is accepted yet.
 - Detailed evidence record: `study/04-imbalances/02-imbalances-vol-2.md`.
 
-## 5) NEXT MODULE
-- Pending exact MEGA folder inventory. Continue only after verifying the published module 5 name and its internal video order; do not infer it from outside sources.
+## 5) Orderblocks — NEXT / PROCESSING
+
+### 1) Tipos de Orderblocks.mp4 — NEXT
+- Module 5 verified directly from the MEGA course inventory.
+- Coarse processing pipeline has been launched: transcription + periodic frames + visual-event extraction.
+- Study questions: Benjamin's exact orderblock definition(s), candle/range geometry, bullish/bearish variants, creation conditions, mitigation/invalidation, timeframe role, interaction with liquidity/structure/imbalance, and whether every displayed orderblock is actionable.
+
+### 2) Ejemplos de Orderblocks.mp4 — PENDING
+- Must be studied after video 1 is COMPLETE.
+
+### 3) Las Orderblocks funcionan.mp4 — PENDING
+- Must be studied after video 2 is COMPLETE.
