@@ -247,8 +247,37 @@ START with an otherwise valid setup
 
 No numeric threshold for “much/little liquidity” or “corrective/impulsive” is accepted yet; those are calibration problems for the weekly corpus.
 
-## 11) Confirmaciones de Entrada a un Trade — NEXT
+## 11) Confirmaciones de Entrada a un Trade — MODULE COMPLETE
 
-### 1) Confirmaciones de entrada.mp4 — NEXT
+### 1) Confirmaciones de entrada.mp4 — COMPLETE
+- Duration: ~23.8 min; 225 transcript segments; 286 periodic frames; 236 detected chart-state changes.
+- Benjamin explicitly teaches three LTF confirmations after relevant liquidity/location: **cambio de estructura**, **impulso + imbalance**, and **formación de velas**.
+- They are not equally weighted. Under normal conditions, `impulso + imbalance` is the mandatory core and Benjamin asks for at least two of the three confirmations.
+- Preferred normal pair: `impulso + imbalance + cambio de estructura`; alternative pair: `impulso + imbalance + formación de velas`.
+- After retracement into the selected imbalance, execution can be direct/market at the zone or delayed until an extra directional confirmation candle. That candle is an execution refinement, not a fourth universally mandatory setup confirmation.
+- LTF confirmation is invalid in isolation: HTF location/direction, meaningful liquidity interaction and valid session/time must already support the setup.
+- Explicit no-trade evidence: if price reaches the area but gives no confirmation, do not enter; lower-timeframe bullish/bearish signals must not override unresolved higher-priority HTF external liquidity.
+- Conditional news exception: a very large news impulse can make the normal structure-change level impractically distant; Benjamin allows operating without waiting for structure change only when HTF location/liquidity/direction and the other confirmation evidence are exceptionally strong. This is not a generic news exemption.
+- Detailed record: `study/11-confirmaciones-de-entrada/01-confirmaciones-de-entrada.md`.
+- Quantitative research specification: `docs/entry_confirmation_measurement_model.md`.
+
+### Module 11 consolidated rule
+
+```text
+RELEVANT HTF LOCATION + LIQUIDITY EVENT + VALID SESSION
+-> move to 1m–5m
+-> require IMPULSE + IMBALANCE
+-> normally require at least one more confirmation:
+     STRUCTURE CHANGE (preferred) OR CANDLE FORMATION
+-> optional extra directional candle for execution refinement
+-> block trade if unresolved higher-priority HTF liquidity/context contradicts it
+-> if no confirmation: NO TRADE
+```
+
+Exact impulse threshold, structure-break threshold, confirmation-candle geometry and objective HTF-draw detector remain calibration problems for the weekly corpus.
+
+## 12) Trading Plan — NEXT
+
+### 1) Mi trading plan explicado.mp4 — NEXT
 - Next video in verified course order.
-- Study questions: exact ordered entry activation sequence; mandatory versus optional confirmations; exact structure-break/displacement requirements; imbalance/orderblock role; entry timing and lateness; cancellation rules; stop placement; and whether multiple distinct entry models are taught.
+- Study questions: exact full decision sequence, mandatory filters, session/day restrictions, trade frequency, risk per setup/day, stop/target/BE/partial rules, multiple-position rules, cancellation conditions, and reconciliation of earlier conditional risk/management statements.
