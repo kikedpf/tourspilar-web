@@ -29,6 +29,20 @@ Study strictly in published order: folder 1 -> folder 2 -> ... -> last folder. W
 - Unresolved by design: measurable definition of DXY 'good/bad zone', exact relevant-liquidity detector, timing tolerance/simultaneity, and trendline-liquidity algorithm. These must be learned later rather than invented now.
 - Detailed evidence record: `study/02-principios-basicos/01-divergencias.md`.
 
-### 2) Horarios y Sesiones del Algoritmo.mp4 — NEXT / IN ANALYSIS
-- Coarse transcript and visual indexing already available.
-- Pending completion gate: dense reconstruction of every chart example and explicit session/tramo rules checked against the visual slide and examples.
+### 2) Horarios y Sesiones del Algoritmo.mp4 — COMPLETE
+- Duration: ~8.9 min.
+- Full session slide visually verified.
+- Dense chart evidence: 2 fps from 368–500 s; 265 timestamped source frames.
+- Main operating windows: London 09:00–11:00 Spain / 03:00–05:00 New York; New York 14:00–16:30 Spain / 08:00–10:30 New York.
+- Preferred Spain-time tramos: London 09:15–09:45 and 10:20–10:40; New York 14:30–15:00 and 15:30–16:20.
+- Important interpretation: main session is the eligibility window; preferred tramos are higher-attention periods inside it, not evidence for rejecting every setup elsewhere inside the valid session.
+- Dense example 1 visually confirms EUR/USD 1H at 17 Jul 2025 14:00 taking a marked low and reacting inside New York session.
+- Dense example 2 visually confirms EUR/USD 1H at 22 Jul 2025 15:00 at a marked liquidity area inside New York session.
+- Further examples demonstrate events verbally identified around 15:00/16:00. Benjamin tells students not to focus yet on the imbalance he points out in one example.
+- Evidence-quality warning: Benjamin names 17, 22, 23 and 24 July then calls them 'four days in a row'; those dates are not literally four consecutive calendar days, so this is not accepted as performance evidence.
+- Unresolved: DST-transition handling between Spain and New York; final backtest must not silently assume one fixed UTC offset.
+- Detailed evidence record: `study/02-principios-basicos/02-horarios-y-sesiones.md`.
+
+### 3) Calcula el Riesgo por Operación.mp4 — NEXT / IN ANALYSIS
+- Full transcript and periodic visual evidence already available.
+- Pending completion gate: verify calculator example, recommended risk range, and distinction between Benjamin's personal execution tool/preferences versus strategy rules.
