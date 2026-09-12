@@ -219,6 +219,96 @@ Cada imbalance debe guardar:
 
 Vol. 1 da prioridad contextual a timeframes mayores (Daily > 4H > 1H en el ejemplo de búsqueda descendente), pero todavía no existe una fórmula numérica de ranking.
 
+## Construcción del trade, stop, target y R
+
+`Imbalances Vol. 2` aporta el primer ejemplo integrado suficientemente claro para empezar a registrar la geometría completa de una operación.
+
+### Variables de construcción
+
+Para cada trade se almacenará:
+
+- `session_eligible`;
+- `htf_zone_tf`;
+- `zone_type ∈ {liquidity, imbalance, confluence}`;
+- `zone_clean_at_entry`;
+- `ltf_tf`;
+- `structure_change_confirmed`;
+- `entry_imbalance_created`;
+- `entry_mode ∈ {limit, candle_confirmation, other}`;
+- `entry_price`;
+- `stop_price`;
+- `target_price`;
+- `stop_reference_type`;
+- `target_reference_type`;
+- `be_trigger_event`;
+- `exit_reason`.
+
+### Distancias
+
+Para largos:
+
+`risk_distance = entry_price - stop_price`
+
+`reward_distance = target_price - entry_price`
+
+Para cortos:
+
+`risk_distance = stop_price - entry_price`
+
+`reward_distance = entry_price - target_price`
+
+### Riesgo-beneficio inicial
+
+`initial_RR = reward_distance / risk_distance`
+
+En Vol. 2 Benjamín utiliza **~1:2 como mínimo deseado en el ejemplo/forma de plantear la operación**, pero esto se mantiene como regla del material observado pendiente de validación masiva; no se fuerza todavía sobre todos los trades históricos.
+
+### Resultado en múltiplos R
+
+Si `R = risk_distance`, el resultado de cada operación se almacenará como:
+
+`realized_R = pnl_price_distance / R`
+
+con signo positivo para beneficio y negativo para pérdida.
+
+Esto permite comparar operaciones con stops distintos sin confundir pips con rendimiento relativo.
+
+### Stop — mediciones auxiliares
+
+Además del precio exacto:
+
+- `stop_distance_pips`;
+- `stop_distance_atr`;
+- `stop_beyond_structure_distance_atr`;
+- `rr_if_wider_stop`;
+- `rr_if_tighter_stop`.
+
+Benjamin rechaza seleccionar el stop por una cifra fija de pips en Vol. 2; la ubicación debe equilibrar protección/invalidation con un R:R razonable.
+
+### Target y liquidez
+
+Guardar:
+
+- `target_liquidity_type`;
+- `distance_to_target_liquidity_at_entry`;
+- `rr_at_first_target_liquidity`;
+- `target_hit_before_stop`;
+- `reaction_after_target_liquidity`.
+
+El ejemplo de Vol. 2 usa la siguiente liquidez/mínimo como referencia de target y advierte de posible reacción allí.
+
+### Break-even
+
+Por ahora BE se registra como evento, no como regla fija:
+
+- `be_moved = true/false`;
+- `be_time`;
+- `be_trigger_type`;
+- `rr_available_at_be`;
+- `liquidity_event_at_be`.
+
+Vídeos posteriores deberán determinar si existe un disparador universal o varias reglas contextuales.
+
 ## Antes y después de liquidez / quiebre
 
 Para cada evento principal se medirán ventanas separadas:
