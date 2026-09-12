@@ -2,7 +2,8 @@
 import json, math, os, re, subprocess
 from pathlib import Path
 from faster_whisper import WhisperModel
-from PIL import Image, ImageOps, ImageDraw
+from PIL import Image, ImageDraw
+from visual_event_detector import detect_adaptive_scenes, detect_chart_state_changes
 
 ROOT = Path('projects/belikethealgo-course-study').resolve()
 RAW = ROOT / 'work' / 'raw'
@@ -75,20 +76,37 @@ def main():
         stem=safe(video.stem)
         lesson_dir=OUT/module/stem
         frames_dir=lesson_dir/'frames'
-        scene_dir=lesson_dir/'scenes'
+        ffmpeg_scene_dir=lesson_dir/'ffmpeg_scenes'
+        visual_events_dir=lesson_dir/'visual_events'
         sheets_dir=lesson_dir/'contact_sheets'
         lesson_dir.mkdir(parents=True, exist_ok=True)
         frames_dir.mkdir(parents=True, exist_ok=True)
-        scene_dir.mkdir(parents=True, exist_ok=True)
+        ffmpeg_scene_dir.mkdir(parents=True, exist_ok=True)
+        visual_events_dir.mkdir(parents=True, exist_ok=True)
         print(f'Processing {module}/{video.name}')
 
         meta=probe(video)
         (lesson_dir/'ffprobe.json').write_text(json.dumps(meta,indent=2),encoding='utf-8')
 
+        # Coarse continuous timeline. Dense 1-4 fps extraction around important events
+        # is done separately during manual/semantic lesson analysis.
         run(['ffmpeg','-hide_banner','-loglevel','error','-y','-i',str(video),
              '-vf',f'fps=1/{FRAME_INTERVAL},scale=1280:-2', '-q:v','4',str(frames_dir/'frame_%05d.jpg')])
+
+        # Legacy FFmpeg scene detector retained as a third independent signal.
         run(['ffmpeg','-hide_banner','-loglevel','error','-y','-i',str(video),
-             '-vf',f"select='gt(scene,{SCENE_THRESHOLD})',scale=1280:-2",'-vsync','vfr','-q:v','4',str(scene_dir/'scene_%05d.jpg')])
+             '-vf',f"select='gt(scene,{SCENE_THRESHOLD})',scale=1280:-2",'-vsync','vfr','-q:v','4',str(ffmpeg_scene_dir/'scene_%05d.jpg')])
+
+        # Robust visual evidence: PySceneDetect handles hard/layout transitions;
+        # OpenCV state-change detector handles chart panning/zooming/redraws/annotations.
+        adaptive_scenes = detect_adaptive_scenes(video, visual_events_dir, threshold=2.2)
+        state_changes = detect_chart_state_changes(
+            video, visual_events_dir,
+            sample_fps=2.0,
+            changed_ratio_threshold=0.028,
+            edge_ratio_threshold=0.007,
+            min_gap_seconds=0.75,
+        )
 
         segments_gen, info = model.transcribe(str(video), language='es', vad_filter=True, beam_size=5,
                                              word_timestamps=False, condition_on_previous_text=True)
@@ -115,22 +133,33 @@ def main():
         (lesson_dir/'transcript.srt').write_text('\n'.join(srt),encoding='utf-8')
 
         periodic_sheets=make_contact_sheets(frames_dir,sheets_dir,'periodic')
-        scene_sheets=make_contact_sheets(scene_dir,sheets_dir,'scene')
+        ffmpeg_scene_sheets=make_contact_sheets(ffmpeg_scene_dir,sheets_dir,'ffmpeg_scene')
+        adaptive_sheets=make_contact_sheets(visual_events_dir/'adaptive_scenes',sheets_dir,'adaptive_scene')
+        state_sheets=make_contact_sheets(visual_events_dir/'state_changes',sheets_dir,'state_change')
 
         duration=float(meta.get('format',{}).get('duration') or 0)
         index.append({
-            'module':module,'video':video.name,'duration_seconds':duration,
+            'module':module,
+            'video':video.name,
+            'duration_seconds':duration,
             'periodic_frames':len(list(frames_dir.glob('*.jpg'))),
-            'scene_frames':len(list(scene_dir.glob('*.jpg'))),
+            'ffmpeg_scene_frames':len(list(ffmpeg_scene_dir.glob('*.jpg'))),
+            'adaptive_scenes':len(adaptive_scenes),
+            'state_changes':len(state_changes),
             'transcript_segments':len(segments),
-            'contact_sheets':periodic_sheets+scene_sheets,
+            'contact_sheets':periodic_sheets+ffmpeg_scene_sheets+adaptive_sheets+state_sheets,
         })
 
     (OUT/'index.json').write_text(json.dumps(index,ensure_ascii=False,indent=2),encoding='utf-8')
     with (OUT/'INDEX.md').open('w',encoding='utf-8') as f:
         f.write('# Processed lessons\n\n')
         for x in index:
-            f.write(f"- **{x['module']} / {x['video']}** — {x['duration_seconds']/60:.1f} min; {x['transcript_segments']} transcript segments; {x['periodic_frames']} periodic frames; {x['scene_frames']} scene frames.\n")
+            f.write(
+                f"- **{x['module']} / {x['video']}** — {x['duration_seconds']/60:.1f} min; "
+                f"{x['transcript_segments']} transcript segments; {x['periodic_frames']} periodic frames; "
+                f"{x['ffmpeg_scene_frames']} FFmpeg scene frames; {x['adaptive_scenes']} adaptive scenes; "
+                f"{x['state_changes']} chart-state changes.\n"
+            )
 
 if __name__=='__main__':
     main()
