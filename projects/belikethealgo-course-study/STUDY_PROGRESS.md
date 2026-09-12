@@ -65,7 +65,23 @@ Study strictly in published order: folder 1 -> folder 2 -> ... -> last folder. W
 
 ## 3) Estructura
 
-### 1) Estructura V1.mp4 — NEXT / IN ANALYSIS
+### 1) Estructura V1.mp4 — COMPLETE
+- Duration: ~15.4 min.
+- Dense visual evidence: 1,792 timestamped frames at 2 fps over all relevant teaching/example intervals.
+- Benjamin distinguishes continuation `rompimiento de estructura` from directional `cambio de estructura`.
+- Relevant change-of-structure reference is tied to the last structurally important swing that created the impulse, not every internal swing.
+- Wick-only violation is explicitly insufficient: it can be a liquidity take while the larger structure remains intact.
+- Valid change is described as breaking the relevant reference **with body and with force**; the qualitative "force" threshold remains intentionally unquantified.
+- Real 4H example confirms wick sweep -> bullish structure preserved -> later body/force break of the relevant low -> bearish structure.
+- Second 4H example confirms repeated internal liquidity sweeps can occur without breaking the larger bullish structural low.
+- Benjamin explicitly allows aggressive vs conservative candidate structural references; this is a parameter to learn, not something we will collapse into a naive nearest-swing rule.
+- HTF structure for context: weekly, daily, 4H, 1H.
+- Entry-search LTF: 1–5m; beginners are advised 3–5m, Benjamin says he personally uses 1m with experience.
+- Lower-timeframe example visually confirms EUR/USD 1m and uses liquidity take -> local structure change as part of trade planning, but no complete entry/SL/TP model is yet defined.
+- Quantitative measurements queued: close penetration/ATR, body/range, range expansion, directional efficiency, follow-through, pullback, aggressive/conservative reference selector, internal/external context.
+- Detailed evidence record: `study/03-estructura/01-estructura-v1.md`.
+
+### 2) Estructura V2.mp4 — NEXT / IN ANALYSIS
 - Coarse transcript, periodic frames and state-change evidence already available.
-- Priority questions: exact swing/reference-point selection; body-close versus wick requirement; strength/displacement requirement; HTF vs LTF hierarchy; internal/external liquidity references; and every visual example demonstrating valid/invalid structure breaks.
-- Completion requires dense reconstruction around each structure drawing/break example before an operational BOS/structure algorithm is accepted.
+- Priority: determine which V1 rules are reinforced, modified or qualified; inventory all HTF/LTF structure examples and any additional entry-confirmation logic.
+- Completion requires dense visual reconstruction before any final structure detector is accepted.
