@@ -13,7 +13,7 @@ Study strictly in published order: folder 1 -> folder 2 -> ... -> last folder. W
 - Relevant course-method statement: Benjamin says the training contains his way of trading/strategy and more than 120 weekly trades explained step by step, updated with recent examples.
 - Status: complete as an introductory video.
 
-## 2) Principios Básicos
+## 2) Principios Básicos — MODULE COMPLETE
 
 ### 1) Divergencias.mp4 — COMPLETE
 - Duration: ~5.2 min.
@@ -43,6 +43,29 @@ Study strictly in published order: folder 1 -> folder 2 -> ... -> last folder. W
 - Unresolved: DST-transition handling between Spain and New York; final backtest must not silently assume one fixed UTC offset.
 - Detailed evidence record: `study/02-principios-basicos/02-horarios-y-sesiones.md`.
 
-### 3) Calcula el Riesgo por Operación.mp4 — NEXT / IN ANALYSIS
-- Full transcript and periodic visual evidence already available.
-- Pending completion gate: verify calculator example, recommended risk range, and distinction between Benjamin's personal execution tool/preferences versus strategy rules.
+### 3) Calcula el Riesgo por Operación.mp4 — COMPLETE
+- Duration: ~4.8 min.
+- Recommended risk per trade: 0.5%–1%.
+- Visually confirmed sizing example: EUR/USD, $10,000 account, 1% risk, 5-pip stop -> $100 monetary risk -> 2 lots / 200,000 units.
+- Position size is derived from percentage risk and actual stop distance; fixed lot sizing is not the rule.
+- Myfxbook is shown as a free calculator; MetaTrader/MQL Trade Assistant as Benjamin's convenience tool.
+- Benjamin says he personally often enters at market, especially with candle confirmations, but this is logged as execution preference rather than a mandatory strategy rule until later entry lessons validate it.
+- Detailed evidence record: `study/02-principios-basicos/03-calcula-el-riesgo.md`.
+
+### 4) Cuidado con las Noticias.mp4 — COMPLETE
+- Duration: ~5.1 min.
+- Forex Factory calendar used as pre-trade calendar filter.
+- Relevant high-impact filter for EUR/USD: red EUR/USD news.
+- Explicit rule: no new market entry with less than 30 minutes remaining before relevant red news; after release Benjamin can re-evaluate trading.
+- No evidence here that every open position must be closed before news, and no fixed post-news waiting delay is stated.
+- Explicit no-trade rule: USD/US bank holiday -> no trading that day.
+- Broad European-bank holiday condition -> skip London; New York may remain tradable.
+- Exact European-bank count is unresolved because Benjamin gives inconsistent wording ('4 or 5' in one example, later 'more than 2 or 3').
+- Detailed evidence record: `study/02-principios-basicos/04-cuidado-con-las-noticias.md`.
+
+## 3) Estructura
+
+### 1) Estructura V1.mp4 — NEXT / IN ANALYSIS
+- Coarse transcript, periodic frames and state-change evidence already available.
+- Priority questions: exact swing/reference-point selection; body-close versus wick requirement; strength/displacement requirement; HTF vs LTF hierarchy; internal/external liquidity references; and every visual example demonstrating valid/invalid structure breaks.
+- Completion requires dense reconstruction around each structure drawing/break example before an operational BOS/structure algorithm is accepted.
