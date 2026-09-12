@@ -1,0 +1,81 @@
+name: BeLikeTheAlgo - finalize module 12 progress
+
+on:
+  push:
+    branches:
+      - belikethealgo-course-study
+    paths:
+      - '.github/workflows/belikethealgo-finalize-module-12.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout study branch
+        uses: actions/checkout@v4
+        with:
+          ref: belikethealgo-course-study
+
+      - name: Update study progress
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('projects/belikethealgo-course-study/STUDY_PROGRESS.md')
+          s = p.read_text(encoding='utf-8')
+          marker = '## 12) Trading Plan — NEXT'
+          if marker not in s:
+              raise SystemExit('Module 12 NEXT marker not found')
+          head = s.split(marker, 1)[0].rstrip()
+          tail = '''## 12) Trading Plan — MODULE COMPLETE
+
+### 1) Mi trading plan explicado.mp4 — COMPLETE
+- Duration: ~16.3 min; 248 transcript segments; 196 periodic frames plus visual-event evidence.
+- Two strategy setup families are explicitly allowed: induced-orderblock setups and direct relevant max/min liquidity setups; orderblock is not mandatory for every trade.
+- Lower-timeframe confirmation hierarchy is refined: candle formation + impulse that creates imbalance form the essential core; structure change is additional confluence when available, not universally mandatory.
+- Valid LTF confirmation timeframe can be 1m, 2m, 3m or 5m; Benjamin explicitly tells students to backtest which works best for them.
+- Trading Plan daily control: maximum 3 trades/day, conservative option 2; explicitly stop after two losses rather than revenge-trading into another session.
+- Funding-challenge risk overlay: ~0.5% risk/trade until about +2% cushion; then ~0.7–1%; reduce toward ~0.30% in material drawdown and revert lower again near breakeven.
+- Trading Plan minimum intended R:R is explicitly 1:3. At 3R either close the full trade or take ~70% and move the remaining ~30% to breakeven as a runner.
+- Funding-account payout/fee-recovery advice is stored separately from the market strategy because it is prop-firm/company specific.
+- Detailed record: `study/12-trading-plan/01-mi-trading-plan-explicado.md`.
+- Quantitative specification: `docs/trading_plan_measurement_model.md`.
+
+### Module 12 consolidated rule
+
+```text
+PRE-SESSION FILTERS
+-> HTF structure + prioritized liquidity + POI/context
+-> EITHER induced-orderblock setup OR direct relevant-liquidity setup
+-> valid session/time
+-> move to 1m–5m
+-> require candle formation + impulse creating imbalance
+-> structure change when available as extra confirmation
+-> enter with structural/invalidation-aware stop
+-> Trading Plan objective >= ~3R
+-> at 3R: close all OR ~70% partial + remaining ~30% to BE
+-> stop day after two losses; never exceed three trades/day
+```
+
+Funding-account equity-dependent sizing is an overlay and must be tested separately from the market edge.
+
+## 13) BeLikeTheAlgo 2.0 — NEXT
+
+- Eight videos in verified course order.
+- This module is primarily funding/challenge/risk/news/consistency material.
+- Study objective: isolate any genuinely new market-strategy rule from prop-firm-specific operational rules; do not let challenge mechanics contaminate the core market backtest.
+'''
+          p.write_text(head + '\n\n' + tail, encoding='utf-8')
+          PY
+
+      - name: Commit progress update
+        run: |
+          git config user.name "kikedpf"
+          git config user.email "kipolan12@hotmail.es"
+          git add projects/belikethealgo-course-study/STUDY_PROGRESS.md
+          git diff --cached --quiet && exit 0
+          git commit -m "Complete BeLikeTheAlgo module 12 Trading Plan"
+          git push origin HEAD:belikethealgo-course-study
