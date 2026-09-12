@@ -9,6 +9,9 @@ on:
 permissions:
   contents: write
 
+env:
+  TAIL_B64: IyMgMTApIFRyYWRlcyBkZSBBbHRhIFByb2JhYmlsaWRhZCDigJQgTU9EVUxFIENPTVBMRVRFCgojIyMgMSkgRWplbXBsbyBkZSB0cmFkZS5tcDQg4oCUIENPTVBMRVRFCi0gRHVyYXRpb246IH4xNi41IG1pbjsgMTkxIHRyYW5zY3JpcHQgc2VnbWVudHM7IDE5OCBwZXJpb2RpYyBmcmFtZXM7IDUzIGRldGVjdGVkIGNoYXJ0LXN0YXRlIGNoYW5nZXMuCi0gTW9kdWxlIDEwIGlzIGEgcHJvYmFiaWxpdHktcmFua2luZyBsYXllciwgbm90IGEgbmV3IHN0YW5kYWxvbmUgZW50cnkgbW9kZWwuCi0gQmVuamFtaW4gZXhwbGljaXRseSByYW5rcyBhIHNldHVwIGhpZ2hlciB3aGVuIG1lYW5pbmdmdWwgbGlxdWlkaXR5IHJlbWFpbnMgYXZhaWxhYmxlIGluIHRoZSBpbnRlbmRlZCB0cmFkZSBkaXJlY3Rpb24gYW5kIGxvd2VyIHdoZW4gdGhlIGFwcHJvYWNoIGhhcyBhbHJlYWR5IGNvbnN1bWVkIG1vc3QgbmVhcmJ5IHRhcmdldC1zaWRlIGxpcXVpZGl0eS4KLSBQcmVmZXJyZWQgYXBwcm9hY2ggaW50byBhbiBMVEYgaW1iYWxhbmNlIGlzIGNvcnJlY3RpdmUvbGlxdWlkaXR5LWJ1aWxkaW5nOyBhbiBhZ2dyZXNzaXZlIGFwcHJvYWNoIHdpdGggbGl0dGxlIHJlbWFpbmluZyB0YXJnZXQtc2lkZSBsaXF1aWRpdHkgaXMgZG93bmdyYWRlZCBiZWNhdXNlIGl0IG1heSBjb250aW51ZSB0aHJvdWdoL21hbmlwdWxhdGUgdGhlIGFwcGFyZW50IHJldmVyc2FsIHNldHVwLgotIE5vcm1hbCB2YWxpZC1zZXNzaW9uIGFuZCBMVEYgY29uZmlybWF0aW9uIHJlcXVpcmVtZW50cyByZW1haW4gbWFuZGF0b3J5LgotIE5lYXJlc3QgbWVhbmluZ2Z1bCB0YXJnZXQtc2lkZSBsaXF1aWRpdHkgaXMgcmVwZWF0ZWRseSB1c2VkIGFzIGEgZmlyc3QgbWFuYWdlbWVudCBtaWxlc3RvbmUgYW5kIGNhbmRpZGF0ZSBCRSB0cmlnZ2VyLCBwZW5kaW5nIHZhbGlkYXRpb24gYXMgYSB1bml2ZXJzYWwgcnVsZS4KLSBMb3dlci1xdWFsaXR5IHRyYWRlcyBtYXkganVzdGlmeSByZWR1Y2VkIHJpc2svc2l6ZSwgYnV0IHRoaXMgbXVzdCBiZSByZWNvbmNpbGVkIHdpdGggdGhlIGVhcmxpZXIgMC414oCTMSUgcmlzayBmcmFtZXdvcmsgYW5kIGxhdGVyIFRyYWRpbmcgUGxhbiBtYXRlcmlhbC4KLSBEZXRhaWxlZCByZWNvcmQ6IGBzdHVkeS8xMC10cmFkZXMtZGUtYWx0YS1wcm9iYWJpbGlkYWQvMDEtZWplbXBsby1kZS10cmFkZS5tZGAuCi0gUXVhbnRpdGF0aXZlIHJlc2VhcmNoIHNwZWNpZmljYXRpb246IGBkb2NzL2hpZ2hfcHJvYmFiaWxpdHlfdHJhZGVfbWVhc3VyZW1lbnRfbW9kZWwubWRgLgoKIyMjIE1vZHVsZSAxMCBjb25zb2xpZGF0ZWQgcnVsZQoKYGBgdGV4dApTVEFSVCB3aXRoIGFuIG90aGVyd2lzZSB2YWxpZCBzZXR1cAotPiBtZWFzdXJlIHJlbWFpbmluZyB0YXJnZXQtc2lkZSBsaXF1aWRpdHkKLT4gbWVhc3VyZSBsaXF1aWRpdHkgY29uc3VtZWQgZHVyaW5nIGFwcHJvYWNoCi0+IHByZWZlciBjb3JyZWN0aXZlL2xpdXVpZGl0eS1idWlsZGluZyBhcHByb2FjaCBpbnRvIExURiBlbnRyeSBhcmVhCi0+IHJlcXVpcmUgdmFsaWQgdGltZSArIG5vcm1hbCBMVEYgY29uZmlybWF0aW9uCi0+IHJhbmsgaGlnaGVyIHdoZW4gbWVhbmluZ2Z1bCB0YXJnZXQtc2lkZSBsaXF1aWRpdHkgcmVtYWlucwotPiByYW5rIGxvd2VyIHdoZW4gdGFyZ2V0LXNpZGUgbGlxdWlkaXR5IGlzIHNjYXJjZS9hbHJlYWR5IGNvbnN1bWVkLCBlc3BlY2lhbGx5IGFmdGVyIGltcHVsc2l2ZSBhcHByb2FjaAotPiB0cmVhdCBuZWFyZXN0IG1lYW5pbmdmdWwgbGlxdWlkaXR5IGFzIGNhbmRpZGF0ZSBmaXJzdC1tYW5hZ2VtZW50IG1pbGVzdG9uZQpgYGAKCk5vIG51bWVyaWMgdGhyZXNob2xkIGZvciDigJxtdWNoL2xpdHRsZSBsaXF1aWRpdHnigJ0gb3Ig4oCcY29ycmVjdGl2ZS9pbXB1bHNpdmXigJ0gaXMgYWNjZXB0ZWQgeWV0OyB0aG9zZSBhcmUgY2FsaWJyYXRpb24gcHJvYmxlbXMgZm9yIHRoZSB3ZWVrbHkgY29ycHVzLgoKIyMgMTEpIENvbmZpcm1hY2lvbmVzIGRlIEVudHJhZGEgYSB1biBUcmFkZSDigJQgTkVYVAoKIyMjIDEpIENvbmZpcm1hY2lvbmVzIGRlIGVudHJhZGEubXA0IOKAlCBORVhUCi0gTmV4dCB2aWRlbyBpbiB2ZXJpZmllZCBjb3Vyc2Ugb3JkZXIuCi0gU3R1ZHkgcXVlc3Rpb25zOiBleGFjdCBvcmRlcmVkIGVudHJ5IGFjdGl2YXRpb24gc2VxdWVuY2U7IG1hbmRhdG9yeSB2ZXJzdXMgb3B0aW9uYWwgY29uZmlybWF0aW9uczsgZXhhY3Qgc3RydWN0dXJlLWJyZWFrL2Rpc3BsYWNlbWVudCByZXF1aXJlbWVudHM7IGltYmFsYW5jZS9vcmRlcmJsb2NrIHJvbGU7IGVudHJ5IHRpbWluZyBhbmQgbGF0ZW5lc3M7IGNhbmNlbGxhdGlvbiBydWxlczsgc3RvcCBwbGFjZW1lbnQ7IGFuZCB3aGV0aGVyIG11bHRpcGxlIGRpc3RpbmN0IGVudHJ5IG1vZGVscyBhcmUgdGF1Z2h0Lgo=
+
 jobs:
   finalize:
     runs-on: ubuntu-latest
@@ -17,52 +20,7 @@ jobs:
         with:
           ref: belikethealgo-course-study
       - name: Update study progress
-        shell: bash
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          p = Path('projects/belikethealgo-course-study/STUDY_PROGRESS.md')
-          s = p.read_text(encoding='utf-8')
-          marker = '## 10) Trades de Alta Probabilidad — NEXT'
-          if marker not in s:
-              raise SystemExit('Module 10 NEXT marker not found')
-          head = s.split(marker, 1)[0].rstrip()
-          tail = '''## 10) Trades de Alta Probabilidad — MODULE COMPLETE
-
-### 1) Ejemplo de trade.mp4 — COMPLETE
-- Duration: ~16.5 min; 191 transcript segments; 198 periodic frames; 53 detected chart-state changes.
-- Module 10 is a probability-ranking layer, not a new standalone entry model.
-- Benjamin explicitly ranks a setup higher when meaningful liquidity remains available in the intended trade direction and lower when the approach has already consumed most nearby target-side liquidity.
-- Preferred approach into an LTF imbalance is corrective/liquidity-building; an aggressive approach with little remaining target-side liquidity is downgraded because it may continue through/manipulate the apparent reversal setup.
-- Normal valid-session and LTF confirmation requirements remain mandatory.
-- Nearest meaningful target-side liquidity is repeatedly used as a first management milestone and candidate BE trigger, pending validation as a universal rule.
-- Lower-quality trades may justify reduced risk/size, but this must be reconciled with the earlier 0.5–1% risk framework and later Trading Plan material.
-- Detailed record: `study/10-trades-de-alta-probabilidad/01-ejemplo-de-trade.md`.
-- Quantitative research specification: `docs/high_probability_trade_measurement_model.md`.
-
-### Module 10 consolidated rule
-
-```text
-START with an otherwise valid setup
--> measure remaining target-side liquidity
--> measure liquidity consumed during approach
--> prefer corrective/liquidity-building approach into LTF entry area
--> require valid time + normal LTF confirmation
--> rank higher when meaningful target-side liquidity remains
--> rank lower when target-side liquidity is scarce/already consumed, especially after impulsive approach
--> treat nearest meaningful liquidity as candidate first-management milestone
-```
-
-No numeric threshold for “much/little liquidity” or “corrective/impulsive” is accepted yet; those are calibration problems for the weekly corpus.
-
-## 11) Confirmaciones de Entrada a un Trade — NEXT
-
-### 1) Confirmaciones de entrada.mp4 — NEXT
-- Next video in verified course order.
-- Study questions: exact ordered entry activation sequence; mandatory versus optional confirmations; exact structure-break/displacement requirements; imbalance/orderblock role; entry timing and lateness; cancellation rules; stop placement; and whether multiple distinct entry models are taught.
-'''
-          p.write_text(head + '\n\n' + tail, encoding='utf-8')
-          PY
+        run: python -c "import os,base64; from pathlib import Path; p=Path('projects/belikethealgo-course-study/STUDY_PROGRESS.md'); s=p.read_text(encoding='utf-8'); m='## 10) Trades de Alta Probabilidad — NEXT'; assert m in s, 'Module 10 NEXT marker not found'; tail=base64.b64decode(os.environ['TAIL_B64']).decode('utf-8'); p.write_text(s.split(m,1)[0].rstrip()+'\n\n'+tail, encoding='utf-8')"
       - name: Commit progress
         run: |
           git config user.name "kikedpf"
