@@ -1,0 +1,83 @@
+name: BeLikeTheAlgo - finalize module 7 progress
+
+on:
+  push:
+    branches:
+      - belikethealgo-course-study
+    paths:
+      - '.github/workflows/belikethealgo-finalize-module-7.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout study branch
+        uses: actions/checkout@v4
+        with:
+          ref: belikethealgo-course-study
+
+      - name: Update study progress
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('projects/belikethealgo-course-study/STUDY_PROGRESS.md')
+          s = p.read_text(encoding='utf-8')
+          marker = '## 7) Rango de Asia'
+          if marker not in s:
+              raise SystemExit('Module 7 marker not found')
+          head = s.split(marker, 1)[0].rstrip()
+          tail = r'''## 7) Rango de Asia — MODULE COMPLETE
+
+### 1) AMD + Indicador Asia Session.mp4 — COMPLETE
+- Duration: ~11.0 min; 81 transcript segments; 132 periodic frames plus visual-event evidence.
+- Benjamin defines AMD as Acumulación -> Manipulación -> Distribución.
+- Asia accumulation interval is taught in New York time as approximately 19:00–00:00; `00:01` in TradingView is explicitly an indicator-display workaround.
+- Asia high and low are treated as liquidity/confluence. Benjamin says he does not want to search for entries while price remains unresolved inside the accumulation box; one side should first be liquidated/resolved.
+- Asia range is context, not an autonomous trigger: worked example combines Asia liquidity + London timing + induced POI/orderblock + LTF rejection/imbalance execution.
+- Exact wick/close definition of an Asia boundary being `taken` remains unresolved pending liquidity calibration.
+- Detailed evidence record: `study/07-rango-de-asia/01-amd-indicador-asia-session.md`.
+
+### 2) Tipos de escenarios (Judas y Retest).mp4 — COMPLETE
+- Duration: ~25.2 min; 192 transcript segments; 303 periodic frames; 269 chart-state changes.
+- Two instructor-explicit Asia scenarios: **Asian Break Retest** and **Judas**.
+- Judas: one side of Asia liquidity is manipulated/taken and price reacts in the opposite direction; Benjamin explicitly prefers this model.
+- Asian Break Retest: Asia boundary breaks first, price later retests the Asia/boundary area and then continues in the break direction.
+- Repeated heuristic: a break before London open makes a London retest scenario worth watching, but one course example breaks early and never retests, so this is not deterministic.
+- Timing matters: similar geometry around Frankfurt/too early is lower relevance for Benjamin than a valid London-window event.
+- Negative evidence includes news-distorted days, early moves with no later entry, a break with no retest, and a Judas reaction that fails to complete through the opposite Asia boundary.
+- Benjamin advocates taking partial profits in a failed-follow-through example, but gives no objective partial-percentage or trigger rule here.
+- Detailed evidence record: `study/07-rango-de-asia/02-tipos-de-escenarios-judas-y-retest.md`.
+
+### Module 7 consolidated rule
+
+```text
+BUILD ASIA RANGE (New York local time)
+-> treat Asia high/low as liquidity
+-> wait for post-Asia resolution in/around valid session
+-> classify context as Judas vs Break-Retest candidate
+-> require the previously learned POI/timing/LTF-reaction evidence before entry
+```
+
+The course's verbal claims about these patterns occurring “most days”, “almost every day” or “always” are **not** accepted as statistical facts. They are hypotheses to measure over the weekly corpus. Candidate detectors and failure labels are defined in `docs/asia_range_measurement_model.md`.
+
+## 8) Importancia de la Sesión de Londres — NEXT
+
+### 1) London Killzone.mp4 — NEXT
+- Next video in verified course order.
+- Study questions: exact London-open/Killzone boundaries, Frankfurt interaction, what London is expected to manipulate or target, whether London establishes daily direction, exceptions/no-trade conditions, and how the Asia scenarios feed into London execution.
+'''
+          p.write_text(head + '\n\n' + tail, encoding='utf-8')
+          PY
+
+      - name: Commit progress update
+        run: |
+          git config user.name "kikedpf"
+          git config user.email "kipolan12@hotmail.es"
+          git add projects/belikethealgo-course-study/STUDY_PROGRESS.md
+          git diff --cached --quiet && exit 0
+          git commit -m "Complete BeLikeTheAlgo module 7 Asia range"
+          git push origin HEAD:belikethealgo-course-study
