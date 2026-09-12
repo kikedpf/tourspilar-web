@@ -14,15 +14,16 @@ permissions:
 jobs:
   finalize:
     runs-on: ubuntu-latest
+    env:
+      TAIL_B64: IyMgMTIpIFRyYWRpbmcgUGxhbiDigJQgTU9EVUxFIENPTVBMRVRFCgojIyMgMSkgTWkgdHJhZGluZyBwbGFuIGV4cGxpY2Fkby5tcDQg4oCUIENPTVBMRVRFCi0gRHVyYXRpb246IH4xNi4zIG1pbjsgMjQ4IHRyYW5zY3JpcHQgc2VnbWVudHM7IDE5NiBwZXJpb2RpYyBmcmFtZXMgcGx1cyB2aXN1YWwtZXZlbnQgZXZpZGVuY2UuCi0gVHdvIHN0cmF0ZWd5IHNldHVwIGZhbWlsaWVzIGFyZSBleHBsaWNpdGx5IGFsbG93ZWQ6IGluZHVjZWQtb3JkZXJibG9jayBzZXR1cHMgYW5kIGRpcmVjdCByZWxldmFudCBtYXgvbWluIGxpcXVpZGl0eSBzZXR1cHM7IG9yZGVyYmxvY2sgaXMgbm90IG1hbmRhdG9yeSBmb3IgZXZlcnkgdHJhZGUuCi0gTG93ZXItdGltZWZyYW1lIGNvbmZpcm1hdGlvbiBoaWVyYXJjaHkgaXMgcmVmaW5lZDogY2FuZGxlIGZvcm1hdGlvbiArIGltcHVsc2UgdGhhdCBjcmVhdGVzIGltYmFsYW5jZSBmb3JtIHRoZSBlc3NlbnRpYWwgY29yZTsgc3RydWN0dXJlIGNoYW5nZSBpcyBhZGRpdGlvbmFsIGNvbmZsdWVuY2Ugd2hlbiBhdmFpbGFibGUsIG5vdCB1bml2ZXJzYWxseSBtYW5kYXRvcnkuCi0gVmFsaWQgTFRGIGNvbmZpcm1hdGlvbiB0aW1lZnJhbWUgY2FuIGJlIDFtLCAybSwgM20gb3IgNW07IEJlbmphbWluIGV4cGxpY2l0bHkgdGVsbHMgc3R1ZGVudHMgdG8gYmFja3Rlc3Qgd2hpY2ggd29ya3MgYmVzdCBmb3IgdGhlbS4KLSBUcmFkaW5nIFBsYW4gZGFpbHkgY29udHJvbDogbWF4aW11bSAzIHRyYWRlcy9kYXksIGNvbnNlcnZhdGl2ZSBvcHRpb24gMjsgZXhwbGljaXRseSBzdG9wIGFmdGVyIHR3byBsb3NzZXMgcmF0aGVyIHRoYW4gcmV2ZW5nZS10cmFkaW5nIGludG8gYW5vdGhlciBzZXNzaW9uLgotIEZ1bmRpbmctY2hhbGxlbmdlIHJpc2sgb3ZlcmxheTogfjAuNSUgcmlzay90cmFkZSB1bnRpbCBhYm91dCArMiUgY3VzaGlvbjsgdGhlbiB+MC434oCTMSU7IHJlZHVjZSB0b3dhcmQgfjAuMzAlIGluIG1hdGVyaWFsIGRyYXdkb3duIGFuZCByZXZlcnQgbG93ZXIgYWdhaW4gbmVhciBicmVha2V2ZW4uCi0gVHJhZGluZyBQbGFuIG1pbmltdW0gaW50ZW5kZWQgUjpSIGlzIGV4cGxpY2l0bHkgMTozLiBBdCAzUiBlaXRoZXIgY2xvc2UgdGhlIGZ1bGwgdHJhZGUgb3IgdGFrZSB+NzAlIGFuZCBtb3ZlIHRoZSByZW1haW5pbmcgfjMwJSB0byBicmVha2V2ZW4gYXMgYSBydW5uZXIuCi0gRnVuZGluZy1hY2NvdW50IHBheW91dC9mZWUtcmVjb3ZlcnkgYWR2aWNlIGlzIHN0b3JlZCBzZXBhcmF0ZWx5IGZyb20gdGhlIG1hcmtldCBzdHJhdGVneSBiZWNhdXNlIGl0IGlzIHByb3AtZmlybS9jb21wYW55IHNwZWNpZmljLgotIERldGFpbGVkIHJlY29yZDogYHN0dWR5LzEyLXRyYWRpbmctcGxhbi8wMS1taS10cmFkaW5nLXBsYW4tZXhwbGljYWRvLm1kYC4KLSBRdWFudGl0YXRpdmUgc3BlY2lmaWNhdGlvbjogYGRvY3MvdHJhZGluZ19wbGFuX21lYXN1cmVtZW50X21vZGVsLm1kYC4KCiMjIyBNb2R1bGUgMTIgY29uc29saWRhdGVkIHJ1bGUKCmBgYHRleHQKUFJFLVNFU1NJT04gRklMVEVSUwotPiBIVEYgc3RydWN0dXJlICsgcHJpb3JpdGl6ZWQgbGlxdWlkaXR5ICsgUE9JL2NvbnRleHQKLT4gRUlUSEVSIGluZHVjZWQtb3JkZXJibG9jayBzZXR1cCBPUiBkaXJlY3QgcmVsZXZhbnQtbGlxdWlkaXR5IHNldHVwCi0+IHZhbGlkIHNlc3Npb24vdGltZQotPiBtb3ZlIHRvIDFt4oCTNW0KLT4gcmVxdWlyZSBjYW5kbGUgZm9ybWF0aW9uICsgaW1wdWxzZSBjcmVhdGluZyBpbWJhbGFuY2UKLT4gc3RydWN0dXJlIGNoYW5nZSB3aGVuIGF2YWlsYWJsZSBhcyBleHRyYSBjb25maXJtYXRpb24KLT4gZW50ZXIgd2l0aCBzdHJ1Y3R1cmFsL2ludmFsaWRhdGlvbi1hd2FyZSBzdG9wCi0+IFRyYWRpbmcgUGxhbiBvYmplY3RpdmUgPj0gfjNSCi0+IGF0IDNSOiBjbG9zZSBhbGwgT1IgfjcwJSBwYXJ0aWFsICsgcmVtYWluaW5nIH4zMCUgdG8gQkUKLT4gc3RvcCBkYXkgYWZ0ZXIgdHdvIGxvc3NlczsgbmV2ZXIgZXhjZWVkIHRocmVlIHRyYWRlcy9kYXkKYGBgCgpGdW5kaW5nLWFjY291bnQgZXF1aXR5LWRlcGVuZGVudCBzaXppbmcgaXMgYW4gb3ZlcmxheSBhbmQgbXVzdCBiZSB0ZXN0ZWQgc2VwYXJhdGVseSBmcm9tIHRoZSBtYXJrZXQgZWRnZS4KCiMjIDEzKSBCZUxpa2VUaGVBbGdvIDIuMCDigJQgTkVYVAoKLSBFaWdodCB2aWRlb3MgaW4gdmVyaWZpZWQgY291cnNlIG9yZGVyLgotIFRoaXMgbW9kdWxlIGlzIHByaW1hcmlseSBmdW5kaW5nL2NoYWxsZW5nZS9yaXNrL25ld3MvY29uc2lzdGVuY3kgbWF0ZXJpYWwuCi0gU3R1ZHkgb2JqZWN0aXZlOiBpc29sYXRlIGFueSBnZW51aW5lbHkgbmV3IG1hcmtldC1zdHJhdGVneSBydWxlIGZyb20gcHJvcC1maXJtLXNwZWNpZmljIG9wZXJhdGlvbmFsIHJ1bGVzOyBkbyBub3QgbGV0IGNoYWxsZW5nZSBtZWNoYW5pY3MgY29udGFtaW5hdGUgdGhlIGNvcmUgbWFya2V0IGJhY2t0ZXN0Lgo=
     steps:
-      - name: Checkout study branch
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           ref: belikethealgo-course-study
-
       - name: Update study progress
         run: |
           python - <<'PY'
+          import base64, os
           from pathlib import Path
           p = Path('projects/belikethealgo-course-study/STUDY_PROGRESS.md')
           s = p.read_text(encoding='utf-8')
@@ -30,48 +31,9 @@ jobs:
           if marker not in s:
               raise SystemExit('Module 12 NEXT marker not found')
           head = s.split(marker, 1)[0].rstrip()
-          tail = '''## 12) Trading Plan — MODULE COMPLETE
-
-          ### 1) Mi trading plan explicado.mp4 — COMPLETE
-          - Duration: ~16.3 min; 248 transcript segments; 196 periodic frames plus visual-event evidence.
-          - Two strategy setup families are explicitly allowed: induced-orderblock setups and direct relevant max/min liquidity setups; orderblock is not mandatory for every trade.
-          - Lower-timeframe confirmation hierarchy is refined: candle formation + impulse that creates imbalance form the essential core; structure change is additional confluence when available, not universally mandatory.
-          - Valid LTF confirmation timeframe can be 1m, 2m, 3m or 5m; Benjamin explicitly tells students to backtest which works best for them.
-          - Trading Plan daily control: maximum 3 trades/day, conservative option 2; explicitly stop after two losses rather than revenge-trading into another session.
-          - Funding-challenge risk overlay: ~0.5% risk/trade until about +2% cushion; then ~0.7–1%; reduce toward ~0.30% in material drawdown and revert lower again near breakeven.
-          - Trading Plan minimum intended R:R is explicitly 1:3. At 3R either close the full trade or take ~70% and move the remaining ~30% to breakeven as a runner.
-          - Funding-account payout/fee-recovery advice is stored separately from the market strategy because it is prop-firm/company specific.
-          - Detailed record: `study/12-trading-plan/01-mi-trading-plan-explicado.md`.
-          - Quantitative specification: `docs/trading_plan_measurement_model.md`.
-
-          ### Module 12 consolidated rule
-
-          ```text
-          PRE-SESSION FILTERS
-          -> HTF structure + prioritized liquidity + POI/context
-          -> EITHER induced-orderblock setup OR direct relevant-liquidity setup
-          -> valid session/time
-          -> move to 1m–5m
-          -> require candle formation + impulse creating imbalance
-          -> structure change when available as extra confirmation
-          -> enter with structural/invalidation-aware stop
-          -> Trading Plan objective >= ~3R
-          -> at 3R: close all OR ~70% partial + remaining ~30% to BE
-          -> stop day after two losses; never exceed three trades/day
-          ```
-
-          Funding-account equity-dependent sizing is an overlay and must be tested separately from the market edge.
-
-          ## 13) BeLikeTheAlgo 2.0 — NEXT
-
-          - Eight videos in verified course order.
-          - This module is primarily funding/challenge/risk/news/consistency material.
-          - Study objective: isolate any genuinely new market-strategy rule from prop-firm-specific operational rules; do not let challenge mechanics contaminate the core market backtest.
-          '''
-          tail = '\n'.join(line[10:] if line.startswith('          ') else line for line in tail.splitlines())
+          tail = base64.b64decode(os.environ['TAIL_B64']).decode('utf-8')
           p.write_text(head + '\n\n' + tail, encoding='utf-8')
           PY
-
       - name: Commit progress update
         run: |
           git config user.name "kikedpf"
