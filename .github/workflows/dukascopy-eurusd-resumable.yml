@@ -1,0 +1,77 @@
+name: Dukascopy EURUSD resumable five-year
+
+on:
+  push:
+    branches: [trading-data-pipeline]
+    paths:
+      - '.github/workflows/dukascopy-eurusd-resumable.yml'
+
+concurrency:
+  group: dukascopy-eurusd-resumable-five-year
+  cancel-in-progress: false
+
+jobs:
+  windows:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.make.outputs.matrix }}
+    steps:
+      - id: make
+        shell: bash
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from datetime import date, timedelta
+          start=date(2021,8,29)
+          end=date(2026,8,29)
+          step=timedelta(days=28)
+          out=[]; cur=start
+          while cur < end:
+              nxt=min(cur+step,end)
+              out.append(f'{cur.isoformat()}__{nxt.isoformat()}')
+              cur=nxt
+          assert len(out) < 256
+          print('matrix='+json.dumps(out,separators=(',',':')))
+          PY
+
+  eurusd:
+    needs: windows
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        window: ${{ fromJson(needs.windows.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install pandas pyarrow numpy
+          npm install -g dukascopy-node@1.50.0
+      - name: Cooldown before Dukascopy
+        run: sleep 120
+      - name: Download, compact and validate EURUSD block
+        env:
+          WINDOW: ${{ matrix.window }}
+          TARGET: EURUSD
+        run: python trading_pipeline/full_download.py
+      - name: Upload EURUSD block or partial diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dukascopy-eurusd-resumable-${{ matrix.window }}
+          path: output/
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 6
+
+# Independent resumable 28-day blocks. A failed block does not stop later
+# blocks. full_download.py writes Parquet Zstandard, SHA-256 checksums,
+# manifest and quality reports with BID/ASK cross-validation.
