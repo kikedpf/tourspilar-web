@@ -1,4 +1,4 @@
-name: Dukascopy EURUSD resumable five-year
+name: Dukascopy EURUSD split BID ASK five-year
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 concurrency:
   group: dukascopy-eurusd-resumable-five-year
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   windows:
@@ -34,10 +34,10 @@ jobs:
           print('matrix='+json.dumps(out,separators=(',',':')))
           PY
 
-  eurusd:
+  bid:
     needs: windows
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       max-parallel: 1
@@ -55,23 +55,63 @@ jobs:
         run: |
           pip install pandas pyarrow numpy
           npm install -g dukascopy-node@1.50.0
-      - name: Cooldown before Dukascopy
-        run: sleep 120
-      - name: Download, compact and validate EURUSD block
+      - name: Small stagger
+        run: sleep 5
+      - name: Download and validate EURUSD BID
         env:
           WINDOW: ${{ matrix.window }}
           TARGET: EURUSD
-        run: python trading_pipeline/full_download.py
-      - name: Upload EURUSD block or partial diagnostics
+          SIDE: bid
+        run: python trading_pipeline/side_download.py
+      - name: Upload verified EURUSD BID or diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dukascopy-eurusd-resumable-${{ matrix.window }}
+          name: dukascopy-eurusd-bid-${{ matrix.window }}
           path: output/
           if-no-files-found: warn
           retention-days: 30
           compression-level: 6
 
-# Independent resumable 28-day blocks. A failed block does not stop later
-# blocks. full_download.py writes Parquet Zstandard, SHA-256 checksums,
-# manifest and quality reports with BID/ASK cross-validation.
+  ask:
+    needs: windows
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        window: ${{ fromJson(needs.windows.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install pandas pyarrow numpy
+          npm install -g dukascopy-node@1.50.0
+      - name: Small stagger
+        run: sleep 30
+      - name: Download and validate EURUSD ASK
+        env:
+          WINDOW: ${{ matrix.window }}
+          TARGET: EURUSD
+          SIDE: ask
+        run: python trading_pipeline/side_download.py
+      - name: Upload verified EURUSD ASK or diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dukascopy-eurusd-ask-${{ matrix.window }}
+          path: output/
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 6
+
+# BID and ASK run independently. Verified sides are retained even if the
+# opposite side fails. Each side is compacted with Parquet Zstandard and
+# verified with SHA-256 plus structural, numeric-roundtrip and OHLC checks.
