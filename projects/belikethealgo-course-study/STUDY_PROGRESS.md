@@ -180,14 +180,47 @@ ASIA CONTEXT
 -> conditionally allow a larger runner when trade quality and account state justify it
 ```
 
-## 9) Liquidez del Mercado — NEXT
+## 9) Liquidez del Mercado — MODULE COMPLETE
 
-### 1) Dónde está la liquidez.mp4 — NEXT
+### 1) Dónde está la liquidez.mp4 — COMPLETE
+- Duration: ~21.5 min; 178 transcript segments plus full periodic/state-change visual evidence.
+- Liquidity is mapped around relevant highs/lows, repeated/consecutive highs/lows and trendline/staircase structures.
+- A POI/orderblock in the middle of nowhere is insufficient; Benjamin wants it induced by/tied to meaningful liquidity.
+- Liquidity is mapped top-down and the actual entry still requires valid timing plus LTF rejection/imbalance/confirmation.
+- Detailed record: `study/09-liquidez-del-mercado/01-donde-esta-la-liquidez.md`.
+
+### 2) Liquidez externa e interna.mp4 — COMPLETE
+- Duration: ~18.6 min; 157 transcript segments plus full visual evidence.
+- External liquidity = meaningful range/structure boundary or important prior/session extreme; internal liquidity = intermediate highs/lows formed inside the active range/impulse.
+- Benjamin explicitly prefers entries after external liquidity is taken, while internal-liquidity trades remain possible when aligned with Daily/4H trend.
+- Repeated course sequence: external liquidity -> internal retracement/liquidity -> renewed impulse/imbalance -> next external liquidity. This is stored as a hypothesis to measure, not a deterministic law.
+- Late-entry risk increases when more internal liquidity has accumulated behind price.
+- Detailed record: `study/09-liquidez-del-mercado/02-liquidez-externa-e-interna.md`.
+
+### 3) Prioridad de la liquidez.mp4 — COMPLETE
+- Duration: ~10.5 min; 86 transcript segments plus full visual evidence.
+- Instructor hierarchy: **Weekly > Daily > 4H > 1H > 15m**; for intraday Benjamin particularly favors 4H/1H and says 1H works best for him.
+- Critical qualification: timeframe label alone does not make a level relevant. PWH/PWL/PDH/PDL can be ignored when they sit inside a larger range instead of at the meaningful structural/range extreme.
+- For beginners, if no relevant liquidity is visible on 1H or above, Benjamin recommends not forcing 15m levels; the session can simply be no-trade.
+- High-priority liquidity taken outside valid trading hours is not an entry trigger.
+- Detailed record: `study/09-liquidez-del-mercado/03-prioridad-de-la-liquidez.md`.
+
+### Module 9 consolidated rule
+
+```text
+MAP LIQUIDITY CANDIDATES
+-> rank nominally by Weekly > Daily > 4H > 1H > 15m
+-> require structural/range relevance, not just a named period level
+-> classify external vs internal
+-> wait for relevant liquidity interaction in valid session
+-> require POI + reaction/displacement/entry confirmation
+-> use remaining liquidity to frame targets and late-entry risk
+```
+
+Exact equality tolerance, wick-vs-close sweep semantics and dynamic range/external-internal transitions remain calibration problems. Research specification: `docs/liquidity_measurement_model.md`.
+
+## 10) Trades de Alta Probabilidad — NEXT
+
+### 1) Ejemplo de trade.mp4 — NEXT
 - Next video in verified course order.
-- Study questions: exact liquidity categories, how a liquidity point becomes identifiable without future information, wick/close semantics for taking liquidity, prominence/touch rules, and which levels Benjamin ignores.
-
-### 2) Liquidez externa e interna.mp4 — PENDING
-- Must be studied only after video 1 is COMPLETE.
-
-### 3) Prioridad de la liquidez.mp4 — PENDING
-- Must be studied only after video 2 is COMPLETE.
+- Study questions: full end-to-end setup sequence, which liquidity level activates the idea, displacement and exact structure-break quality, entry trigger, stop/target/management, and every stated reason the example qualifies as high probability.
