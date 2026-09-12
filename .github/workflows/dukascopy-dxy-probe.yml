@@ -28,16 +28,16 @@ jobs:
           npm install -g dukascopy-node@1.50.0
       - name: Short cooldown
         run: sleep 60
-      - name: Download and validate isolated DXY day
+      - name: Download and validate isolated DXY weekday
         env:
-          WINDOW: 2021-09-12__2021-09-13
+          WINDOW: 2021-09-13__2021-09-14
           TARGET: DXY
         run: python trading_pipeline/full_download.py
       - name: Upload probe artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dukascopy-dxy-probe-2021-09-12__2021-09-13
+          name: dukascopy-dxy-probe-2021-09-13__2021-09-14
           path: output/
           if-no-files-found: warn
           retention-days: 30
