@@ -157,8 +157,37 @@ BUILD ASIA RANGE (New York local time)
 
 Benjamin's phrases such as “most days”, “almost every day” or “always” are hypotheses, **not measured probabilities**. They must be tested over the weekly corpus. Candidate detectors and failure labels are defined in `docs/asia_range_measurement_model.md`.
 
-## 8) Importancia de la Sesión de Londres — NEXT
+## 8) Importancia de la Sesión de Londres — MODULE COMPLETE
 
-### 1) London Killzone.mp4 — NEXT
+### 1) London Killzone.mp4 — COMPLETE
+- Duration: ~13.0 min; 113 transcript segments; 156 periodic frames; 84 detected chart-state changes.
+- Benjamin teaches a probabilistic tendency: Asia accumulates and London often provides the manipulation/decisive move that establishes a high or low which survives through the rest of the trading day.
+- This is explicitly not guaranteed: the lesson includes a Friday counterexample where New York later breaks the London minimum.
+- London timing remains a confluence, not an autonomous entry trigger; valid liquidity, structure/location and LTF reaction evidence remain required.
+- The lesson does not cleanly redefine a new Killzone interval beyond the earlier verified session schedule; later-than-preferred moves are described as riskier.
+- Funding-account management suggestion: for a high-quality London trade while at breakeven/profit, around 3R Benjamin suggests taking a smaller ~30–40% partial and allowing a larger runner; this is conditional management advice, not a universal exit rule.
+- Claims that London creates the daily high/low "most of the time" remain hypotheses to measure over the weekly corpus, not accepted probabilities.
+- Detailed record: `study/08-sesion-de-londres/01-london-killzone.md`.
+- Quantitative research specification: `docs/london_session_measurement_model.md`.
+
+### Module 8 consolidated rule
+
+```text
+ASIA CONTEXT
+-> LONDON RESOLUTION / MANIPULATION AROUND VALID TIMING
+-> require liquidity + structure/location + LTF entry evidence
+-> treat London extreme as a candidate same-day anchor, never a guaranteed daily high/low
+-> conditionally allow a larger runner when trade quality and account state justify it
+```
+
+## 9) Liquidez del Mercado — NEXT
+
+### 1) Dónde está la liquidez.mp4 — NEXT
 - Next video in verified course order.
-- Study questions: exact London-open/Killzone boundaries, Frankfurt interaction, what London is expected to manipulate or target, whether London establishes daily direction, exceptions/no-trade conditions, and how Asia scenarios feed into London execution.
+- Study questions: exact liquidity categories, how a liquidity point becomes identifiable without future information, wick/close semantics for taking liquidity, prominence/touch rules, and which levels Benjamin ignores.
+
+### 2) Liquidez externa e interna.mp4 — PENDING
+- Must be studied only after video 1 is COMPLETE.
+
+### 3) Prioridad de la liquidez.mp4 — PENDING
+- Must be studied only after video 2 is COMPLETE.
