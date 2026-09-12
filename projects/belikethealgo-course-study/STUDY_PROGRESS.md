@@ -219,8 +219,36 @@ MAP LIQUIDITY CANDIDATES
 
 Exact equality tolerance, wick-vs-close sweep semantics and dynamic range/external-internal transitions remain calibration problems. Research specification: `docs/liquidity_measurement_model.md`.
 
-## 10) Trades de Alta Probabilidad — NEXT
+## 10) Trades de Alta Probabilidad — MODULE COMPLETE
 
-### 1) Ejemplo de trade.mp4 — NEXT
+### 1) Ejemplo de trade.mp4 — COMPLETE
+- Duration: ~16.5 min; 191 transcript segments; 198 periodic frames; 53 detected chart-state changes.
+- Module 10 is a probability-ranking layer, not a new standalone entry model.
+- Benjamin explicitly ranks a setup higher when meaningful liquidity remains available in the intended trade direction and lower when the approach has already consumed most nearby target-side liquidity.
+- Preferred approach into an LTF imbalance is corrective/liquidity-building; an aggressive approach with little remaining target-side liquidity is downgraded because it may continue through/manipulate the apparent reversal setup.
+- Normal valid-session and LTF confirmation requirements remain mandatory.
+- Nearest meaningful target-side liquidity is repeatedly used as a first management milestone and candidate BE trigger, pending validation as a universal rule.
+- Lower-quality trades may justify reduced risk/size, but this must be reconciled with the earlier 0.5–1% risk framework and later Trading Plan material.
+- Detailed record: `study/10-trades-de-alta-probabilidad/01-ejemplo-de-trade.md`.
+- Quantitative research specification: `docs/high_probability_trade_measurement_model.md`.
+
+### Module 10 consolidated rule
+
+```text
+START with an otherwise valid setup
+-> measure remaining target-side liquidity
+-> measure liquidity consumed during approach
+-> prefer corrective/liuuidity-building approach into LTF entry area
+-> require valid time + normal LTF confirmation
+-> rank higher when meaningful target-side liquidity remains
+-> rank lower when target-side liquidity is scarce/already consumed, especially after impulsive approach
+-> treat nearest meaningful liquidity as candidate first-management milestone
+```
+
+No numeric threshold for “much/little liquidity” or “corrective/impulsive” is accepted yet; those are calibration problems for the weekly corpus.
+
+## 11) Confirmaciones de Entrada a un Trade — NEXT
+
+### 1) Confirmaciones de entrada.mp4 — NEXT
 - Next video in verified course order.
-- Study questions: full end-to-end setup sequence, which liquidity level activates the idea, displacement and exact structure-break quality, entry trigger, stop/target/management, and every stated reason the example qualifies as high probability.
+- Study questions: exact ordered entry activation sequence; mandatory versus optional confirmations; exact structure-break/displacement requirements; imbalance/orderblock role; entry timing and lateness; cancellation rules; stop placement; and whether multiple distinct entry models are taught.
