@@ -1,0 +1,44 @@
+name: Dukascopy DXY isolated probe
+
+on:
+  push:
+    branches: [trading-data-pipeline]
+    paths:
+      - '.github/workflows/dukascopy-dxy-probe.yml'
+
+concurrency:
+  group: dukascopy-dxy-isolated-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install pandas pyarrow numpy
+          npm install -g dukascopy-node@1.50.0
+      - name: Short cooldown
+        run: sleep 60
+      - name: Download and validate isolated DXY day
+        env:
+          WINDOW: 2021-09-12__2021-09-13
+          TARGET: DXY
+        run: python trading_pipeline/full_download.py
+      - name: Upload probe artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dukascopy-dxy-probe-2021-09-12__2021-09-13
+          path: output/
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 6
