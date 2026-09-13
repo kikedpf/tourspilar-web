@@ -55,9 +55,10 @@ jobs:
           test -n "$VIDEO"
           OUT="$ROOT/work/dense/week-10"
           mkdir -p "$OUT"
-          # Full-video baseline and focus passes avoid preselecting only apparent winning/interesting regions.
-          python "$ROOT/scripts/dense_extract.py" "$VIDEO" "$OUT/baseline-1fps" --fps 1
-          python "$ROOT/scripts/dense_extract.py" "$VIDEO" "$OUT/focus-2fps" --fps 2
+          # Use a deliberately over-wide interval; dense_extract stops at the true video EOF.
+          # This preserves full-video sequential coverage without guessing the duration in advance.
+          python "$ROOT/scripts/dense_extract.py" "$VIDEO" "$OUT/baseline-1fps" --fps 1 --interval 0:7200
+          python "$ROOT/scripts/dense_extract.py" "$VIDEO" "$OUT/focus-2fps" --fps 2 --interval 0:7200
           rm -rf "$OUT/baseline-1fps/frames" "$OUT/focus-2fps/frames"
       - name: Write evidence manifest
         run: |
