@@ -356,14 +356,25 @@ No new numeric threshold for displacement, structure penetration, imbalance fill
 - Dynamic stop/BE management is again tied to favorable structure/liquidity progress rather than a frozen R threshold.
 - Detailed v2 record: `study/14-trades-semanales-explicados/007-semana-7.md`.
 
-### Weeks 8–10 — PROCESSING COMPLETE, ANALYSIS IN PROGRESS
-- Raw processing and lightweight transcript/navigation evidence exist for Weeks 8–10.
-- Week 8 is the current analysis target; dense 1 fps baseline + 2 fps focus extraction has been launched.
-- Weeks 8–10 must not be marked complete until each passes the v2 completeness gate in order.
+### Week 8 — COMPLETE (v2)
+- Full ~65m25s video reviewed with 1,055 timestamped transcript segments plus original-source dense visual evidence.
+- Dense evidence gate: 3,681 baseline 1 fps frames + 5,585 focus 2 fps frames generated before contact-sheet consolidation.
+- Strong veto evidence: a PDH/important-liquidity sweep alone does not justify reversal; without lower-timeframe activation/structure/confluence Benjamin explicitly rejects the trade.
+- Timing is a real L0 gate: technically attractive structure/candle evidence outside Benjamin's valid trading time is rejected.
+- Tuesday adds a candidate context state where key manipulation/liquidity is already consumed before London and subsequent price is wick-heavy/two-sided; this remains measurable but unquantified.
+- Direct imbalance entry versus confirmation-candle entry remains an execution trade-off; confirmation can improve confidence but increases stop distance / may miss fills.
+- London-runner logic has an ex-ante rationale (London context + visible HTF/session target), but its frequency/probability remains to be measured.
+- Management remains structural/event-driven and explicitly warns against micro-trailing every small swing.
+- Detailed v2 record: `study/14-trades-semanales-explicados/008-semana-8.md`.
+
+### Weeks 9–10 — PROCESSING COMPLETE, ANALYSIS IN PROGRESS
+- Lightweight transcript/navigation evidence already exists for Weeks 9–10.
+- Week 9 is the current analysis target; dense original-source evidence has been launched.
+- Week 10 must wait until Week 9 passes the v2 completeness gate.
 
 ### NEXT
-- Complete Week 8 under `ANALYSIS_PROTOCOL.md`, `docs/measurement_architecture_v2.md`, and `docs/weekly_trade_event_schema_v2.md`.
-- Then analyze Weeks 9 and 10 strictly in order.
+- Complete Week 9 under `ANALYSIS_PROTOCOL.md`, `docs/measurement_architecture_v2.md`, and `docs/weekly_trade_event_schema_v2.md`.
+- Then analyze Week 10 strictly in order.
 - Do not start Weeks 11+ until Weeks 7–10 are fully analyzed and documented (Week 6 remains a verified source gap).
 - Backfill Weeks 1–5 to v2 before freezing the Benjamin baseline.
 - Do not start module 15 until all available module-14 weekly videos are fully reviewed and all source gaps are explicitly recorded.
