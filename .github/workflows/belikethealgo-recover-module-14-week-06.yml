@@ -1,4 +1,4 @@
-name: BeLikeTheAlgo - recover module 14 week 6
+name: BeLikeTheAlgo - resolve module 14 week 6 source gap
 
 on:
   push:
@@ -10,9 +10,9 @@ permissions:
   contents: read
 
 jobs:
-  process:
+  verify-source-gap:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
@@ -20,46 +20,49 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - name: Install analysis dependencies
+      - name: Install MEGA reader
         run: |
-          sudo apt-get update -y
-          sudo apt-get install -y ffmpeg
           cd projects/belikethealgo-course-study
           npm init -y >/dev/null 2>&1
           npm install --no-save megajs@1.3.10
-          python -m pip install --upgrade pip
-          python -m pip install faster-whisper pillow scenedetect opencv-python-headless
-      - name: Download module 14 week 6 only
+      - name: Verify module 14 week 6 is absent from source
         env:
           MEGA_PUBLIC_LINK: 'https://mega.nz/folder/QvEXiZpB#dFIeSfaKPvzSLnOEmzleTg'
           MODULES: '14'
           VIDEO_MIN: '6'
           VIDEO_MAX: '6'
         run: node projects/belikethealgo-course-study/scripts/mega_download_modules.mjs
-      - name: Verify week 6 was actually selected
+      - name: Accept verified source gap instead of failing recovery
         run: |
           python - <<'PY'
           import json
-          p='projects/belikethealgo-course-study/work/raw/_download_summary.json'
-          d=json.load(open(p))
-          if d.get('count') != 1:
-              raise SystemExit(f"Expected exactly one week-6 video, downloaded {d.get('count')}")
-          print(d)
+          from pathlib import Path
+
+          summary = Path('projects/belikethealgo-course-study/work/raw/_download_summary.json')
+          data = json.loads(summary.read_text())
+          if data.get('count') != 0:
+              raise SystemExit(
+                  f"Course source changed: expected Week 6 to be absent, but downloader found {data.get('count')} matching MP4(s)."
+              )
+
+          inventory = Path('projects/belikethealgo-course-study/docs/course_inventory.md').read_text()
+          if '- Semana 6' not in inventory:
+              raise SystemExit('Course inventory no longer records Week 6 as missing.')
+
+          note = Path('projects/belikethealgo-course-study/study/14-trades-semanales-explicados/006-semana-6-no-disponible.md')
+          if not note.exists():
+              raise SystemExit('Missing explicit Week 6 SOURCE MISSING study record.')
+
+          print('Week 6 verified as SOURCE MISSING. Sequential study may continue with Week 7.')
           PY
-      - name: Process week 6 evidence
-        env:
-          WHISPER_MODEL: small
-          FRAME_INTERVAL: '5'
-          SCENE_THRESHOLD: '0.25'
-        run: python projects/belikethealgo-course-study/scripts/process_videos.py
-      - uses: actions/upload-artifact@v4
-        with:
-          name: belikethealgo-module-14-week-006-processed-v1
-          path: projects/belikethealgo-course-study/processed/
-          if-no-files-found: error
-          retention-days: 2
-      - name: Recovery marker
-        run: echo 'week-6 recovery workflow v2'
+      - name: Write workflow summary
+        run: |
+          {
+            echo '## Module 14 Week 6'
+            echo ''
+            echo '**SOURCE MISSING — verified, not a processing failure.**'
+            echo ''
+            echo 'Continue sequential analysis with Week 7. Exclude Week 6 from statistical denominators.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Resolution marker
+        run: echo 'week-6 source-gap resolution workflow v3'
