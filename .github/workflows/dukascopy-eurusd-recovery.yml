@@ -1,0 +1,59 @@
+name: Dukascopy EURUSD ASK targeted recovery
+
+on:
+  push:
+    branches: [trading-data-pipeline]
+    paths:
+      - '.github/workflows/dukascopy-eurusd-recovery.yml'
+
+concurrency:
+  group: dukascopy-eurusd-ask-targeted-recovery
+  cancel-in-progress: false
+
+jobs:
+  ask-recovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        window:
+          - '2021-10-24__2021-11-21'
+          - '2024-06-30__2024-07-28'
+          - '2024-09-22__2024-10-20'
+          - '2024-11-17__2024-12-15'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install pandas pyarrow numpy
+          npm install -g dukascopy-node@1.50.0
+      - name: Recovery stagger
+        run: sleep 120
+      - name: Download and validate EURUSD ASK recovery block
+        env:
+          WINDOW: ${{ matrix.window }}
+          TARGET: EURUSD
+          SIDE: ask
+        run: python trading_pipeline/side_download.py
+      - name: Upload verified EURUSD ASK recovery artifact or diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dukascopy-eurusd-ask-recovery-${{ matrix.window }}
+          path: output/
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 6
+
+# Targeted recovery only. The full five-year workflow remains unchanged.
+# side_download.py preserves source prices, records one-pipette EURUSD rounding
+# anomalies separately, rejects larger OHLC violations, writes Parquet Zstandard,
+# verifies numeric round-trip, and emits SHA-256 checksums plus quality reports.
