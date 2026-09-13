@@ -308,8 +308,13 @@ PRE-SESSION FILTERS
 
 Funding-account equity-dependent sizing is an overlay and must be tested separately from the market edge.
 
-## 13) BeLikeTheAlgo 2.0 — NEXT
+## 13) BeLikeTheAlgo 2.0 — MODULE COMPLETE
 
 - Eight videos in verified course order.
 - This module is primarily funding/challenge/risk/news/consistency material.
 - Study objective: isolate any genuinely new market-strategy rule from prop-firm-specific operational rules; do not let challenge mechanics contaminate the core market backtest.
+
+## 14) Trades Semanales Explicados — NEXT
+
+- Process weekly-review videos strictly in numeric order, in small ordered batches.
+- Do not start module 15 until module 14 is fully reviewed.
