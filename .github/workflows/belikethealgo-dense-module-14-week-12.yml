@@ -1,0 +1,105 @@
+name: BeLikeTheAlgo - dense evidence module 14 week 12
+
+on:
+  push:
+    branches: [belikethealgo-course-study]
+    paths: ['.github/workflows/belikethealgo-dense-module-14-week-12.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  dense-week-12:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: belikethealgo-course-study
+      - name: Record Week 11 v2 completion in study progress
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('projects/belikethealgo-course-study/STUDY_PROGRESS.md')
+          s=p.read_text()
+          if '### Week 11 — COMPLETE (v2)' not in s:
+              marker='### NEXT\n'
+              block='''### Week 11 — COMPLETE (v2)\n- Full ~39m06s video reviewed chronologically with the complete timestamped transcript plus dense full-video visual evidence.\n- Dense evidence gate: 2,346 baseline frames at 1 fps + 4,692 focus frames at 2 fps generated before contact-sheet consolidation.\n- Conditional news exception documented without threshold fitting: when an unusually large news impulse makes formal structure impractically distant, Benjamin may accept relevant liquidity/location + candle formation + impulse/imbalance, while declining the trade remains valid.\n- Setup validity, pre-entry quality, Benjamin trade-taken status and L3 result are kept separate; Monday/Thursday provide explicit skipped-but-recognizable/valid examples.\n- Aggressive vs conservative stop and direct vs confirmation entry are L2 execution alternatives over the same L1 setup; their later P&L cannot select the detector.\n- Thursday New York supplies a clean no-trade label because the required liquidity was not taken.\n- Late-entry degradation is explicit after the original impulse has travelled too far: stop/remaining-target geometry worsens even when directional thesis remains intact.\n- Spread/rollover/broker conditions are retained as execution uncertainty rather than assumed frictionless fills.\n- Scaled tickets from the same movement remain one correlated `same_underlying_move_group`.\n- Detailed v2 record: `study/14-trades-semanales-explicados/011-semana-11.md`.\n\n'''
+              if marker not in s:
+                  raise SystemExit('NEXT marker not found')
+              s=s.replace(marker,block+marker,1)
+          s=s.replace('- Process and study the next available published weekly items beginning with Week 11, strictly one week at a time after evidence generation.', '- Process and study the next available published weekly item beginning with Week 12, strictly one week at a time after evidence generation.')
+          p.write_text(s)
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add projects/belikethealgo-course-study/STUDY_PROGRESS.md
+          if ! git diff --cached --quiet; then
+            git commit -m 'Record BeLikeTheAlgo week 11 v2 completion'
+            git push origin HEAD:belikethealgo-course-study
+          fi
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install MEGA reader and visual dependencies
+        run: |
+          cd projects/belikethealgo-course-study
+          npm init -y >/dev/null 2>&1
+          npm install --no-save megajs@1.3.10
+          python -m pip install --upgrade pip
+          python -m pip install opencv-python-headless pillow
+      - name: Download published Week 12 source video only
+        env:
+          MEGA_PUBLIC_LINK: 'https://mega.nz/folder/QvEXiZpB#dFIeSfaKPvzSLnOEmzleTg'
+          MODULES: '14'
+          VIDEO_MIN: '12'
+          VIDEO_MAX: '12'
+        run: node projects/belikethealgo-course-study/scripts/mega_download_modules.mjs
+      - name: Verify exactly one Week 12 MP4 was downloaded
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path('projects/belikethealgo-course-study/work/raw/_download_summary.json').read_text())
+          if data.get('count') != 1:
+              raise SystemExit(f"Expected exactly one Week 12 MP4, got {data.get('count')}")
+          print(data)
+          PY
+      - name: Extract dense visual evidence
+        run: |
+          set -euo pipefail
+          ROOT='projects/belikethealgo-course-study'
+          VIDEO="$(find "$ROOT/work/raw" -type f -iname '*.mp4' | head -1)"
+          test -n "$VIDEO"
+          OUT="$ROOT/work/dense/week-12"
+          mkdir -p "$OUT"
+          python "$ROOT/scripts/dense_extract.py" "$VIDEO" "$OUT/baseline-1fps" --fps 1 --interval 0:7200
+          python "$ROOT/scripts/dense_extract.py" "$VIDEO" "$OUT/focus-2fps" --fps 2 --interval 0:7200
+          rm -rf "$OUT/baseline-1fps/frames" "$OUT/focus-2fps/frames"
+      - name: Write evidence manifest
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('projects/belikethealgo-course-study/work/dense/week-12')
+          manifest={
+            'week':12,
+            'protocol':'ANALYSIS_PROTOCOL.md + measurement_architecture_v2 + weekly_trade_event_schema_v2',
+            'baseline':json.loads((root/'baseline-1fps'/'dense_index.json').read_text()),
+            'focus':json.loads((root/'focus-2fps'/'dense_index.json').read_text()),
+            'note':'Full-video dense passes consolidated into timestamped contact sheets after extraction.'
+          }
+          (root/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2))
+          print('baseline frames:',manifest['baseline']['frame_count'])
+          print('focus frames:',manifest['focus']['frame_count'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: belikethealgo-module-14-week-012-dense-evidence-v2
+          path: projects/belikethealgo-course-study/work/dense/week-12
+          if-no-files-found: error
+          retention-days: 2
