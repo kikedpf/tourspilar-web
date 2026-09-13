@@ -318,9 +318,3 @@ Funding-account equity-dependent sizing is an overlay and must be tested separat
 
 - Process weekly-review videos strictly in numeric order, in small ordered batches.
 - Do not start module 15 until module 14 is fully reviewed.
-
-
-## 14) Trades Semanales Explicados — NEXT
-
-- Process weekly-review videos strictly in numeric order and in small ordered batches.
-- Do not start module 15 until module 14 is fully reviewed.
