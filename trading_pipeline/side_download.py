@@ -29,9 +29,9 @@ stem = f"{LABEL}_m1_{SIDE}_{START_DATE}_{END_DATE}"
 csv = RAW / f"{stem}.csv"
 pq = RAW / f"{stem}.parquet"
 
-# Separate runners mean ASK is no longer the second request after BID.
-# Back off only after an actual failure instead of sleeping minutes before every block.
-delays = [0, 60, 300] if TARGET == "EURUSD" else [0, 120, 480]
+# Dukascopy can rate-limit long historical pulls for several minutes. Recovery
+# attempts are deliberately sparse so a failed block does not hammer the feed.
+delays = [0, 120, 600, 1200] if TARGET == "EURUSD" else [0, 120, 480]
 last_rc = None
 for attempt, delay in enumerate(delays, 1):
     if delay:
@@ -61,11 +61,26 @@ if missing_cols:
     raise RuntimeError(f"missing columns {missing_cols}: {csv}")
 
 duplicates = int(df["timestamp"].duplicated().sum())
-invalid_ohlc = int(((df["high"] < df[["open", "close"]].max(axis=1)) |
-                    (df["low"] > df[["open", "close"]].min(axis=1)) |
-                    (df["high"] < df["low"])).sum())
+
+# Dukascopy/dukascopy-node can expose one-pipette ASK rounding at a candle
+# boundary (observed as exactly 0.00001 on EURUSD). Preserve the source values
+# rather than silently rewriting market data, but record these as soft anomalies.
+# Anything larger remains a hard quality failure.
+open_close_high = df[["open", "close"]].max(axis=1)
+open_close_low = df[["open", "close"]].min(axis=1)
+high_violation = open_close_high - df["high"]
+low_violation = df["low"] - open_close_low
+price_tolerance = 1.000001e-5 if TARGET == "EURUSD" else 0.0
+soft_ohlc = ((high_violation > 0) & (high_violation <= price_tolerance)) | ((low_violation > 0) & (low_violation <= price_tolerance))
+hard_ohlc = (df["high"] < df["low"]) | (high_violation > price_tolerance) | (low_violation > price_tolerance)
+soft_ohlc_rounding = int(soft_ohlc.sum())
+invalid_ohlc = int(hard_ohlc.sum())
+max_ohlc_violation = float(max(high_violation.clip(lower=0).max(), low_violation.clip(lower=0).max()))
 if duplicates or invalid_ohlc:
-    raise RuntimeError(f"quality failure {LABEL} {SIDE}: duplicates={duplicates} invalid_ohlc={invalid_ohlc}")
+    raise RuntimeError(
+        f"quality failure {LABEL} {SIDE}: duplicates={duplicates} "
+        f"invalid_ohlc={invalid_ohlc} max_violation={max_ohlc_violation}"
+    )
 
 ts = pd.to_datetime(df["timestamp"], unit="ms", utc=True)
 gaps = ts.sort_values().diff().dropna()
@@ -95,6 +110,9 @@ quality = {
     "rows": len(df),
     "duplicates": duplicates,
     "invalid_ohlc": invalid_ohlc,
+    "soft_ohlc_rounding": soft_ohlc_rounding,
+    "ohlc_tolerance": price_tolerance,
+    "max_ohlc_violation": max_ohlc_violation,
     "gaps_over_1m": int((gaps > pd.Timedelta(minutes=1)).sum()),
     "largest_gap": str(gaps.max()) if len(gaps) else "0 days 00:00:00",
     "start_utc": str(ts.min()),
@@ -118,7 +136,8 @@ manifest = {
     "timezone": "UTC",
     "compression": "parquet-zstd",
     "sha256": sha,
-    "validation": "single-side structural, numeric roundtrip, duplicates and OHLC",
+    "validation": "single-side structural, numeric roundtrip, duplicates and OHLC with explicit source-rounding tolerance",
+    "ohlc_rounding_policy": "preserve source values; report EURUSD violations <= 0.00001 as soft rounding anomalies; reject larger violations",
     "cross_bid_ask_validation": "deferred until matching BID and ASK sides are both verified",
     "file": str(pq.relative_to(ROOT)),
 }
