@@ -260,3 +260,81 @@ Maintain:
 - final backtest code and results.
 
 No discretionary concept will be disguised as an objective rule. If something cannot be measured reliably after studying the full evidence, it remains explicitly discretionary and is excluded from a supposedly automated backtest until solved.
+
+---
+
+# Mandatory Measurement Architecture v2
+
+The following rules are mandatory for all analysis from Weekly Trade 6 onward and must also be backfilled to earlier examples before the initial strategy is frozen. Canonical specification: `docs/measurement_architecture_v2.md`. Canonical per-example field checklist: `docs/weekly_trade_event_schema_v2.md`.
+
+## Separate instructor replication from market optimization
+
+There are two distinct research objectives:
+
+1. **Instructor replication** — learn thresholds/definitions that reproduce Benjamin's labels and decisions. Optimize agreement metrics such as precision, recall, false positives/negatives and timing. **P&L must not choose these thresholds.**
+2. **Market-edge testing** — only after a rule-set is frozen, test expectancy on independent historical OHLC data containing all eligible market days, not only course examples.
+
+A parameter changed after seeing historical P&L requires a new untouched out-of-sample period.
+
+## Availability layers
+
+Every variable must belong to one layer:
+
+- **L0 Context** — available before the setup;
+- **L1 Activation** — becomes available before the entry decision;
+- **L2 Execution** — order/fill information;
+- **L3 Post-entry/outcome** — MFE, MAE, management evolution, final result and all future-path information.
+
+Only L0 and L1 may decide whether to enter. L2 controls realistic execution. L3 is forbidden as an original entry feature.
+
+## Validity, quality and outcome must never be conflated
+
+Store independently:
+
+- setup validity under the current frozen rules;
+- pre-entry setup quality/confluence;
+- whether Benjamin took the trade;
+- final trade result.
+
+A valid trade may lose. A winner may violate the rule-set. No outcome may retroactively relabel setup validity.
+
+## Ordered state-machine requirement
+
+A setup must be reconstructed as ordered events, not only as an unordered feature vector. Record event/known times and elapsed bars/seconds between transitions. Candidate families may differ, but sequence itself is measurable evidence.
+
+Normal candidate chain to test against evidence:
+
+`context -> liquidity event -> reaction -> impulse -> imbalance -> structure/candle confirmation -> retracement -> activation -> order -> fill -> management -> exit`
+
+## Impulse and displacement are separate research objects
+
+From now on:
+
+- **Impulse** = local decision/confirmation event, commonly responsible for an imbalance and immediate intent.
+- **Displacement** = quality of the broader directional leg/travel.
+
+Do not use one boolean as a synonym for both. Preserve separate measurements and instructor labels.
+
+## Approach quality is first-class
+
+For every approach into a candidate POI/entry zone, measure speed/efficiency, overlap, body dominance, expansion, internal pullbacks, newly generated liquidity, target-side liquidity consumed and opposing liquidity created. Preserve Benjamin's qualitative label when explicit. Do not invent a profitable numeric threshold.
+
+## Execution realism is mandatory
+
+Do not assume every ideal limit order fills. Record decision time, order time, requested price, entry zone, fill/no-fill, fill time, spread, slippage, cancellation and split orders. Instructor-supported execution variants must be tested as separate variants rather than selected retrospectively by best P&L.
+
+## Post-entry path metrics
+
+For every filled trade record at least MFE_R, MAE_R, time to 0.5R/1R/2R/3R, retracement after milestones, new adverse/favorable liquidity/structure, BE/partial decisions and realized R. These are L3 variables and cannot justify the original entry.
+
+## Duplicate/dependence controls
+
+Every example must identify duplicates, repeated videos and same-day/same-move correlations. Exact repeats count once. Validation uncertainty should be clustered by trading day and, when appropriate, week.
+
+## Chronological validation only
+
+Final validation uses chronological holdouts, never a random train/test split. If a holdout example influences a rule revision, it becomes development data and a new untouched holdout is required.
+
+## Ablation comes after the Benjamin baseline is frozen
+
+Only after the initial strategy reproduces Benjamin acceptably and is frozen may we test controlled removals/changes such as DXY, structure, candle confirmation, orderblock confluence, preferred timing, approach-quality filtering or execution variants. Each modification creates a new strategy version.
