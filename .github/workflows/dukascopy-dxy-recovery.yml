@@ -1,0 +1,71 @@
+name: Dukascopy DXY targeted recovery
+
+on:
+  push:
+    branches: [trading-data-pipeline]
+    paths:
+      - '.github/workflows/dukascopy-dxy-recovery.yml'
+
+concurrency:
+  group: dukascopy-dxy-targeted-recovery
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        include:
+          - side: bid
+            window: 2023-12-17__2023-12-27
+          - side: bid
+            window: 2024-01-16__2024-01-26
+          - side: bid
+            window: 2024-06-04__2024-06-14
+          - side: bid
+            window: 2024-06-14__2024-06-24
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install pandas pyarrow numpy
+          npm install -g dukascopy-node@1.50.0
+      - name: Cooldown before recovery
+        run: sleep 60
+      - name: Download and validate DXY recovery block
+        env:
+          WINDOW: ${{ matrix.window }}
+          TARGET: DXY
+          SIDE: ${{ matrix.side }}
+        run: python trading_pipeline/side_download.py
+      - name: Upload verified DXY recovery block
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dukascopy-dxy-${{ matrix.side }}-recovery-${{ matrix.window }}
+          path: output/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 6
+      - name: Upload recovery diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnostics-dxy-${{ matrix.side }}-${{ matrix.window }}
+          path: output/
+          if-no-files-found: warn
+          retention-days: 7
+
+# Targeted recovery only: these blocks previously failed under Dukascopy HTTP 429.
+# The shared downloader now uses a four-attempt DXY backoff envelope and still
+# enforces Parquet Zstandard, SHA-256, round-trip integrity, duplicate checks,
+# and strict OHLC validation before a verified artifact is uploaded.
