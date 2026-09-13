@@ -24,37 +24,37 @@ jobs:
           p=Path('projects/belikethealgo-course-study/STUDY_PROGRESS.md')
           s=p.read_text()
           old='''### Weeks 9–10 — PROCESSING COMPLETE, ANALYSIS IN PROGRESS
-- Lightweight transcript/navigation evidence already exists for Weeks 9–10.
-- Week 9 is the current analysis target; dense original-source evidence has been launched.
-- Week 10 must wait until Week 9 passes the v2 completeness gate.
+          - Lightweight transcript/navigation evidence already exists for Weeks 9–10.
+          - Week 9 is the current analysis target; dense original-source evidence has been launched.
+          - Week 10 must wait until Week 9 passes the v2 completeness gate.
 
-### NEXT
-- Complete Week 9 under `ANALYSIS_PROTOCOL.md`, `docs/measurement_architecture_v2.md`, and `docs/weekly_trade_event_schema_v2.md`.
-- Then analyze Week 10 strictly in order.
-- Do not start Weeks 11+ until Weeks 7–10 are fully analyzed and documented (Week 6 remains a verified source gap).
-- Backfill Weeks 1–5 to v2 before freezing the Benjamin baseline.
-- Do not start module 15 until all available module-14 weekly videos are fully reviewed and all source gaps are explicitly recorded.'''
+          ### NEXT
+          - Complete Week 9 under `ANALYSIS_PROTOCOL.md`, `docs/measurement_architecture_v2.md`, and `docs/weekly_trade_event_schema_v2.md`.
+          - Then analyze Week 10 strictly in order.
+          - Do not start Weeks 11+ until Weeks 7–10 are fully analyzed and documented (Week 6 remains a verified source gap).
+          - Backfill Weeks 1–5 to v2 before freezing the Benjamin baseline.
+          - Do not start module 15 until all available module-14 weekly videos are fully reviewed and all source gaps are explicitly recorded.'''.replace('          ','')
           new='''### Week 9 — COMPLETE (v2)
-- Full ~35m35s video reviewed with 322 timestamped transcript segments plus original-source dense visual evidence.
-- Dense evidence gate: 1,976 baseline 1 fps frames + 3,693 focus 2 fps frames generated before contact-sheet consolidation.
-- Week 9 strongly separates strategy validity, pre-entry quality, Benjamin trade-taken status and outcome; several valid/possible setups are explicitly downgraded before their result is known.
-- Wednesday provides a first-class no-trade market-state example: London can be open yet remain too overlapping/ranging/noisy, with no clear impulse or clean imbalance.
-- Thursday adds explicit internal-liquidity logic: after a vertical impulse with little/no internal liquidity, the first pullback may become inducement before a later liquidity-collecting candle creates a more meaningful protected-extreme candidate.
-- Nearest meaningful target/Asia liquidity constrains setup quality ex ante; attractive confirmation is insufficient when usable R before the first meaningful target is too small.
-- BE remains contextual/event-driven and intentionally biased toward capital protection when confidence is low.
-- Benjamin explicitly reports Week 9 as a losing/uncomfortable week; it is retained as an independent anti-selection sample, not optimized away.
-- Detailed v2 record: `study/14-trades-semanales-explicados/009-semana-9.md`.
+          - Full ~35m35s video reviewed with 322 timestamped transcript segments plus original-source dense visual evidence.
+          - Dense evidence gate: 1,976 baseline 1 fps frames + 3,693 focus 2 fps frames generated before contact-sheet consolidation.
+          - Week 9 strongly separates strategy validity, pre-entry quality, Benjamin trade-taken status and outcome; several valid/possible setups are explicitly downgraded before their result is known.
+          - Wednesday provides a first-class no-trade market-state example: London can be open yet remain too overlapping/ranging/noisy, with no clear impulse or clean imbalance.
+          - Thursday adds explicit internal-liquidity logic: after a vertical impulse with little/no internal liquidity, the first pullback may become inducement before a later liquidity-collecting candle creates a more meaningful protected-extreme candidate.
+          - Nearest meaningful target/Asia liquidity constrains setup quality ex ante; attractive confirmation is insufficient when usable R before the first meaningful target is too small.
+          - BE remains contextual/event-driven and intentionally biased toward capital protection when confidence is low.
+          - Benjamin explicitly reports Week 9 as a losing/uncomfortable week; it is retained as an independent anti-selection sample, not optimized away.
+          - Detailed v2 record: `study/14-trades-semanales-explicados/009-semana-9.md`.
 
-### Week 10 — PROCESSING COMPLETE, ANALYSIS NEXT
-- Lightweight transcript/navigation evidence already exists for Week 10.
-- Dense original-source evidence is the next strict-order processing target.
-- Week 10 must pass the v2 completeness gate before Weeks 11+ are launched.
+          ### Week 10 — PROCESSING COMPLETE, ANALYSIS NEXT
+          - Lightweight transcript/navigation evidence already exists for Week 10.
+          - Dense original-source evidence is the next strict-order processing target.
+          - Week 10 must pass the v2 completeness gate before Weeks 11+ are launched.
 
-### NEXT
-- Generate/review Week 10 dense evidence and complete Week 10 under `ANALYSIS_PROTOCOL.md`, `docs/measurement_architecture_v2.md`, and `docs/weekly_trade_event_schema_v2.md`.
-- Do not start Weeks 11+ until Week 10 is fully analyzed and documented (Week 6 remains a verified source gap).
-- Backfill Weeks 1–5 to v2 before freezing the Benjamin baseline.
-- Do not start module 15 until all available module-14 weekly videos are fully reviewed and all source gaps are explicitly recorded.'''
+          ### NEXT
+          - Generate/review Week 10 dense evidence and complete Week 10 under `ANALYSIS_PROTOCOL.md`, `docs/measurement_architecture_v2.md`, and `docs/weekly_trade_event_schema_v2.md`.
+          - Do not start Weeks 11+ until Week 10 is fully analyzed and documented (Week 6 remains a verified source gap).
+          - Backfill Weeks 1–5 to v2 before freezing the Benjamin baseline.
+          - Do not start module 15 until all available module-14 weekly videos are fully reviewed and all source gaps are explicitly recorded.'''.replace('          ','')
           if old not in s:
               raise SystemExit('Expected Week 9 progress block not found; refusing ambiguous patch')
           p.write_text(s.replace(old,new))
