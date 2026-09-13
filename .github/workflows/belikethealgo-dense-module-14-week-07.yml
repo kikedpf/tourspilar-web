@@ -1,0 +1,114 @@
+name: BeLikeTheAlgo - dense evidence module 14 week 7
+
+on:
+  push:
+    branches: [belikethealgo-course-study]
+    paths: ['.github/workflows/belikethealgo-dense-module-14-week-07.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dense-week-07:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: belikethealgo-course-study
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install MEGA reader and visual dependencies
+        run: |
+          cd projects/belikethealgo-course-study
+          npm init -y >/dev/null 2>&1
+          npm install --no-save megajs@1.3.10
+          python -m pip install --upgrade pip
+          python -m pip install opencv-python-headless pillow
+
+      - name: Download published Week 7 source video only
+        env:
+          MEGA_PUBLIC_LINK: 'https://mega.nz/folder/QvEXiZpB#dFIeSfaKPvzSLnOEmzleTg'
+          MODULES: '14'
+          VIDEO_MIN: '7'
+          VIDEO_MAX: '7'
+        run: node projects/belikethealgo-course-study/scripts/mega_download_modules.mjs
+
+      - name: Verify exactly one Week 7 MP4 was downloaded
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          summary = Path('projects/belikethealgo-course-study/work/raw/_download_summary.json')
+          data = json.loads(summary.read_text())
+          if data.get('count') != 1:
+              raise SystemExit(f"Expected exactly one Week 7 MP4, got {data.get('count')}")
+          print(data)
+          PY
+
+      - name: Extract dense visual evidence
+        run: |
+          set -euo pipefail
+          ROOT='projects/belikethealgo-course-study'
+          VIDEO="$(find "$ROOT/work/raw" -type f -iname '*.mp4' | head -1)"
+          test -n "$VIDEO"
+          OUT="$ROOT/work/dense/week-07"
+          mkdir -p "$OUT"
+
+          # Full chart-review body at 1 fps: this is the visual-fidelity baseline.
+          python "$ROOT/scripts/dense_extract.py" "$VIDEO" "$OUT/baseline-1fps" \
+            --fps 1 \
+            --interval 185:640 \
+            --interval 640:1041 \
+            --interval 1041:1641 \
+            --interval 1641:2141 \
+            --interval 2141:2500
+
+          # Fast/drawing/entry intervals at 2 fps for execution and decision reconstruction.
+          python "$ROOT/scripts/dense_extract.py" "$VIDEO" "$OUT/focus-2fps" \
+            --fps 2 \
+            --interval 296:638 \
+            --interval 850:1041 \
+            --interval 1120:1641 \
+            --interval 1875:2136 \
+            --interval 2220:2499
+
+          # Preserve dense timestamp maps + review sheets, discard individual JPEGs only
+          # after the contact sheets have been generated to keep the artifact tractable.
+          rm -rf "$OUT/baseline-1fps/frames" "$OUT/focus-2fps/frames"
+
+      - name: Write evidence manifest
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('projects/belikethealgo-course-study/work/dense/week-07')
+          manifest = {
+              'week': 7,
+              'protocol': 'ANALYSIS_PROTOCOL.md + measurement_architecture_v2 + weekly_trade_event_schema_v2',
+              'baseline': json.loads((root/'baseline-1fps'/'dense_index.json').read_text()),
+              'focus': json.loads((root/'focus-2fps'/'dense_index.json').read_text()),
+              'note': 'Contact sheets were generated from the dense frames before individual frame JPEGs were removed. Exact source timestamps remain in dense_index.json.'
+          }
+          (root/'manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2))
+          print('baseline frames:', manifest['baseline']['frame_count'])
+          print('focus frames:', manifest['focus']['frame_count'])
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: belikethealgo-module-14-week-007-dense-evidence-v2
+          path: projects/belikethealgo-course-study/work/dense/week-07
+          if-no-files-found: error
+          retention-days: 2
+
+      - name: Workflow marker
+        run: echo 'week-07 dense evidence v2 launched after verified Week 6 source gap'
