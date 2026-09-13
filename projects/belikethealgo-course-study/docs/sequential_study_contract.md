@@ -59,3 +59,40 @@ The goal is not to reproduce what happened after seeing the outcome. The goal is
 ## No threshold invention
 
 Mathematical measurements may include slope, directional efficiency, body/range ratios, overlap, expansion, retracement, continuation, volatility normalization, distance and timing. These are OUR METRICS unless Benjamin explicitly uses them. Their thresholds are learned/calibrated from Benjamin-labeled examples and tested on held-out examples; thresholds are never chosen merely because they make the backtest look good.
+
+---
+
+# Mandatory v2 weekly-trade labeling contract
+
+From Weekly Trade 6 onward, and retroactively before the Benjamin baseline is frozen, each example must satisfy `docs/measurement_architecture_v2.md` and `docs/weekly_trade_event_schema_v2.md`.
+
+Additional completion requirements:
+
+9. `setup_validity`, pre-entry `setup_quality`, `trade_taken` and final outcome are stored separately;
+10. impulse and displacement are recorded as separate objects/fields;
+11. ordered event sequence is reconstructed with `event_time` and `known_time` for all decision-relevant events;
+12. every feature is assigned to L0/L1/L2/L3 or inherits an unambiguous layer;
+13. no L3/post-entry variable is used to explain why the original entry was valid;
+14. approach quality into the entry zone is measured when an approach exists;
+15. order/fill assumptions are explicit for every taken or simulated trade;
+16. duplicate/repeated/correlated-sample fields are populated;
+17. the example is linked to the current `rulebook_version` and `measurement_schema_version`;
+18. any field that cannot be established from evidence is marked `unresolved`, never guessed.
+
+A weekly video cannot be marked COMPLETE merely because its narrative summary exists. Its trades, rejected setups and no-trades must be reconstructable chronologically under the v2 schema.
+
+## Calibration separation
+
+Weekly examples used to invent or adjust a detector are **discovery/calibration data**. Later weekly examples reserved to test that detector are **instructor holdout data**.
+
+A holdout example that causes us to change the rule ceases to be holdout data. A new untouched chronological block must replace it.
+
+Detector thresholds are selected to reproduce Benjamin's labels/actions, not to maximize trade profit.
+
+## Candidate-day principle for later OHLC backtesting
+
+The course corpus teaches the method but must not be assumed to contain every market opportunity or every losing day. Once the Benjamin rulebook is frozen, historical evaluation must scan every eligible day/session in independent OHLC data and record both detected setups and no-setup/no-trade days.
+
+## Controlled improvements after baseline
+
+Only after the original Benjamin strategy is learned, frozen and backtested may we make small changes. Each change must be isolated, versioned and compared against the unchanged baseline. No bundle of simultaneous tweaks is accepted as evidence of improvement.
