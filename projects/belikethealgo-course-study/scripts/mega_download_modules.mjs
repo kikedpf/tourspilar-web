@@ -21,6 +21,19 @@ const root = File.fromURL(url)
 root.api.userAgent = 'ChatGPT-course-analysis/1.0'
 const selected = await root.loadAttributes()
 
+function extractVideoNumber(name) {
+  const prefix = name.match(/^\s*(\d+)\s*[)._-]/)
+  if (prefix) return Number(prefix[1])
+
+  // Some weekly-trade files in the source folder are not consistently prefixed.
+  // Recover the published week number from the instructor filename instead of
+  // silently dropping the lesson from a VIDEO_MIN/VIDEO_MAX batch.
+  const semana = name.match(/\bSemana\s*(\d+)\b/i)
+  if (semana) return Number(semana[1])
+
+  return null
+}
+
 let count = 0
 let bytes = 0
 async function walk(node, parts = []) {
@@ -35,8 +48,7 @@ async function walk(node, parts = []) {
   const m = moduleName.match(/^(\d+)\)/)
   if (!m || !modules.has(Number(m[1]))) return
 
-  const vm = name.match(/^(\d+)\)/)
-  const videoNumber = vm ? Number(vm[1]) : null
+  const videoNumber = extractVideoNumber(name)
   if (videoMin !== null || videoMax !== null) {
     if (!Number.isFinite(videoNumber)) return
     if (videoMin !== null && videoNumber < videoMin) return
@@ -46,7 +58,7 @@ async function walk(node, parts = []) {
   const rel = path.join(moduleName, name)
   const dest = path.join(outRoot, rel)
   await fs.mkdir(path.dirname(dest), { recursive: true })
-  console.log(`Downloading ${rel} (${node.size || 0} bytes)`)
+  console.log(`Downloading ${rel} (${node.size || 0} bytes; resolved_video_number=${videoNumber})`)
   await pipeline(node.download(), createWriteStream(dest))
   count += 1
   bytes += Number(node.size || 0)
