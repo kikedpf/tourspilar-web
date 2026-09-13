@@ -339,7 +339,23 @@ HTF/session liquidity map
 
 No new numeric threshold for displacement, structure penetration, imbalance fill or BE timing is frozen from Weeks 1–5. Losing and BE examples remain labeled as valid when Benjamin considered them valid; outcome must not leak into setup classification.
 
+### Week 6 — SOURCE MISSING / VERIFIED GAP
+- The published Module 14 source was checked directly after the batch-02 downloader skipped Week 6.
+- A dedicated recovery/verification workflow found **zero Week 6 MP4 files** in the MEGA source; this is a source gap, not a processing failure.
+- Explicit record: `study/14-trades-semanales-explicados/006-semana-6-no-disponible.md`.
+- `source_gap=true`; `independent_sample=false`; exclude Week 6 from statistical denominators and never fabricate a trade label for it.
+- Sequential study may therefore continue with the next available published item: Week 7.
+
+### Weeks 7–10 — PROCESSING COMPLETE, ANALYSIS IN PROGRESS
+- Raw processing for Weeks 7–10 completed successfully.
+- A lightweight review artifact preserving transcripts and coarse/state-change visual navigation was generated successfully after fixing its Pillow dependency.
+- Week 7 is the current analysis target under the v2 measurement architecture.
+- Dense 1 fps baseline evidence plus 2 fps focus evidence has been launched for Week 7 because 5-second/coarse contact sheets alone do not satisfy the visual-fidelity gate.
+- Weeks 8–10 must not be marked complete until each passes the same v2 completeness gate in order.
+
 ### NEXT
-- Process Weeks 6–10 strictly in order.
-- Do not start Weeks 11+ until Weeks 6–10 are fully analyzed and documented.
-- Do not start module 15 until all module-14 weekly videos are fully reviewed.
+- Complete Week 7 under `ANALYSIS_PROTOCOL.md`, `docs/measurement_architecture_v2.md`, and `docs/weekly_trade_event_schema_v2.md`.
+- Then analyze Weeks 8, 9 and 10 strictly in order.
+- Do not start Weeks 11+ until Weeks 7–10 are fully analyzed and documented (Week 6 remains a verified source gap).
+- Backfill Weeks 1–5 to v2 before freezing the Benjamin baseline.
+- Do not start module 15 until all available module-14 weekly videos are fully reviewed and all source gaps are explicitly recorded.
