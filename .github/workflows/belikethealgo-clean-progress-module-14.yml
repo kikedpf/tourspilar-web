@@ -1,0 +1,41 @@
+name: BeLikeTheAlgo clean module 14 progress marker
+
+on:
+  push:
+    branches: [belikethealgo-course-study]
+    paths: ['.github/workflows/belikethealgo-clean-progress-module-14.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: belikethealgo-course-study
+      - name: Deduplicate progress tail
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('projects/belikethealgo-course-study/STUDY_PROGRESS.md')
+          s=p.read_text(encoding='utf-8')
+          marker='## 14) Trades Semanales Explicados — NEXT'
+          first=s.find(marker)
+          if first < 0:
+              raise SystemExit('module 14 marker missing')
+          second=s.find(marker, first+len(marker))
+          if second >= 0:
+              s=s[:second].rstrip()+'\n'
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          git config user.name kikedpf
+          git config user.email kipolan12@hotmail.es
+          git add projects/belikethealgo-course-study/STUDY_PROGRESS.md
+          git diff --cached --quiet && exit 0
+          git commit -m "Clean module 14 progress marker"
+          git push origin HEAD:belikethealgo-course-study
