@@ -9,6 +9,11 @@ if (!url) throw new Error('MEGA_PUBLIC_LINK is required')
 const modules = new Set((process.env.MODULES || '').split(',').map(s => Number(s.trim())).filter(Number.isFinite))
 if (!modules.size) throw new Error('MODULES must contain comma-separated module numbers')
 
+const videoMin = process.env.VIDEO_MIN ? Number(process.env.VIDEO_MIN) : null
+const videoMax = process.env.VIDEO_MAX ? Number(process.env.VIDEO_MAX) : null
+if (videoMin !== null && !Number.isFinite(videoMin)) throw new Error('VIDEO_MIN must be numeric')
+if (videoMax !== null && !Number.isFinite(videoMax)) throw new Error('VIDEO_MAX must be numeric')
+
 const outRoot = path.resolve('projects/belikethealgo-course-study/work/raw')
 await fs.mkdir(outRoot, { recursive: true })
 
@@ -29,6 +34,15 @@ async function walk(node, parts = []) {
   const moduleName = next.length >= 2 ? next[1] : ''
   const m = moduleName.match(/^(\d+)\)/)
   if (!m || !modules.has(Number(m[1]))) return
+
+  const vm = name.match(/^(\d+)\)/)
+  const videoNumber = vm ? Number(vm[1]) : null
+  if (videoMin !== null || videoMax !== null) {
+    if (!Number.isFinite(videoNumber)) return
+    if (videoMin !== null && videoNumber < videoMin) return
+    if (videoMax !== null && videoNumber > videoMax) return
+  }
+
   const rel = path.join(moduleName, name)
   const dest = path.join(outRoot, rel)
   await fs.mkdir(path.dirname(dest), { recursive: true })
@@ -39,5 +53,5 @@ async function walk(node, parts = []) {
 }
 
 await walk(selected)
-await fs.writeFile(path.join(outRoot, '_download_summary.json'), JSON.stringify({ modules: [...modules], count, bytes, generatedAt: new Date().toISOString() }, null, 2))
+await fs.writeFile(path.join(outRoot, '_download_summary.json'), JSON.stringify({ modules: [...modules], videoMin, videoMax, count, bytes, generatedAt: new Date().toISOString() }, null, 2))
 console.log(`Downloaded ${count} videos, ${bytes} bytes`)
