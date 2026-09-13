@@ -61,3 +61,5 @@ jobs:
           path: projects/belikethealgo-course-study/processed/
           if-no-files-found: error
           retention-days: 2
+      - name: Recovery marker
+        run: echo 'week-6 recovery workflow v2'
