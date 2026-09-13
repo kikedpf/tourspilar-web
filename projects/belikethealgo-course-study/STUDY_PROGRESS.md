@@ -346,16 +346,24 @@ No new numeric threshold for displacement, structure penetration, imbalance fill
 - `source_gap=true`; `independent_sample=false`; exclude Week 6 from statistical denominators and never fabricate a trade label for it.
 - Sequential study may therefore continue with the next available published item: Week 7.
 
-### Weeks 7–10 — PROCESSING COMPLETE, ANALYSIS IN PROGRESS
-- Raw processing for Weeks 7–10 completed successfully.
-- A lightweight review artifact preserving transcripts and coarse/state-change visual navigation was generated successfully after fixing its Pillow dependency.
-- Week 7 is the current analysis target under the v2 measurement architecture.
-- Dense 1 fps baseline evidence plus 2 fps focus evidence has been launched for Week 7 because 5-second/coarse contact sheets alone do not satisfy the visual-fidelity gate.
-- Weeks 8–10 must not be marked complete until each passes the same v2 completeness gate in order.
+### Week 7 — COMPLETE (v2)
+- Full ~42m18s video reviewed with 377 timestamped transcript segments plus original-source dense visual evidence.
+- Dense evidence gate: 2,313 baseline 1 fps frames + 3,184 focus 2 fps frames generated before contact-sheet consolidation.
+- Setup validity, pre-entry quality and execution mode are kept separate; Benjamin repeatedly contrasts direct imbalance/limit execution with waiting for directional confirmation.
+- Two/three-confirmation language is confluence/quality guidance; illustrative percentages are explicitly invented and are not measured probabilities.
+- Structure is often additive confluence rather than universally mandatory when liquidity/location + impulse/imbalance/candle evidence are strong.
+- Friday losing PDH trade remains an instructor trade; repeated prior sweeps/no reaction plus stronger external liquidity are candidate pre-entry downgrade variables, never a post-loss relabel.
+- Dynamic stop/BE management is again tied to favorable structure/liquidity progress rather than a frozen R threshold.
+- Detailed v2 record: `study/14-trades-semanales-explicados/007-semana-7.md`.
+
+### Weeks 8–10 — PROCESSING COMPLETE, ANALYSIS IN PROGRESS
+- Raw processing and lightweight transcript/navigation evidence exist for Weeks 8–10.
+- Week 8 is the current analysis target; dense 1 fps baseline + 2 fps focus extraction has been launched.
+- Weeks 8–10 must not be marked complete until each passes the v2 completeness gate in order.
 
 ### NEXT
-- Complete Week 7 under `ANALYSIS_PROTOCOL.md`, `docs/measurement_architecture_v2.md`, and `docs/weekly_trade_event_schema_v2.md`.
-- Then analyze Weeks 8, 9 and 10 strictly in order.
+- Complete Week 8 under `ANALYSIS_PROTOCOL.md`, `docs/measurement_architecture_v2.md`, and `docs/weekly_trade_event_schema_v2.md`.
+- Then analyze Weeks 9 and 10 strictly in order.
 - Do not start Weeks 11+ until Weeks 7–10 are fully analyzed and documented (Week 6 remains a verified source gap).
 - Backfill Weeks 1–5 to v2 before freezing the Benjamin baseline.
 - Do not start module 15 until all available module-14 weekly videos are fully reviewed and all source gaps are explicitly recorded.
