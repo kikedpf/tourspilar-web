@@ -29,9 +29,11 @@ stem = f"{LABEL}_m1_{SIDE}_{START_DATE}_{END_DATE}"
 csv = RAW / f"{stem}.csv"
 pq = RAW / f"{stem}.parquet"
 
-# Dukascopy can rate-limit long historical pulls for several minutes. Recovery
+# Dukascopy can rate-limit historical pulls for several minutes. Recovery
 # attempts are deliberately sparse so a failed block does not hammer the feed.
-delays = [0, 120, 600, 1200] if TARGET == "EURUSD" else [0, 120, 480]
+# DXY now uses the same longer four-attempt recovery envelope as EURUSD after
+# repeated HTTP 429 failures survived the previous 120s/480s schedule.
+delays = [0, 120, 600, 1200] if TARGET == "EURUSD" else [0, 180, 600, 1200]
 last_rc = None
 for attempt, delay in enumerate(delays, 1):
     if delay:
