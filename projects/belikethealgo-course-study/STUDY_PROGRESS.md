@@ -314,7 +314,32 @@ Funding-account equity-dependent sizing is an overlay and must be tested separat
 - This module is primarily funding/challenge/risk/news/consistency material.
 - Study objective: isolate any genuinely new market-strategy rule from prop-firm-specific operational rules; do not let challenge mechanics contaminate the core market backtest.
 
-## 14) Trades Semanales Explicados — NEXT
+## 14) Trades Semanales Explicados — IN PROGRESS
 
-- Process weekly-review videos strictly in numeric order, in small ordered batches.
-- Do not start module 15 until module 14 is fully reviewed.
+### Weeks 1–5 — COMPLETE
+- Week 1 (~46.2 min): independent weekly review fully analyzed. Confirms EUR/USD liquidity event is mandatory while DXY is secondary confirmation; no anticipatory entry before the sweep; displacement/imbalance entry sequence; contextual BE management; recurring ~3R objective. Detailed record: `study/14-trades-semanales-explicados/001-semana-1.md`.
+- Week 2 (~46.2 min): published duplicate of Week 1 (`se_repite`). Marked `independent_sample=false`; do not double-count in probability/expectancy estimates. Detailed record: `study/14-trades-semanales-explicados/002-semana-2-repetida.md`.
+- Week 3 (~27.0 min): confirms holiday/NFP/FOMC no-trade filtering, rejects candle pattern without clear impulse, validates Asia sweep + confirmation logic, and independently supports liquidity-building approach into POI. Detailed record: `study/14-trades-semanales-explicados/003-semana-3.md`.
+- Week 4 (~41.5 min): includes a valid losing setup (important anti-outcome-bias evidence), proposes 09:15–09:45 Spain London subwindow as a probability feature to backtest, reinforces HTF context > isolated LTF structure, and shows adaptive BE/stop protection. Detailed record: `study/14-trades-semanales-explicados/004-semana-4.md`.
+- Week 5 (~70.3 min): independently confirms no trading unresolved inside Asia, local/reaction-relevant structure references, HTF imbalance context, active stop management and ~3R baseline. Detailed record: `study/14-trades-semanales-explicados/005-semana-5.md`.
+
+### Batch 1 calibration result
+
+```text
+HTF/session liquidity map
+-> wait for relevant liquidity event
+-> valid location + timing
+-> candle/impulse/imbalance evidence
+-> nearby structure confirmation when available
+-> retracement/confirmation entry
+-> structural initial stop
+-> adaptive protection as new structure/liquidity appears
+-> ~3R / meaningful-liquidity objective
+```
+
+No new numeric threshold for displacement, structure penetration, imbalance fill or BE timing is frozen from Weeks 1–5. Losing and BE examples remain labeled as valid when Benjamin considered them valid; outcome must not leak into setup classification.
+
+### NEXT
+- Process Weeks 6–10 strictly in order.
+- Do not start Weeks 11+ until Weeks 6–10 are fully analyzed and documented.
+- Do not start module 15 until all module-14 weekly videos are fully reviewed.
