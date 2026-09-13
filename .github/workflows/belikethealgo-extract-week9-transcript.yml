@@ -1,0 +1,55 @@
+name: BeLikeTheAlgo - extract Week 9 transcript
+
+on:
+  push:
+    paths:
+      - '.github/workflows/belikethealgo-extract-week9-transcript.yml'
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download processed weeks 6-10 artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api \
+            -H 'Accept: application/vnd.github+json' \
+            /repos/${{ github.repository }}/actions/artifacts/10315247738/zip \
+            > /tmp/processed.zip
+
+      - name: Extract Week 9 transcript evidence only
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/all /tmp/week9-transcript
+          unzip -q /tmp/processed.zip -d /tmp/all
+          echo 'Week 9 candidate files:'
+          find /tmp/all -type f | grep -Ei 'Semana[ _-]*9|Trades[ _-]*Semana[ _-]*9' | head -200 || true
+
+          while IFS= read -r f; do
+            rel="${f#/tmp/all/}"
+            case "$f" in
+              *transcript*|*segments*|*index.json|*.txt|*.srt|*.vtt)
+                mkdir -p "/tmp/week9-transcript/$(dirname "$rel")"
+                cp "$f" "/tmp/week9-transcript/$rel"
+                ;;
+            esac
+          done < <(find /tmp/all -type f | grep -Ei 'Semana[ _-]*9|Trades[ _-]*Semana[ _-]*9' || true)
+
+          echo 'Extracted:'
+          find /tmp/week9-transcript -type f -maxdepth 20 -print
+          test -n "$(find /tmp/week9-transcript -type f -print -quit)"
+
+      - name: Upload Week 9 transcript evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: belikethealgo-week-09-transcript-evidence
+          path: /tmp/week9-transcript
+          retention-days: 2
+          if-no-files-found: error
