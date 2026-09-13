@@ -64,3 +64,5 @@ jobs:
           path: review-evidence/
           if-no-files-found: error
           retention-days: 2
+
+# trigger reducer after workflow registration
