@@ -15,39 +15,14 @@ jobs:
   finalize:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout study branch
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           ref: belikethealgo-course-study
-
-      - name: Update study progress
+      - name: Mark module complete
         run: |
-          python - <<'PY'
-          from pathlib import Path
-          p = Path('projects/belikethealgo-course-study/STUDY_PROGRESS.md')
-          s = p.read_text(encoding='utf-8')
-          marker = '## 13) BeLikeTheAlgo 2.0 — NEXT'
-          if marker not in s:
-              raise SystemExit('Module 13 NEXT marker not found')
-          head = s.split(marker, 1)[0].rstrip()
-          tail = '''## 13) BeLikeTheAlgo 2.0 — MODULE COMPLETE
-
-- All eight videos were reviewed in published order with transcript and visual evidence.
-- The module is primarily about funded-account/provider operations rather than new market-entry geometry.
-- No new market-entry model replaces modules 1–12.
-- Provider-specific rules remain a separate overlay and are excluded from the core market-edge backtest.
-- Study record: `study/13-belikethealgo-2-0/README.md`.
-
-## 14) Trades Semanales Explicados — NEXT
-
-- 152 MP4 weekly-review videos are available in the verified course copy.
-- Study strictly in numeric order and use this corpus for held-out calibration/validation of liquidity, displacement, structure breaks, confirmations, entries, stops, targets and no-trade decisions.
-- Because the module is very large, process it in small ordered batches; never skip ahead or launch module 15 before all available module-14 videos are analyzed.
-'''
-          p.write_text(head + '\n\n' + tail, encoding='utf-8')
-          PY
-
-      - name: Commit progress update
+          sed -i 's/## 13) BeLikeTheAlgo 2.0 — NEXT/## 13) BeLikeTheAlgo 2.0 — MODULE COMPLETE/' projects/belikethealgo-course-study/STUDY_PROGRESS.md
+          printf '\n\n## 14) Trades Semanales Explicados — NEXT\n\n- Process weekly-review videos strictly in numeric order, in small ordered batches.\n- Do not start module 15 until module 14 is fully reviewed.\n' >> projects/belikethealgo-course-study/STUDY_PROGRESS.md
+      - name: Commit
         run: |
           git config user.name "kikedpf"
           git config user.email "kipolan12@hotmail.es"
