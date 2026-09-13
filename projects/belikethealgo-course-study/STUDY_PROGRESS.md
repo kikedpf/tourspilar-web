@@ -378,13 +378,19 @@ No new numeric threshold for displacement, structure penetration, imbalance fill
 - Benjamin explicitly reports Week 9 as a losing/uncomfortable week; it is retained as an independent anti-selection sample, not optimized away.
 - Detailed v2 record: `study/14-trades-semanales-explicados/009-semana-9.md`.
 
-### Week 10 — PROCESSING COMPLETE, ANALYSIS NEXT
-- Lightweight transcript/navigation evidence already exists for Week 10.
-- Dense original-source evidence is the next strict-order processing target.
-- Week 10 must pass the v2 completeness gate before Weeks 11+ are launched.
+### Week 10 — COMPLETE (v2)
+- Full ~57m32s video reviewed with 497 timestamped transcript segments plus dense full-video visual evidence.
+- Dense evidence gate: 3,453 baseline 1 fps frames + 6,905 focus 2 fps frames generated before contact-sheet consolidation.
+- HTF direction is reinforced as a probability/management layer rather than an unconditional directional veto: Benjamin allows countertrend trades but reduces ambition/risk and protects them more aggressively.
+- First imbalance touch and full orderblock/candle mitigation are explicitly separate events; deeper fill cannot be known in advance and must not be hindsight-selected.
+- Wick-only structure violations are rejected in multiple examples while later body/force breaks are accepted, strengthening structure-detector calibration without freezing a numeric threshold.
+- Time-window decay is first-class ex-ante information: late-window setups can be skipped or managed more defensively even when LTF geometry is otherwise valid.
+- Risk scaling is explicitly capped at the underlying-move level rather than treating multiple tickets as independent risk/trade samples.
+- Week 10 contains both a setup Benjamin liked that later failed and a non-optimal setup that later worked, strongly reinforcing outcome-independent quality labels.
+- Detailed v2 record: `study/14-trades-semanales-explicados/010-semana-10.md`.
 
 ### NEXT
-- Generate/review Week 10 dense evidence and complete Week 10 under `ANALYSIS_PROTOCOL.md`, `docs/measurement_architecture_v2.md`, and `docs/weekly_trade_event_schema_v2.md`.
-- Do not start Weeks 11+ until Week 10 is fully analyzed and documented (Week 6 remains a verified source gap).
+- Process and study the next available published weekly items beginning with Week 11, strictly one week at a time after evidence generation.
+- Weeks 11+ must use `ANALYSIS_PROTOCOL.md`, `docs/measurement_architecture_v2.md`, and `docs/weekly_trade_event_schema_v2.md`.
 - Backfill Weeks 1–5 to v2 before freezing the Benjamin baseline.
 - Do not start module 15 until all available module-14 weekly videos are fully reviewed and all source gaps are explicitly recorded.
