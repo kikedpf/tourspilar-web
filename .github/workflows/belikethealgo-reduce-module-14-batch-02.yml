@@ -28,6 +28,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Install reducer dependency
+        run: python -m pip install pillow
       - name: Build lightweight review evidence
         run: |
           python - <<'PY'
@@ -62,5 +64,3 @@ jobs:
           path: review-evidence/
           if-no-files-found: error
           retention-days: 2
-
-# trigger revision 2
