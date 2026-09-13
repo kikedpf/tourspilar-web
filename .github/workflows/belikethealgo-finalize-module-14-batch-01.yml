@@ -17,44 +17,17 @@ jobs:
         with:
           ref: belikethealgo-course-study
       - name: Update study progress
+        env:
+          OLD_B64: IyMgMTQpIFRyYWRlcyBTZW1hbmFsZXMgRXhwbGljYWRvcyDigJQgTkVYVAoKLSBQcm9jZXNzIHdlZWtseS1yZXZpZXcgdmlkZW9zIHN0cmljdGx5IGluIG51bWVyaWMgb3JkZXIsIGluIHNtYWxsIG9yZGVyZWQgYmF0Y2hlcy4KLSBEbyBub3Qgc3RhcnQgbW9kdWxlIDE1IHVudGlsIG1vZHVsZSAxNCBpcyBmdWxseSByZXZpZXdlZC4=
+          NEW_B64: IyMgMTQpIFRyYWRlcyBTZW1hbmFsZXMgRXhwbGljYWRvcyDigJQgSU4gUFJPR1JFU1MKCiMjIyBXZWVrcyAx4oCTNSDigJQgQ09NUExFVEUKLSBXZWVrIDEgKH40Ni4yIG1pbik6IGluZGVwZW5kZW50IHdlZWtseSByZXZpZXcgZnVsbHkgYW5hbHl6ZWQuIENvbmZpcm1zIEVVUi9VU0QgbGlxdWlkaXR5IGV2ZW50IGlzIG1hbmRhdG9yeSB3aGlsZSBEWFkgaXMgc2Vjb25kYXJ5IGNvbmZpcm1hdGlvbjsgbm8gYW50aWNpcGF0b3J5IGVudHJ5IGJlZm9yZSB0aGUgc3dlZXA7IGRpc3BsYWNlbWVudC9pbWJhbGFuY2UgZW50cnkgc2VxdWVuY2U7IGNvbnRleHR1YWwgQkUgbWFuYWdlbWVudDsgcmVjdXJyaW5nIH4zUiBvYmplY3RpdmUuIERldGFpbGVkIHJlY29yZDogYHN0dWR5LzE0LXRyYWRlcy1zZW1hbmFsZXMtZXhwbGljYWRvcy8wMDEtc2VtYW5hLTEubWRgLgotIFdlZWsgMiAofjQ2LjIgbWluKTogcHVibGlzaGVkIGR1cGxpY2F0ZSBvZiBXZWVrIDEgKGBzZV9yZXBpdGVgKS4gTWFya2VkIGBpbmRlcGVuZGVudF9zYW1wbGU9ZmFsc2VgOyBkbyBub3QgZG91YmxlLWNvdW50IGluIHByb2JhYmlsaXR5L2V4cGVjdGFuY3kgZXN0aW1hdGVzLiBEZXRhaWxlZCByZWNvcmQ6IGBzdHVkeS8xNC10cmFkZXMtc2VtYW5hbGVzLWV4cGxpY2Fkb3MvMDAyLXNlbWFuYS0yLXJlcGV0aWRhLm1kYC4KLSBXZWVrIDMgKH4yNy4wIG1pbik6IGNvbmZpcm1zIGhvbGlkYXkvTkZQL0ZPTUMgbm8tdHJhZGUgZmlsdGVyaW5nLCByZWplY3RzIGNhbmRsZSBwYXR0ZXJuIHdpdGhvdXQgY2xlYXIgaW1wdWxzZSwgdmFsaWRhdGVzIEFzaWEgc3dlZXAgKyBjb25maXJtYXRpb24gbG9naWMsIGFuZCBpbmRlcGVuZGVudGx5IHN1cHBvcnRzIGxpcXVpZGl0eS1idWlsZGluZyBhcHByb2FjaCBpbnRvIFBPSS4gRGV0YWlsZWQgcmVjb3JkOiBgc3R1ZHkvMTQtdHJhZGVzLXNlbWFuYWxlcy1leHBsaWNhZG9zLzAwMy1zZW1hbmEtMy5tZGAuCi0gV2VlayA0ICh+NDEuNSBtaW4pOiBpbmNsdWRlcyBhIHZhbGlkIGxvc2luZyBzZXR1cCAoaW1wb3J0YW50IGFudGktb3V0Y29tZS1iaWFzIGV2aWRlbmNlKSwgcHJvcG9zZXMgMDk6MTXigJMwOTo0NSBTcGFpbiBMb25kb24gc3Vid2luZG93IGFzIGEgcHJvYmFiaWxpdHkgZmVhdHVyZSB0byBiYWNrdGVzdCwgcmVpbmZvcmNlcyBIVEYgY29udGV4dCA+IGlzb2xhdGVkIExURiBzdHJ1Y3R1cmUsIGFuZCBzaG93cyBhZGFwdGl2ZSBCRS9zdG9wIHByb3RlY3Rpb24uIERldGFpbGVkIHJlY29yZDogYHN0dWR5LzE0LXRyYWRlcy1zZW1hbmFsZXMtZXhwbGljYWRvcy8wMDQtc2VtYW5hLTQubWRgLgotIFdlZWsgNSAofjcwLjMgbWluKTogaW5kZXBlbmRlbnRseSBjb25maXJtcyBubyB0cmFkaW5nIHVucmVzb2x2ZWQgaW5zaWRlIEFzaWEsIGxvY2FsL3JlYWN0aW9uLXJlbGV2YW50IHN0cnVjdHVyZSByZWZlcmVuY2VzLCBIVEYgaW1iYWxhbmNlIGNvbnRleHQsIGFjdGl2ZSBzdG9wIG1hbmFnZW1lbnQgYW5kIH4zUiBiYXNlbGluZS4gRGV0YWlsZWQgcmVjb3JkOiBgc3R1ZHkvMTQtdHJhZGVzLXNlbWFuYWxlcy1leHBsaWNhZG9zLzAwNS1zZW1hbmEtNS5tZGAuCgojIyMgQmF0Y2ggMSBjYWxpYnJhdGlvbiByZXN1bHQKCmBgYHRleHQKSFRGL3Nlc3Npb24gbGlxdWlkaXR5IG1hcAotPiB3YWl0IGZvciByZWxldmFudCBsaXF1aWRpdHkgZXZlbnQKLT4gdmFsaWQgbG9jYXRpb24gKyB0aW1pbmcKLT4gY2FuZGxlL2ltcHVsc2UvaW1iYWxhbmNlIGV2aWRlbmNlCi0+IG5lYXJieSBzdHJ1Y3R1cmUgY29uZmlybWF0aW9uIHdoZW4gYXZhaWxhYmxlCi0+IHJldHJhY2VtZW50L2NvbmZpcm1hdGlvbiBlbnRyeQotPiBzdHJ1Y3R1cmFsIGluaXRpYWwgc3RvcAotPiBhZGFwdGl2ZSBwcm90ZWN0aW9uIGFzIG5ldyBzdHJ1Y3R1cmUvbGlxdWlkaXR5IGFwcGVhcnMKLT4gfjNSIC8gbWVhbmluZ2Z1bC1saXF1aWRpdHkgb2JqZWN0aXZlCmBgYAoKTm8gbmV3IG51bWVyaWMgdGhyZXNob2xkIGZvciBkaXNwbGFjZW1lbnQsIHN0cnVjdHVyZSBwZW5ldHJhdGlvbiwgaW1iYWxhbmNlIGZpbGwgb3IgQkUgdGltaW5nIGlzIGZyb3plbiBmcm9tIFdlZWtzIDHigJM1LiBMb3NpbmcgYW5kIEJFIGV4YW1wbGVzIHJlbWFpbiBsYWJlbGVkIGFzIHZhbGlkIHdoZW4gQmVuamFtaW4gY29uc2lkZXJlZCB0aGVtIHZhbGlkOyBvdXRjb21lIG11c3Qgbm90IGxlYWsgaW50byBzZXR1cCBjbGFzc2lmaWNhdGlvbi4KCiMjIyBORVhUCi0gUHJvY2VzcyBXZWVrcyA24oCTMTAgc3RyaWN0bHkgaW4gb3JkZXIuCi0gRG8gbm90IHN0YXJ0IFdlZWtzIDExKyB1bnRpbCBXZWVrcyA24oCTMTAgYXJlIGZ1bGx5IGFuYWx5emVkIGFuZCBkb2N1bWVudGVkLgotIERvIG5vdCBzdGFydCBtb2R1bGUgMTUgdW50aWwgYWxsIG1vZHVsZS0xNCB3ZWVrbHkgdmlkZW9zIGFyZSBmdWxseSByZXZpZXdlZC4=
         run: |
           python - <<'PY'
+          import os, base64
           from pathlib import Path
           p = Path('projects/belikethealgo-course-study/STUDY_PROGRESS.md')
           s = p.read_text()
-          old = '''## 14) Trades Semanales Explicados — NEXT
-
-- Process weekly-review videos strictly in numeric order, in small ordered batches.
-- Do not start module 15 until module 14 is fully reviewed.'''
-          new = '''## 14) Trades Semanales Explicados — IN PROGRESS
-
-### Weeks 1–5 — COMPLETE
-- Week 1 (~46.2 min): independent weekly review fully analyzed. Confirms EUR/USD liquidity event is mandatory while DXY is secondary confirmation; no anticipatory entry before the sweep; displacement/imbalance entry sequence; contextual BE management; recurring ~3R objective. Detailed record: `study/14-trades-semanales-explicados/001-semana-1.md`.
-- Week 2 (~46.2 min): published duplicate of Week 1 (`se_repite`). Marked `independent_sample=false`; do not double-count in probability/expectancy estimates. Detailed record: `study/14-trades-semanales-explicados/002-semana-2-repetida.md`.
-- Week 3 (~27.0 min): confirms holiday/NFP/FOMC no-trade filtering, rejects candle pattern without clear impulse, validates Asia sweep + confirmation logic, and independently supports liquidity-building approach into POI. Detailed record: `study/14-trades-semanales-explicados/003-semana-3.md`.
-- Week 4 (~41.5 min): includes a valid losing setup (important anti-outcome-bias evidence), proposes 09:15–09:45 Spain London subwindow as a probability feature to backtest, reinforces HTF context > isolated LTF structure, and shows adaptive BE/stop protection. Detailed record: `study/14-trades-semanales-explicados/004-semana-4.md`.
-- Week 5 (~70.3 min): independently confirms no trading unresolved inside Asia, local/reaction-relevant structure references, HTF imbalance context, active stop management and ~3R baseline. Detailed record: `study/14-trades-semanales-explicados/005-semana-5.md`.
-
-### Batch 1 calibration result
-
-```text
-HTF/session liquidity map
--> wait for relevant liquidity event
--> valid location + timing
--> candle/impulse/imbalance evidence
--> nearby structure confirmation when available
--> retracement/confirmation entry
--> structural initial stop
--> adaptive protection as new structure/liquidity appears
--> ~3R / meaningful-liquidity objective
-```
-
-No new numeric threshold for displacement, structure penetration, imbalance fill or BE timing is frozen from Weeks 1–5. Losing and BE examples remain labeled as valid when Benjamin considered them valid; outcome must not leak into setup classification.
-
-### NEXT
-- Process Weeks 6–10 strictly in order.
-- Do not start Weeks 11+ until Weeks 6–10 are fully analyzed and documented.
-- Do not start module 15 until all module-14 weekly videos are fully reviewed.'''
+          old = base64.b64decode(os.environ['OLD_B64']).decode()
+          new = base64.b64decode(os.environ['NEW_B64']).decode()
           if old not in s:
               raise SystemExit('Expected module-14 progress marker not found')
           p.write_text(s.replace(old, new))
