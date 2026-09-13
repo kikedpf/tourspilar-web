@@ -20,40 +20,20 @@ jobs:
         with:
           python-version: '3.11'
       - name: Patch STUDY_PROGRESS
+        env:
+          REPLACEMENT_B64: 'IyMjIFdlZWsgMTAg4oCUIENPTVBMRVRFICh2MikKLSBGdWxsIH41N20zMnMgdmlkZW8gcmV2aWV3ZWQgd2l0aCA0OTcgdGltZXN0YW1wZWQgdHJhbnNjcmlwdCBzZWdtZW50cyBwbHVzIGRlbnNlIGZ1bGwtdmlkZW8gdmlzdWFsIGV2aWRlbmNlLgotIERlbnNlIGV2aWRlbmNlIGdhdGU6IDMsNDUzIGJhc2VsaW5lIDEgZnBzIGZyYW1lcyArIDYsOTA1IGZvY3VzIDIgZnBzIGZyYW1lcyBnZW5lcmF0ZWQgYmVmb3JlIGNvbnRhY3Qtc2hlZXQgY29uc29saWRhdGlvbi4KLSBIVEYgZGlyZWN0aW9uIGlzIHJlaW5mb3JjZWQgYXMgYSBwcm9iYWJpbGl0eS9tYW5hZ2VtZW50IGxheWVyIHJhdGhlciB0aGFuIGFuIHVuY29uZGl0aW9uYWwgZGlyZWN0aW9uYWwgdmV0bzogQmVuamFtaW4gYWxsb3dzIGNvdW50ZXJ0cmVuZCB0cmFkZXMgYnV0IHJlZHVjZXMgYW1iaXRpb24vcmlzayBhbmQgcHJvdGVjdHMgdGhlbSBtb3JlIGFnZ3Jlc3NpdmVseS4KLSBGaXJzdCBpbWJhbGFuY2UgdG91Y2ggYW5kIGZ1bGwgb3JkZXJibG9jay9jYW5kbGUgbWl0aWdhdGlvbiBhcmUgZXhwbGljaXRseSBzZXBhcmF0ZSBldmVudHM7IGRlZXBlciBmaWxsIGNhbm5vdCBiZSBrbm93biBpbiBhZHZhbmNlIGFuZCBtdXN0IG5vdCBiZSBoaW5kc2lnaHQtc2VsZWN0ZWQuCi0gV2ljay1vbmx5IHN0cnVjdHVyZSB2aW9sYXRpb25zIGFyZSByZWplY3RlZCBpbiBtdWx0aXBsZSBleGFtcGxlcyB3aGlsZSBsYXRlciBib2R5L2ZvcmNlIGJyZWFrcyBhcmUgYWNjZXB0ZWQsIHN0cmVuZ3RoZW5pbmcgc3RydWN0dXJlLWRldGVjdG9yIGNhbGlicmF0aW9uIHdpdGhvdXQgZnJlZXppbmcgYSBudW1lcmljIHRocmVzaG9sZC4KLSBUaW1lLXdpbmRvdyBkZWNheSBpcyBmaXJzdC1jbGFzcyBleC1hbnRlIGluZm9ybWF0aW9uOiBsYXRlLXdpbmRvdyBzZXR1cHMgY2FuIGJlIHNraXBwZWQgb3IgbWFuYWdlZCBtb3JlIGRlZmVuc2l2ZWx5IGV2ZW4gd2hlbiBMVEYgZ2VvbWV0cnkgaXMgb3RoZXJ3aXNlIHZhbGlkLgotIFJpc2sgc2NhbGluZyBpcyBleHBsaWNpdGx5IGNhcHBlZCBhdCB0aGUgdW5kZXJseWluZy1tb3ZlIGxldmVsIHJhdGhlciB0aGFuIHRyZWF0aW5nIG11bHRpcGxlIHRpY2tldHMgYXMgaW5kZXBlbmRlbnQgcmlzay90cmFkZSBzYW1wbGVzLgotIFdlZWsgMTAgY29udGFpbnMgYm90aCBhIHNldHVwIEJlbmphbWluIGxpa2VkIHRoYXQgbGF0ZXIgZmFpbGVkIGFuZCBhIG5vbi1vcHRpbWFsIHNldHVwIHRoYXQgbGF0ZXIgd29ya2VkLCBzdHJvbmdseSByZWluZm9yY2luZyBvdXRjb21lLWluZGVwZW5kZW50IHF1YWxpdHkgbGFiZWxzLgotIERldGFpbGVkIHYyIHJlY29yZDogYHN0dWR5LzE0LXRyYWRlcy1zZW1hbmFsZXMtZXhwbGljYWRvcy8wMTAtc2VtYW5hLTEwLm1kYC4KCiMjIyBORVhUCi0gUHJvY2VzcyBhbmQgc3R1ZHkgdGhlIG5leHQgYXZhaWxhYmxlIHB1Ymxpc2hlZCB3ZWVrbHkgaXRlbXMgYmVnaW5uaW5nIHdpdGggV2VlayAxMSwgc3RyaWN0bHkgb25lIHdlZWsgYXQgYSB0aW1lIGFmdGVyIGV2aWRlbmNlIGdlbmVyYXRpb24uCi0gV2Vla3MgMTErIG11c3QgdXNlIGBBTkFMWVNJU19QUk9UT0NPTC5tZGAsIGBkb2NzL21lYXN1cmVtZW50X2FyY2hpdGVjdHVyZV92Mi5tZGAsIGFuZCBgZG9jcy93ZWVrbHlfdHJhZGVfZXZlbnRfc2NoZW1hX3YyLm1kYC4KLSBCYWNrZmlsbCBXZWVrcyAx4oCTNSB0byB2MiBiZWZvcmUgZnJlZXppbmcgdGhlIEJlbmphbWluIGJhc2VsaW5lLgotIERvIG5vdCBzdGFydCBtb2R1bGUgMTUgdW50aWwgYWxsIGF2YWlsYWJsZSBtb2R1bGUtMTQgd2Vla2x5IHZpZGVvcyBhcmUgZnVsbHkgcmV2aWV3ZWQgYW5kIGFsbCBzb3VyY2UgZ2FwcyBhcmUgZXhwbGljaXRseSByZWNvcmRlZC4='
         run: |
           python - <<'PY'
+          import base64, os, re
           from pathlib import Path
-          p=Path('projects/belikethealgo-course-study/STUDY_PROGRESS.md')
-          s=p.read_text()
-          old='''### Week 10 — PROCESSING COMPLETE, ANALYSIS NEXT
-- Lightweight transcript/navigation evidence already exists for Week 10.
-- Dense original-source evidence is the next strict-order processing target.
-- Week 10 must pass the v2 completeness gate before Weeks 11+ are launched.
-
-### NEXT
-- Generate/review Week 10 dense evidence and complete Week 10 under `ANALYSIS_PROTOCOL.md`, `docs/measurement_architecture_v2.md`, and `docs/weekly_trade_event_schema_v2.md`.
-- Do not start Weeks 11+ until Week 10 is fully analyzed and documented (Week 6 remains a verified source gap).
-- Backfill Weeks 1–5 to v2 before freezing the Benjamin baseline.
-- Do not start module 15 until all available module-14 weekly videos are fully reviewed and all source gaps are explicitly recorded.'''
-          new='''### Week 10 — COMPLETE (v2)
-- Full ~57m32s video reviewed with 497 timestamped transcript segments plus dense full-video visual evidence.
-- Dense evidence gate: 3,453 baseline 1 fps frames + 6,905 focus 2 fps frames generated before contact-sheet consolidation.
-- HTF direction is reinforced as a probability/management layer rather than an unconditional directional veto: Benjamin allows countertrend trades but reduces ambition/risk and protects them more aggressively.
-- First imbalance touch and full orderblock/candle mitigation are explicitly separate events; deeper fill cannot be known in advance and must not be hindsight-selected.
-- Wick-only structure violations are rejected in multiple examples while later body/force breaks are accepted, strengthening structure-detector calibration without freezing a numeric threshold.
-- Time-window decay is first-class ex-ante information: late-window setups can be skipped or managed more defensively even when LTF geometry is otherwise valid.
-- Risk scaling is explicitly capped at the underlying-move level rather than treating multiple tickets as independent risk/trade samples.
-- Week 10 contains both a setup Benjamin liked that later failed and a non-optimal setup that later worked, strongly reinforcing outcome-independent quality labels.
-- Detailed v2 record: `study/14-trades-semanales-explicados/010-semana-10.md`.
-
-### NEXT
-- Process and study the next available published weekly items beginning with Week 11, strictly one week at a time after evidence generation.
-- Weeks 11+ must use `ANALYSIS_PROTOCOL.md`, `docs/measurement_architecture_v2.md`, and `docs/weekly_trade_event_schema_v2.md`.
-- Backfill Weeks 1–5 to v2 before freezing the Benjamin baseline.
-- Do not start module 15 until all available module-14 weekly videos are fully reviewed and all source gaps are explicitly recorded.'''
-          if old not in s:
-              raise SystemExit('Expected Week 10 progress block not found; refusing unsafe patch')
-          p.write_text(s.replace(old,new))
+          p = Path('projects/belikethealgo-course-study/STUDY_PROGRESS.md')
+          s = p.read_text()
+          repl = base64.b64decode(os.environ['REPLACEMENT_B64']).decode()
+          pattern = r'### Week 10 — PROCESSING COMPLETE, ANALYSIS NEXT\n.*?\n### NEXT\n.*?\Z'
+          new, n = re.subn(pattern, repl, s, flags=re.S)
+          if n != 1:
+              raise SystemExit(f'Expected one Week 10 tail block, found {n}')
+          p.write_text(new)
           PY
       - name: Commit progress update
         run: |
