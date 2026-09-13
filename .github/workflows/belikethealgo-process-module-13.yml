@@ -49,3 +49,5 @@ jobs:
           path: projects/belikethealgo-course-study/processed/
           if-no-files-found: error
           retention-days: 2
+
+# Triggered after verified completion of module 12.
