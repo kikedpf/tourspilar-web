@@ -1,0 +1,64 @@
+name: BeLikeTheAlgo - reduce module 14 weeks 6-10 evidence
+
+on:
+  push:
+    branches: [belikethealgo-course-study]
+    paths: ['.github/workflows/belikethealgo-reduce-module-14-batch-02.yml']
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  reduce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: belikethealgo-course-study
+      - name: Download processed weeks 6-10 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: belikethealgo-module-14-weeks-006-010-processed-v1
+          run-id: 34745149810
+          github-token: ${{ github.token }}
+          path: source
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Build lightweight review evidence
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          import shutil, json
+          src=Path('source')
+          out=Path('review-evidence')
+          out.mkdir(exist_ok=True)
+          for p in src.rglob('*'):
+              if not p.is_file():
+                  continue
+              rel=p.relative_to(src)
+              name=p.name.lower()
+              if name in {'transcript.txt','transcript.json','ffprobe.json','index.json','index.md'} or 'contact_sheets' in rel.parts:
+                  dest=out/rel
+                  dest.parent.mkdir(parents=True,exist_ok=True)
+                  if dest.suffix.lower() in {'.jpg','.jpeg'}:
+                      im=Image.open(p).convert('RGB')
+                      if im.width>1400:
+                          h=round(im.height*1400/im.width)
+                          im=im.resize((1400,h))
+                      im.save(dest,quality=58,optimize=True)
+                  else:
+                      shutil.copy2(p,dest)
+          print('files',sum(1 for _ in out.rglob('*') if _.is_file()))
+          print('bytes',sum(_.stat().st_size for _ in out.rglob('*') if _.is_file()))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: belikethealgo-module-14-weeks-006-010-review-lite-v1
+          path: review-evidence/
+          if-no-files-found: error
+          retention-days: 2
