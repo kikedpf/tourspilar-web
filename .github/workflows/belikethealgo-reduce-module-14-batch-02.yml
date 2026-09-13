@@ -33,7 +33,7 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           from PIL import Image
-          import shutil, json
+          import shutil
           src=Path('source')
           out=Path('review-evidence')
           out.mkdir(exist_ok=True)
@@ -62,3 +62,5 @@ jobs:
           path: review-evidence/
           if-no-files-found: error
           retention-days: 2
+
+# trigger revision 2
