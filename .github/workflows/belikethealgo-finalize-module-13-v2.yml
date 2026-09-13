@@ -1,0 +1,33 @@
+name: BeLikeTheAlgo finalize module 13 v2
+
+on:
+  push:
+    branches:
+      - belikethealgo-course-study
+    paths:
+      - .github/workflows/belikethealgo-finalize-module-13-v2.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: belikethealgo-course-study
+      - name: Update progress
+        shell: bash
+        run: |
+          python -c "from pathlib import Path; p=Path('projects/belikethealgo-course-study/STUDY_PROGRESS.md'); s=p.read_text(encoding='utf-8'); s=s.replace('## 13) BeLikeTheAlgo 2.0 — NEXT','## 13) BeLikeTheAlgo 2.0 — MODULE COMPLETE',1); p.write_text(s+'\n\n## 14) Trades Semanales Explicados — NEXT\n\n- Process weekly-review videos strictly in numeric order and in small ordered batches.\n- Do not start module 15 until module 14 is fully reviewed.\n',encoding='utf-8')"
+      - name: Commit progress
+        shell: bash
+        run: |
+          git config user.name kikedpf
+          git config user.email kipolan12@hotmail.es
+          git add projects/belikethealgo-course-study/STUDY_PROGRESS.md
+          git diff --cached --quiet && exit 0
+          git commit -m "Complete BeLikeTheAlgo module 13"
+          git push origin HEAD:belikethealgo-course-study
