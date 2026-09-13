@@ -1,0 +1,63 @@
+name: BeLikeTheAlgo - update progress Week 7
+
+on:
+  push:
+    branches: [belikethealgo-course-study]
+    paths: ['.github/workflows/belikethealgo-progress-week07.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  update-progress:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: belikethealgo-course-study
+          fetch-depth: 0
+      - name: Mark Week 7 complete and Week 8 next
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('projects/belikethealgo-course-study/STUDY_PROGRESS.md')
+          s=p.read_text()
+          old='''### Weeks 7–10 — PROCESSING COMPLETE, ANALYSIS IN PROGRESS
+- Raw processing for Weeks 7–10 completed successfully.
+- A lightweight review artifact preserving transcripts and coarse/state-change visual navigation was generated successfully after fixing its Pillow dependency.
+- Week 7 is the current analysis target under the v2 measurement architecture.
+- Dense 1 fps baseline evidence plus 2 fps focus evidence has been launched for Week 7 because 5-second/coarse contact sheets alone do not satisfy the visual-fidelity gate.
+- Weeks 8–10 must not be marked complete until each passes the same v2 completeness gate in order.
+
+### NEXT
+- Complete Week 7 under `ANALYSIS_PROTOCOL.md`, `docs/measurement_architecture_v2.md`, and `docs/weekly_trade_event_schema_v2.md`.
+- Then analyze Weeks 8, 9 and 10 strictly in order.
+'''
+          new='''### Week 7 — COMPLETE (v2)
+- Full ~42m18s video reviewed with 377 timestamped transcript segments plus original-source dense visual evidence.
+- Dense evidence gate: 2,313 baseline 1 fps frames + 3,184 focus 2 fps frames were generated before contact-sheet consolidation.
+- Confirms that setup validity, pre-entry quality and execution mode must remain separate: Benjamin repeatedly contrasts direct imbalance/limit execution with waiting for a directional confirmation candle.
+- Two/three confirmation language is confluence/quality guidance; Benjamin's illustrative percentages are explicitly invented and must never become measured probabilities.
+- Structure is often additive confluence rather than universally mandatory when liquidity/location + impulse/imbalance/candle evidence are strong.
+- Friday losing PDH trade remains an actual instructor trade; repeated prior sweeps/no reaction plus unresolved stronger external liquidity are candidate pre-entry downgrade variables, never a post-loss relabel.
+- Dynamic stop/BE management is again tied to new favorable structure/liquidity progress rather than a frozen R threshold.
+- Detailed v2 record: `study/14-trades-semanales-explicados/007-semana-7.md`.
+
+### Weeks 8–10 — PROCESSING COMPLETE, ANALYSIS IN PROGRESS
+- Raw processing and lightweight transcript/navigation evidence exist for Weeks 8–10.
+- Week 8 is now the current analysis target under the v2 measurement architecture; dense 1 fps baseline + 2 fps focus extraction has been launched.
+- Weeks 8–10 must not be marked complete until each passes the v2 completeness gate in order.
+
+### NEXT
+- Complete Week 8 under `ANALYSIS_PROTOCOL.md`, `docs/measurement_architecture_v2.md`, and `docs/weekly_trade_event_schema_v2.md`.
+- Then analyze Weeks 9 and 10 strictly in order.
+'''
+          if old not in s:
+              raise SystemExit('Expected Week 7 progress block not found; refusing unsafe replacement')
+          p.write_text(s.replace(old,new))
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add projects/belikethealgo-course-study/STUDY_PROGRESS.md
+          git commit -m 'Mark BeLikeTheAlgo Week 7 complete under v2'
+          git push origin HEAD:belikethealgo-course-study
