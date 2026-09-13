@@ -1,5 +1,23 @@
 # Modelo de medición cuantitativa — BeLikeTheAlgo
 
+## Estado v2
+
+Este documento conserva las fórmulas/componentes cuantitativos base. La orquestación canónica desde ahora está definida en:
+
+- `docs/measurement_architecture_v2.md`
+- `docs/weekly_trade_event_schema_v2.md`
+
+Reglas obligatorias v2:
+
+- separar **reproducción de Benjamin** de **optimización de rentabilidad**;
+- separar **impulso** de **desplazamiento**;
+- separar `setup_validity`, calidad pre-entrada y resultado;
+- clasificar variables por disponibilidad `L0/L1/L2/L3`;
+- modelar la estrategia como secuencia/estado, no solo como vector estático;
+- impedir que variables post-entrada/outcome entren en la decisión original;
+- modelar fill, spread, slippage y órdenes no ejecutadas;
+- controlar duplicados/correlación y validar cronológicamente.
+
 ## Regla de nomenclatura
 
 La terminología principal debe ser la de Benjamín Carmona. Si añadimos un término auxiliar para medir algo, debe ir marcado como **métrica auxiliar** y explicarse en lenguaje simple. Nunca se debe presentar una métrica auxiliar como si fuera un término del curso.
@@ -12,17 +30,28 @@ Cada evento tendrá dos tiempos cuando aplique:
 - `event_time`: vela donde ocurre/formalmente se sitúa el evento.
 - `known_time`: primera vela en la que el evento podía conocerse sin mirar al futuro.
 
+## Disponibilidad de información
+
+Cada variable debe ser clasificada o heredar una clasificación inequívoca:
+
+- `L0`: contexto disponible antes del setup;
+- `L1`: activación/confirmación disponible antes de decidir la entrada;
+- `L2`: ejecución/fill;
+- `L3`: trayectoria y resultado posterior.
+
+Solo `L0 + L1` pueden decidir si se entra. `L2` determina cómo se ejecuta. `L3` se usa para gestión, diagnóstico y resultado, nunca para justificar retrospectivamente la entrada.
+
 ## Representación matemática general
 
-Cada situación de mercado se representa mediante un vector de características:
+La situación de mercado mantiene un vector de características, pero la decisión se interpreta además como una **secuencia temporal de estados**:
 
-`X_t = [estructura, liquidez, desplazamiento_pre, desplazamiento_post, velas, imbalance, orderblock, sesion, contexto_HTF, riesgo, ...]`
+`X_t = [estructura, liquidez, impulso, desplazamiento_pre, desplazamiento_post, velas, imbalance, orderblock, sesion, contexto_HTF, aproximacion, riesgo, ...]`
 
 La decisión final será una función:
 
-`trade_t = F(X_t, reglas_confirmadas_por_el_curso)`
+`trade_t = F(X_t, secuencia_eventos_t, reglas_confirmadas_por_el_curso)`
 
-No se fijarán umbrales definitivos hasta haberlos inferido y validado con ejemplos del curso.
+No se fijarán umbrales definitivos hasta haberlos inferido y validado con ejemplos del curso. Los umbrales de detectores se calibran para reproducir labels/decisiones del instructor, no para maximizar P&L.
 
 ## Liquidez
 
@@ -41,6 +70,8 @@ Para cada punto candidato de liquidez se almacenará, como mínimo:
 - `session_origin`: sesión en la que se formó.
 - `swept`: si ya fue tomado.
 - `priority`: jerarquía inferida y validada a partir del curso.
+
+Además, v2 enlaza niveles mediante relaciones de rango/jerarquía (`parent_range_id`, `contained_by_liquidity_id`, `same_pool_group_id`, `higher_priority_competing_id`) para evitar tratar la liquidez como una lista plana.
 
 La definición de `liquidity_taken` no se fijará por adelantado. Se aprenderá de ejemplos etiquetados del curso: mecha, cierre, tolerancia, retorno, contexto, etc.
 
@@ -64,9 +95,33 @@ Cada candidato a quiebre registrará:
 
 La regla exacta de qué considera Benjamín un quiebre válido se derivará de sus ejemplos y lenguaje, no de definiciones externas.
 
+## Impulso
+
+Desde v2, **impulso y desplazamiento son objetos distintos**.
+
+`impulse_confirmed` representa el evento local de decisión/confirmación que Benjamin describe repetidamente y que suele estar asociado a creación de imbalance. No se define simplemente como “vela grande”.
+
+Para cada candidato a impulso se almacenará:
+
+- `impulse_start_time`;
+- `impulse_end_time`;
+- `impulse_known_time`;
+- `impulse_candle_count`;
+- `impulse_net_move_atr`;
+- `impulse_max_candle_range_atr`;
+- `impulse_median_body_ratio`;
+- `impulse_directional_fraction`;
+- `impulse_overlap_ratio`;
+- `impulse_created_imbalance`;
+- `bars_from_liquidity_event_to_impulse`;
+- `structure_interaction_during_impulse`;
+- `impulse_label_source ∈ {instructor_explicit, visual_confirmed, provisional, unresolved}`.
+
+No se congela un umbral numérico hasta que el detector reproduzca ejemplos positivos y negativos de Benjamin en holdout cronológico.
+
 ## Desplazamiento
 
-"Desplazamiento" es término de Benjamín. Para poder detectarlo objetivamente se describirá mediante varias métricas auxiliares, no mediante una sola cifra.
+"Desplazamiento" es término de Benjamín. En v2 se reserva para la **calidad del tramo direccional más amplio**, no como sinónimo automático del impulso local.
 
 Para un tramo desde `P0` hasta `Pn` de `N` velas:
 
@@ -110,11 +165,33 @@ Menor solapamiento puede corresponder a un desplazamiento más limpio; la relaci
 
 `follow_through_k = avance_maximo_favorable_en_k_velas / ATR_ref`
 
+**Disponibilidad:** `L3` si requiere velas posteriores al instante de decisión. No puede ser feature de entrada de ese mismo instante.
+
 ### Retroceso post-evento
 
 `pullback_k = retroceso_maximo_en_k_velas / net_move`
 
+**Disponibilidad:** `L3` cuando usa futuro respecto de la decisión original.
+
 No se construirá un único `displacement_score` hasta comprobar qué combinación reproduce mejor los ejemplos que Benjamín llama desplazamiento.
+
+## Calidad de aproximación a la zona
+
+V2 añade un objeto específico para medir cómo llega el precio al POI/imbalance:
+
+- duración en velas;
+- movimiento neto/ATR;
+- eficiencia direccional;
+- solapamiento;
+- dominancia de cuerpos;
+- expansión de rango;
+- número de retrocesos internos;
+- número/prominencia de nuevas liquidez(es) generadas;
+- liquidez objetivo consumida durante la aproximación;
+- liquidez contraria generada detrás del precio;
+- etiqueta cualitativa del instructor cuando exista (`correctiva/liquidity_building`, `impulsiva`, `neutral`, `unresolved`).
+
+Estas métricas describen la aproximación; no se fijará un filtro numérico porque mejore el P&L.
 
 ## Imbalances
 
@@ -191,6 +268,8 @@ También se guardarán:
 - `max_penetration_before_reaction`;
 - `touch_count` para análisis, aunque el segundo toque ya no sea una entrada limpia bajo Vol. 1.
 
+Las métricas que requieren reacción posterior son `L3` respecto de la primera interacción y no pueden filtrarla retrospectivamente.
+
 ### Contexto de creación — métricas auxiliares
 
 Para comprobar la asociación que Benjamín hace entre impulso e imbalance se guardará:
@@ -235,13 +314,21 @@ Para cada trade se almacenará:
 - `structure_change_confirmed`;
 - `entry_imbalance_created`;
 - `entry_mode ∈ {limit, candle_confirmation, other}`;
+- `decision_time`;
+- `order_time`;
+- `requested_entry_price`;
 - `entry_price`;
+- `fill_time`;
+- `filled`;
+- `spread/slippage model`;
 - `stop_price`;
 - `target_price`;
 - `stop_reference_type`;
 - `target_reference_type`;
 - `be_trigger_event`;
 - `exit_reason`.
+
+Un backtest no puede asumir que toda limit ideal se ejecuta. Debe registrar órdenes no llenadas/canceladas y separar variantes de ejecución soportadas por el curso.
 
 ### Distancias
 
@@ -273,6 +360,8 @@ con signo positivo para beneficio y negativo para pérdida.
 
 Esto permite comparar operaciones con stops distintos sin confundir pips con rendimiento relativo.
 
+`realized_R` es `L3`: jamás puede decidir retrospectivamente si el setup era válido.
+
 ### Stop — mediciones auxiliares
 
 Además del precio exacto:
@@ -295,7 +384,7 @@ Guardar:
 - `target_hit_before_stop`;
 - `reaction_after_target_liquidity`.
 
-El ejemplo de Vol. 2 usa la siguiente liquidez/mínimo como referencia de target y advierte de posible reacción allí.
+Los dos últimos son `L3`; el target elegido en la entrada debe basarse solo en liquidez ya visible/conocida.
 
 ### Break-even
 
@@ -309,6 +398,25 @@ Por ahora BE se registra como evento, no como regla fija:
 
 Vídeos posteriores deberán determinar si existe un disparador universal o varias reglas contextuales.
 
+## Trayectoria post-entrada: MFE/MAE y milestones
+
+Para cada trade ejecutado guardar, como `L3`:
+
+- `MFE_R`;
+- `MAE_R`;
+- `time_to_0_5R`;
+- `time_to_1R`;
+- `time_to_2R`;
+- `time_to_3R`;
+- máximo retroceso después de 1R y 2R;
+- primera liquidez objetivo alcanzada y momento;
+- nueva liquidez contraria creada después de entrada;
+- nueva estructura favorable/adversa;
+- eventos de BE/parcial/runner;
+- `realized_R`.
+
+Estas variables sirven para investigar gestión sin contaminar el detector de entrada.
+
 ## Antes y después de liquidez / quiebre
 
 Para cada evento principal se medirán ventanas separadas:
@@ -319,13 +427,15 @@ Para cada evento principal se medirán ventanas separadas:
 
 Esto permitirá distinguir, por ejemplo:
 
-`liquidez -> desplazamiento -> quiebre`
+`liquidez -> impulso -> desplazamiento -> quiebre`
 
 frente a
 
-`quiebre -> desplazamiento`
+`quiebre -> impulso/desplazamiento`
 
 u otras secuencias que enseñe Benjamín.
+
+Se guardarán además diferencias temporales entre eventos (`bars/seconds liquidity->impulse`, `impulse->break`, `imbalance->retrace`, `decision->fill`).
 
 ## Condiciones de entrada y no entrada
 
@@ -337,17 +447,50 @@ La entrada solo será válida si se cumplen las condiciones obligatorias confirm
 
 También se registrará explícitamente `no_trade_reason` cuando Benjamín rechace o no tome un setup aparente.
 
+Además se separará siempre:
+
+- `setup_validity`;
+- `setup_quality_pre_entry`;
+- `trade_taken`;
+- `trade_result_R`.
+
+## Independencia de muestras
+
+Cada ejemplo semanal debe identificar:
+
+- `canonical_example_id`;
+- `duplicate_of`;
+- `independent_sample`;
+- grupo por mismo día;
+- grupo por misma semana;
+- grupo por mismo movimiento subyacente.
+
+Una repetición exacta cuenta una vez. Las estadísticas de incertidumbre no asumirán independencia entre múltiples ejemplos del mismo movimiento/día.
+
 ## Validación
 
 Ninguna definición pasa a backtesting hasta superar:
 
 1. ejemplos positivos del curso;
 2. ejemplos negativos del curso;
-3. ejemplos no usados para construir la regla;
+3. ejemplos cronológicos no usados para construir la regla;
 4. ejecución sin datos futuros;
 5. revisión de falsos positivos y falsos negativos;
-6. corrección de la definición si el detector no coincide suficientemente con la interpretación de Benjamín.
+6. corrección de la definición si el detector no coincide suficientemente con la interpretación de Benjamín;
+7. separación estricta entre calibración contra labels del instructor y evaluación de P&L;
+8. prueba de sensibilidad alrededor de umbrales congelados;
+9. verificación de que ninguna variable `L3` entra en la decisión original.
+
+El holdout final no será un random split. Si se usa para corregir una regla, deja de ser holdout y debe reservarse un nuevo bloque cronológico intacto.
+
+## Ablation testing posterior
+
+Después de congelar y backtestear la estrategia original de Benjamin, podremos crear versiones nuevas eliminando/cambiando una pieza cada vez (DXY, estructura, velas, orderblock, horario preferido, filtro de aproximación, variante de entrada, etc.).
+
+La mejora se acepta solo si supera una comparación out-of-sample contra el baseline sin mezclar múltiples cambios a la vez.
 
 ## Regla final
 
 El vídeo aporta significado y etiquetado. Los datos OHLC aportan medición exacta. La estrategia final deberá poder ser ejecutada por código sobre velas históricas sin depender de interpretar visualmente una captura a posteriori.
+
+Primero se aprende y congela **la estrategia de Benjamin**. Después se mide su edge. Solo entonces se hacen cambios pequeños, aislados y versionados.
