@@ -104,4 +104,4 @@ jobs:
           if-no-files-found: error
           retention-days: 2
 
-# registered and triggered by creation on study branch
+# explicit trigger commit after workflow registration
