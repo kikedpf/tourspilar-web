@@ -1,0 +1,50 @@
+name: BeLikeTheAlgo - update progress after week 15
+
+on:
+  push:
+    branches: [belikethealgo-course-study]
+    paths: ['.github/workflows/belikethealgo-progress-week-15.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-progress:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: belikethealgo-course-study
+          fetch-depth: 0
+      - name: Update STUDY_PROGRESS for Week 15 v2 completion
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('projects/belikethealgo-course-study/STUDY_PROGRESS.md')
+          s = p.read_text()
+          marker = '### NEXT\n'
+          if '### Week 15 — COMPLETE (v2)' not in s:
+              block = '''### Week 15 — COMPLETE (v2)\n- Full ~52m29s video reviewed chronologically with 430 timestamped transcript segments/lines plus dense full-video visual evidence.\n- Dense evidence gate: 3,150 baseline frames at 1 fps + 6,299 focus frames at 2 fps before contact-sheet consolidation.\n- Monday and Wednesday reinforce timing as a true L0 gate: technically recognizable geometry is skipped when required liquidity/location or the operating window is missing/late.\n- Tuesday explicitly prioritizes max/min liquidity over isolated orderblock/imbalance geometry; an imbalance without meaningful inducement/liquidity is downgraded.\n- Thursday cleanly separates pre-entry quality from result: Benjamin takes a long he already calls poor because it is generating too much liquidity, then it later stops; the stop is not used to create the poor-quality label.\n- Thursday also contains a valid post-news long Benjamin did not take, preserving `valid + missed_trade` for replication recall rather than executed-trade selection.\n- Friday introduces an important feed-dependence rule: a rejection block visible on Forex.com is rejected when the equivalent FXCM feed shows it already touched; broker/source-feed identity must be retained during OHLC reconstruction.\n- HTF direction remains probabilistic rather than an absolute veto; direct imbalance/confirmation/deeper-zone entries remain separate L2 variants and are never selected retrospectively from P&L.\n- Tuesday/Friday BE decisions are explicitly linked to uncertainty and news/execution conditions, so no universal profitable BE threshold is inferred.\n- Exact OHLC/ATR, spread/slippage, MFE/MAE, realized R and the general scope of two-feed validation remain unresolved rather than guessed.\n- Detailed v2 record: `study/14-trades-semanales-explicados/015-semana-15.md`.\n\n'''
+              if marker not in s:
+                  raise SystemExit('NEXT marker not found')
+              s = s.replace(marker, block + marker, 1)
+          old = '''### NEXT\n- Process and study the next available published weekly item beginning with Week 15, strictly one week at a time after evidence generation.\n- Weeks 11+ must use `ANALYSIS_PROTOCOL.md`, `docs/measurement_architecture_v2.md`, and `docs/weekly_trade_event_schema_v2.md`.\n- Backfill Weeks 1–5 to v2 before freezing the Benjamin baseline.\n- Do not start module 15 until all available module-14 weekly videos are fully reviewed and all source gaps are explicitly recorded.'''
+          new = '''### NEXT\n- Process and study the next available published weekly item beginning with Week 16, strictly one week at a time after evidence generation.\n- All subsequent weekly examples must use `ANALYSIS_PROTOCOL.md`, `docs/measurement_architecture_v2.md`, and `docs/weekly_trade_event_schema_v2.md`.\n- Backfill Weeks 1–5 to v2 before freezing the Benjamin baseline, following `docs/v2_backfill_plan.md`.\n- Do not freeze the Benjamin baseline until that backfill passes the v2 completeness gate.\n- Do not start module 15 until all available module-14 weekly videos are fully reviewed and all source gaps are explicitly recorded.'''
+          if old in s:
+              s = s.replace(old, new, 1)
+          elif 'beginning with Week 16' not in s:
+              raise SystemExit('Expected NEXT block not found')
+          p.write_text(s)
+          PY
+      - name: Commit progress update
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add projects/belikethealgo-course-study/STUDY_PROGRESS.md
+          if git diff --cached --quiet; then
+            echo 'No progress changes needed.'
+            exit 0
+          fi
+          git commit -m 'Complete Week 15 v2 study progress'
+          git push origin HEAD:belikethealgo-course-study
