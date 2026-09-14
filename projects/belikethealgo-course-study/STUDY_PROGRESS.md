@@ -451,9 +451,20 @@ No new numeric threshold for displacement, structure penetration, imbalance fill
 - Exact OHLC/ATR, spread/slippage, MFE/MAE, realized R and the general scope of two-feed validation remain unresolved rather than guessed.
 - Detailed v2 record: `study/14-trades-semanales-explicados/015-semana-15.md`.
 
+### Week 16 — COMPLETE (v2)
+- Full ~40m22s video reviewed chronologically with 362 timestamped transcript segments plus dense full-video visual evidence.
+- Dense evidence gate: 2,422 baseline frames at 1 fps + 4,844 focus frames at 2 fps.
+- Monday NY provides negative evidence that a liquidity sweep plus local impulse is insufficient when confirmation is incomplete and the structure reference would be forced.
+- Tuesday reinforces timing as L0: the early pre-London candidate is skipped/degraded before outcome; Benjamin's historical performance comments remain hypotheses, never P&L-selected detector thresholds.
+- Thursday London cleanly separates quality from result: Benjamin takes an entry he already dislikes because the approach has generated too much liquidity; it later stops, but the stop is not the reason for the pre-entry downgrade.
+- Aggressive/conservative stops, direct/confirmed entries and repeated BE choices are stored as L2 execution/management variants; later outcomes never select L0/L1 thresholds.
+- Friday shows that an Asia-side sweep before London does not permanently invalidate the session: a later in-window setup can still be recognized, so ordered state/event times matter.
+- Exact OHLC/ATR, spread/slippage, MFE/MAE, exact fills, some realized R values and personal execution status for several recognized examples remain unresolved rather than guessed.
+- Detailed v2 record: `study/14-trades-semanales-explicados/016-semana-16.md`.
+
 ### NEXT
-- Process and study the next available published weekly item beginning with Week 16, strictly one week at a time after evidence generation.
-- All subsequent weekly examples must use `ANALYSIS_PROTOCOL.md`, `docs/measurement_architecture_v2.md`, and `docs/weekly_trade_event_schema_v2.md`.
+- Process and study Week 17 next, strictly before Week 18.
+- Apply `ANALYSIS_PROTOCOL.md`, `docs/measurement_architecture_v2.md`, and `docs/weekly_trade_event_schema_v2.md`.
 - Backfill Weeks 1–5 to v2 before freezing the Benjamin baseline, following `docs/v2_backfill_plan.md`.
 - Do not freeze the Benjamin baseline until that backfill passes the v2 completeness gate.
 - Do not start module 15 until all available module-14 weekly videos are fully reviewed and all source gaps are explicitly recorded.
