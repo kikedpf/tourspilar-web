@@ -81,3 +81,5 @@ jobs:
           path: projects/belikethealgo-course-study/work/dense/week-17
           if-no-files-found: error
           retention-days: 2
+
+# trigger: week-16-v2-closed
