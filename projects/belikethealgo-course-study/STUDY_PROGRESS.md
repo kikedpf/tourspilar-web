@@ -414,8 +414,20 @@ No new numeric threshold for displacement, structure penetration, imbalance fill
 - Scaled entries remain grouped by `same_underlying_move_group`; spread/slippage/fill precision and unresolved thresholds are not guessed.
 - Detailed v2 record: `study/14-trades-semanales-explicados/012-semana-12.md`.
 
+### Week 13 — COMPLETE (v2)
+- Full ~51m24s video reviewed chronologically with 405 timestamped transcript segments plus dense full-video visual evidence.
+- Dense evidence gate: 3,084 baseline frames at 1 fps + 6,168 focus frames at 2 fps before contact-sheet consolidation.
+- Monday contains a rare instructor self-audit: Benjamin took a trade that ended at BE but, on backtesting, explicitly says it should not have been taken because of pre-entry evidence (late timing, poor candle formation/liquidity-like clustering and distant structure). This is stored as `trade_taken=true` but `setup_validity=invalid`, without using L3 to justify the relabel.
+- Tuesday/Thursday reinforce that a wick liquidity violation is not automatically a structure change; body/force confirmation is separate and no numeric threshold is frozen.
+- Multiple simultaneous 1m imbalances are treated as an ambiguity state; Benjamin suggests reacting only to observed respect or moving to a higher LTF, never hindsight-selecting the best later fill.
+- Tuesday New York cleanly separates good POI/location from bad news-spike executability; execution realism remains an independent L2 gate.
+- Wednesday New York includes a valid setup Benjamin missed live and found in backtesting; it remains `valid + missed_trade`, preserving replication recall rather than selecting only executed trades.
+- Wednesday/Thursday management keeps post-entry accumulation, partials and BE in L2/L3 rather than retroactively changing L0/L1 setup quality.
+- Exact OHLC/ATR, spread/slippage, MFE/MAE and unresolved chart-clock fields remain pending rather than guessed.
+- Detailed v2 record: `study/14-trades-semanales-explicados/013-semana-13.md`.
+
 ### NEXT
-- Process and study the next available published weekly item beginning with Week 13, strictly one week at a time after evidence generation.
+- Process and study the next available published weekly item beginning with Week 14, strictly one week at a time after evidence generation.
 - Weeks 11+ must use `ANALYSIS_PROTOCOL.md`, `docs/measurement_architecture_v2.md`, and `docs/weekly_trade_event_schema_v2.md`.
 - Backfill Weeks 1–5 to v2 before freezing the Benjamin baseline.
 - Do not start module 15 until all available module-14 weekly videos are fully reviewed and all source gaps are explicitly recorded.
