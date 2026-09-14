@@ -19,14 +19,22 @@ jobs:
       max-parallel: 1
       matrix:
         include:
-          - side: bid
-            window: 2023-12-17__2023-12-27
-          - side: bid
-            window: 2024-01-16__2024-01-26
-          - side: bid
-            window: 2024-06-04__2024-06-14
-          - side: bid
-            window: 2024-06-14__2024-06-24
+          - side: ask
+            window: 2022-10-13__2022-10-23
+          - side: ask
+            window: 2022-10-23__2022-11-02
+          - side: ask
+            window: 2022-11-02__2022-11-12
+          - side: ask
+            window: 2022-11-12__2022-11-22
+          - side: ask
+            window: 2022-11-22__2022-12-02
+          - side: ask
+            window: 2022-12-02__2022-12-12
+          - side: ask
+            window: 2022-12-12__2022-12-22
+          - side: ask
+            window: 2022-12-22__2023-01-01
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -65,7 +73,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
-# Targeted recovery only: these blocks previously failed under Dukascopy HTTP 429.
-# The shared downloader now uses a four-attempt DXY backoff envelope and still
-# enforces Parquet Zstandard, SHA-256, round-trip integrity, duplicate checks,
-# and strict OHLC validation before a verified artifact is uploaded.
+# Targeted recovery batch 2: these ASK blocks failed under repeated Dukascopy HTTP 429.
+# Jobs are intentionally serialized. The shared downloader uses four sparse attempts
+# (0/180/600/1200s for DXY) and still enforces Parquet Zstandard, SHA-256,
+# numeric round-trip integrity, duplicate checks, and strict OHLC validation.
