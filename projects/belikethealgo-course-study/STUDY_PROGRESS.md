@@ -426,8 +426,20 @@ No new numeric threshold for displacement, structure penetration, imbalance fill
 - Exact OHLC/ATR, spread/slippage, MFE/MAE and unresolved chart-clock fields remain pending rather than guessed.
 - Detailed v2 record: `study/14-trades-semanales-explicados/013-semana-13.md`.
 
+### Week 14 — COMPLETE (v2)
+- Full ~59m03s video reviewed chronologically with 610 timestamped transcript segments plus dense full-video visual evidence.
+- Dense evidence gate: 3,543 baseline frames at 1 fps + 7,086 focus frames at 2 fps before contact-sheet consolidation.
+- Monday is strong negative evidence: visually attractive liquidity/POI reactions remain no-trades when the day/session is blocked by major London/NY news in an FOMC week; later successful movement does not create a hindsight exception.
+- Tuesday and Friday keep multiple 1m–5m imbalance/confirmation choices in L2; exact deeper fills cannot be hindsight-selected, and scaled/re-entry tickets from one move remain one correlated `same_underlying_move_group`.
+- Wednesday shows that downstream LTF structure/imbalance cannot repair a failed L0 HTF-location gate: if the required HTF zone was not touched, Benjamin says not to enter even when the later pattern looks perfect.
+- Thursday separates valid losing setups from rule violations and shows that a large news-driven displacement outside valid time is not automatically a valid L1 impulse/activation.
+- Benjamin's claim that first London / second New York outperform second London is retained only as an instructor probability hypothesis; he still trades second London, so no detector threshold is selected from P&L.
+- Friday's fear-driven manual BE exit and same-move re-entry are stored as L2 management/process events; the later favorable path is L3 and cannot justify the original entry.
+- Exact OHLC/ATR, spread/slippage, realized R and broker-specific sub-pip outcomes remain unresolved rather than guessed.
+- Detailed v2 record: `study/14-trades-semanales-explicados/014-semana-14.md`.
+
 ### NEXT
-- Process and study the next available published weekly item beginning with Week 14, strictly one week at a time after evidence generation.
+- Process and study the next available published weekly item beginning with Week 15, strictly one week at a time after evidence generation.
 - Weeks 11+ must use `ANALYSIS_PROTOCOL.md`, `docs/measurement_architecture_v2.md`, and `docs/weekly_trade_event_schema_v2.md`.
 - Backfill Weeks 1–5 to v2 before freezing the Benjamin baseline.
 - Do not start module 15 until all available module-14 weekly videos are fully reviewed and all source gaps are explicitly recorded.
