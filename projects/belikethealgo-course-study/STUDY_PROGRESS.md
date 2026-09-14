@@ -401,8 +401,21 @@ No new numeric threshold for displacement, structure penetration, imbalance fill
 - Scaled tickets from the same movement remain one correlated `same_underlying_move_group`.
 - Detailed v2 record: `study/14-trades-semanales-explicados/011-semana-11.md`.
 
+### Week 12 — COMPLETE (v2)
+- Full ~85m42s video reviewed chronologically with ~749 timestamped transcript segments/lines plus dense full-video visual evidence.
+- Dense evidence gate (manifest-audited): 5,142 baseline frames at 1 fps + 10,284 focus frames at 2 fps before contact-sheet consolidation. Earlier 3,426/6,851 reporting was corrected from the actual manifest.
+- Monday supplies explicit anti-overfitting evidence: recognizable/ultimately profitable LTF geometry remains plan-ineligible when required PWH/timing conditions are absent.
+- Monday/Tuesday/Friday reinforce `reaction != decisive impulse != later displacement`; the imbalance-producing force is stored separately from the broader subsequent leg.
+- Tuesday observed management ends at BE although the later chart would have reached TP without BE; that counterfactual is L3 only and cannot retrospectively tune management.
+- Wednesday shows nearby weekly external liquidity can dominate stale lower-timeframe reversal zones; target proximity, freshness and approach quality are pre-entry variables.
+- Thursday contains a Benjamin-personal immediate-break execution explicitly not recommended to students; it is isolated as an instructor-discretionary exception rather than promoted into the replication baseline.
+- Benjamin's claimed high-performing London subwindow is retained as a hypothesis only; no detector cutoff is selected from P&L clustering.
+- Friday makes the hierarchy explicit: meaningful maxima/minima/liquidity are primary; imbalance is secondary confluence whose relevance rises when linked to available liquidity.
+- Scaled entries remain grouped by `same_underlying_move_group`; spread/slippage/fill precision and unresolved thresholds are not guessed.
+- Detailed v2 record: `study/14-trades-semanales-explicados/012-semana-12.md`.
+
 ### NEXT
-- Process and study the next available published weekly item beginning with Week 12, strictly one week at a time after evidence generation.
+- Process and study the next available published weekly item beginning with Week 13, strictly one week at a time after evidence generation.
 - Weeks 11+ must use `ANALYSIS_PROTOCOL.md`, `docs/measurement_architecture_v2.md`, and `docs/weekly_trade_event_schema_v2.md`.
 - Backfill Weeks 1–5 to v2 before freezing the Benjamin baseline.
 - Do not start module 15 until all available module-14 weekly videos are fully reviewed and all source gaps are explicitly recorded.
