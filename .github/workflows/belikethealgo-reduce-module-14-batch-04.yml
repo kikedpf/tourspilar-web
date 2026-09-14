@@ -66,3 +66,4 @@ jobs:
           retention-days: 2
 
 # trigger reducer after workflow registration
+# registered
