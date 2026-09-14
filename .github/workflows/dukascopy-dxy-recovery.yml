@@ -19,20 +19,9 @@ jobs:
       max-parallel: 1
       matrix:
         include:
-          - side: ask
-            window: 2022-10-13__2022-10-23
-          - side: ask
-            window: 2022-10-23__2022-11-02
-          - side: ask
-            window: 2022-11-02__2022-11-12
-          - side: ask
-            window: 2022-11-12__2022-11-22
-          - side: ask
-            window: 2022-11-22__2022-12-02
-          - side: ask
-            window: 2022-12-02__2022-12-12
-          - side: ask
-            window: 2022-12-12__2022-12-22
+          # Canary: this exact block failed four times with HTTP 429 under
+          # dukascopy-node 1.50.0. Test the pre-JSON-engine release first
+          # before retrying the remaining historical ASK gaps.
           - side: ask
             window: 2022-12-22__2023-01-01
     steps:
@@ -46,7 +35,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install pandas pyarrow numpy
-          npm install -g dukascopy-node@1.50.0
+          npm install -g dukascopy-node@1.46.4
       - name: Cooldown before recovery
         run: sleep 60
       - name: Download and validate DXY recovery block
@@ -59,7 +48,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: dukascopy-dxy-${{ matrix.side }}-recovery-${{ matrix.window }}
+          name: dukascopy-dxy-${{ matrix.side }}-legacy-canary-${{ matrix.window }}
           path: output/
           if-no-files-found: error
           retention-days: 30
@@ -68,12 +57,13 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: diagnostics-dxy-${{ matrix.side }}-${{ matrix.window }}
+          name: diagnostics-dxy-${{ matrix.side }}-legacy-canary-${{ matrix.window }}
           path: output/
           if-no-files-found: warn
           retention-days: 7
 
-# Targeted recovery batch 2: these ASK blocks failed under repeated Dukascopy HTTP 429.
-# Jobs are intentionally serialized. The shared downloader uses four sparse attempts
-# (0/180/600/1200s for DXY) and still enforces Parquet Zstandard, SHA-256,
-# numeric round-trip integrity, duplicate checks, and strict OHLC validation.
+# Legacy-engine canary recovery. dukascopy-node 1.49.0 rewrote the engine around
+# a JSON API; repeated DXY ASK 2022 pulls on 1.50.0 are receiving HTTP 429 even
+# after 180/600/1200 second backoff. This isolates one known-failing block on
+# 1.46.4 before expanding the retry set. Validation remains in side_download.py:
+# Parquet Zstandard, SHA-256, numeric round-trip integrity, duplicate and OHLC checks.
