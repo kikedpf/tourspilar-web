@@ -438,8 +438,22 @@ No new numeric threshold for displacement, structure penetration, imbalance fill
 - Exact OHLC/ATR, spread/slippage, realized R and broker-specific sub-pip outcomes remain unresolved rather than guessed.
 - Detailed v2 record: `study/14-trades-semanales-explicados/014-semana-14.md`.
 
+### Week 15 — COMPLETE (v2)
+- Full ~52m29s video reviewed chronologically with 430 timestamped transcript segments/lines plus dense full-video visual evidence.
+- Dense evidence gate: 3,150 baseline frames at 1 fps + 6,299 focus frames at 2 fps before contact-sheet consolidation.
+- Monday and Wednesday reinforce timing as a true L0 gate: technically recognizable geometry is skipped when required liquidity/location or the operating window is missing/late.
+- Tuesday explicitly prioritizes max/min liquidity over isolated orderblock/imbalance geometry; an imbalance without meaningful inducement/liquidity is downgraded.
+- Thursday cleanly separates pre-entry quality from result: Benjamin takes a long he already calls poor because it is generating too much liquidity, then it later stops; the stop is not used to create the poor-quality label.
+- Thursday also contains a valid post-news long Benjamin did not take, preserving `valid + missed_trade` for replication recall rather than executed-trade selection.
+- Friday introduces an important feed-dependence rule: a rejection block visible on Forex.com is rejected when the equivalent FXCM feed shows it already touched; broker/source-feed identity must be retained during OHLC reconstruction.
+- HTF direction remains probabilistic rather than an absolute veto; direct imbalance/confirmation/deeper-zone entries remain separate L2 variants and are never selected retrospectively from P&L.
+- Tuesday/Friday BE decisions are explicitly linked to uncertainty and news/execution conditions, so no universal profitable BE threshold is inferred.
+- Exact OHLC/ATR, spread/slippage, MFE/MAE, realized R and the general scope of two-feed validation remain unresolved rather than guessed.
+- Detailed v2 record: `study/14-trades-semanales-explicados/015-semana-15.md`.
+
 ### NEXT
-- Process and study the next available published weekly item beginning with Week 15, strictly one week at a time after evidence generation.
-- Weeks 11+ must use `ANALYSIS_PROTOCOL.md`, `docs/measurement_architecture_v2.md`, and `docs/weekly_trade_event_schema_v2.md`.
-- Backfill Weeks 1–5 to v2 before freezing the Benjamin baseline.
+- Process and study the next available published weekly item beginning with Week 16, strictly one week at a time after evidence generation.
+- All subsequent weekly examples must use `ANALYSIS_PROTOCOL.md`, `docs/measurement_architecture_v2.md`, and `docs/weekly_trade_event_schema_v2.md`.
+- Backfill Weeks 1–5 to v2 before freezing the Benjamin baseline, following `docs/v2_backfill_plan.md`.
+- Do not freeze the Benjamin baseline until that backfill passes the v2 completeness gate.
 - Do not start module 15 until all available module-14 weekly videos are fully reviewed and all source gaps are explicitly recorded.
