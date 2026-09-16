@@ -29,11 +29,19 @@ stem = f"{LABEL}_m1_{SIDE}_{START_DATE}_{END_DATE}"
 csv = RAW / f"{stem}.csv"
 pq = RAW / f"{stem}.parquet"
 
-# Dukascopy can rate-limit historical pulls for several minutes. Recovery
-# attempts are deliberately sparse so a failed block does not hammer the feed.
-# DXY now uses the same longer four-attempt recovery envelope as EURUSD after
-# repeated HTTP 429 failures survived the previous 120s/480s schedule.
-delays = [0, 120, 600, 1200] if TARGET == "EURUSD" else [0, 180, 600, 1200]
+# Dukascopy can rate-limit historical pulls. Production defaults stay deliberately
+# sparse, while targeted canaries can override the retry envelope through
+# DOWNLOAD_DELAYS (comma-separated seconds, e.g. "0,60,180").
+def _parse_delays():
+    override = os.environ.get("DOWNLOAD_DELAYS", "").strip()
+    if override:
+        values = [int(x.strip()) for x in override.split(",") if x.strip()]
+        if not values or values[0] != 0 or any(v < 0 for v in values):
+            raise ValueError("DOWNLOAD_DELAYS must be non-negative comma-separated seconds starting with 0")
+        return values
+    return [0, 120, 600, 1200] if TARGET == "EURUSD" else [0, 180, 600, 1200]
+
+delays = _parse_delays()
 last_rc = None
 for attempt, delay in enumerate(delays, 1):
     if delay:
