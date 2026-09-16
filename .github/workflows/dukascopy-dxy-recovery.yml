@@ -5,25 +5,59 @@ on:
     branches: [trading-data-pipeline]
     paths:
       - '.github/workflows/dukascopy-dxy-recovery.yml'
+  workflow_dispatch:
 
 concurrency:
   group: dukascopy-dxy-targeted-recovery
   cancel-in-progress: false
 
 jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.generate.outputs.matrix }}
+      count: ${{ steps.generate.outputs.count }}
+    steps:
+      - id: generate
+        name: Build resumable one-day ASK recovery matrix
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, os
+          from datetime import date, timedelta
+
+          start = date(2022, 8, 24)
+          end = date(2023, 7, 10)  # exclusive; 2023-07-10__2023-07-20 already succeeded
+          already_verified = {date(2022, 12, 22)}
+
+          include = []
+          d = start
+          while d < end:
+              # FX weekend closures are intentionally not scheduled. Weekday
+              # exchange holidays, if any, will be surfaced explicitly as
+              # diagnostics rather than silently treated as market data.
+              if d.weekday() < 5 and d not in already_verified:
+                  include.append({
+                      "side": "ask",
+                      "window": f"{d.isoformat()}__{(d + timedelta(days=1)).isoformat()}",
+                  })
+              d += timedelta(days=1)
+
+          matrix = json.dumps({"include": include}, separators=(",", ":"))
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+              fh.write(f"matrix={matrix}\n")
+              fh.write(f"count={len(include)}\n")
+          print(f"Prepared {len(include)} one-day recovery jobs")
+          PY
+
   recover:
+    needs: prepare
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
       fail-fast: false
       max-parallel: 1
-      matrix:
-        include:
-          # Minimal JSON-API canary: one completed trading day = one minute-data
-          # bucket/request in current dukascopy-node. This isolates whether the
-          # previous 10-day DXY ASK failures were caused by request pressure.
-          - side: ask
-            window: 2022-12-22__2022-12-23
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -36,33 +70,34 @@ jobs:
         run: |
           pip install pandas pyarrow numpy
           npm install -g dukascopy-node@1.50.0
-      - name: Download and validate one-day DXY ASK canary
+      - name: Download and validate one-day DXY ASK recovery block
         env:
           WINDOW: ${{ matrix.window }}
           TARGET: DXY
           SIDE: ${{ matrix.side }}
           DOWNLOAD_DELAYS: '0,60,180'
         run: python trading_pipeline/side_download.py
-      - name: Upload verified DXY canary
+      - name: Upload verified DXY daily block
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: dukascopy-dxy-${{ matrix.side }}-json-canary-${{ matrix.window }}
+          name: dukascopy-dxy-${{ matrix.side }}-daily-${{ matrix.window }}
           path: output/
           if-no-files-found: error
           retention-days: 30
           compression-level: 6
-      - name: Upload canary diagnostics
+      - name: Upload recovery diagnostics only
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: diagnostics-dxy-${{ matrix.side }}-json-canary-${{ matrix.window }}
+          name: diagnostics-dxy-${{ matrix.side }}-daily-${{ matrix.window }}
           path: output/
           if-no-files-found: warn
           retention-days: 7
 
-# DXY recovery uses the current Jetta JSON data API through dukascopy-node 1.50.0.
-# The legacy 1.46.4 canary failed against the obsolete datafeed path. Recovery
-# starts with one completed day so M1 requires only one JSON day bucket. Verified
-# outputs still pass Parquet Zstandard, SHA-256, numeric round-trip, duplicate and
-# OHLC validation in trading_pipeline/side_download.py before artifact upload.
+# The original 10-day DXY ASK requests repeatedly hit provider rate limits.
+# A verified 2022-12-22 one-day canary on dukascopy-node 1.50.0 succeeded on the
+# current Jetta JSON API. This recovery therefore splits only the known failed
+# contiguous ASK region into one weekday per job, serializes requests with
+# max-parallel=1, and preserves strict Parquet Zstandard, SHA-256, numeric
+# round-trip, duplicate and OHLC validation before an artifact can be accepted.
