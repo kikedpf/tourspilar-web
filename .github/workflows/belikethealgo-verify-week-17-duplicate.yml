@@ -1,0 +1,62 @@
+name: BeLikeTheAlgo - verify week 17 duplicate identity
+
+on:
+  push:
+    branches: [belikethealgo-course-study]
+    paths: ['.github/workflows/belikethealgo-verify-week-17-duplicate.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-week-17-duplicate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: belikethealgo-course-study
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install MEGA reader
+        run: |
+          cd projects/belikethealgo-course-study
+          npm init -y >/dev/null 2>&1
+          npm install --no-save megajs@1.3.10
+      - name: Download published Week 16 and Week 17 sources
+        env:
+          MEGA_PUBLIC_LINK: 'https://mega.nz/folder/QvEXiZpB#dFIeSfaKPvzSLnOEmzleTg'
+          MODULES: '14'
+          VIDEO_MIN: '16'
+          VIDEO_MAX: '17'
+        run: node projects/belikethealgo-course-study/scripts/mega_download_modules.mjs
+      - name: Compare source identity
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root=Path('projects/belikethealgo-course-study/work/raw')
+          files=sorted(root.rglob('*.mp4'))
+          if len(files) != 2:
+              raise SystemExit(f'Expected exactly 2 MP4s for Weeks 16-17, got {len(files)}: {files}')
+          rows=[]
+          for p in files:
+              h=hashlib.sha256()
+              with p.open('rb') as f:
+                  for chunk in iter(lambda:f.read(1024*1024), b''):
+                      h.update(chunk)
+              rows.append({'name':p.name,'bytes':p.stat().st_size,'sha256':h.hexdigest()})
+          identical = rows[0]['bytes']==rows[1]['bytes'] and rows[0]['sha256']==rows[1]['sha256']
+          out={'weeks':[16,17],'files':rows,'byte_identical':identical,
+               'interpretation':'If byte_identical=true, Week 17 is the exact same published video source as Week 16 and is non-independent. If false, transcript/content comparison remains required.'}
+          Path('week-17-duplicate-verification.json').write_text(json.dumps(out,indent=2,ensure_ascii=False))
+          print(json.dumps(out,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: belikethealgo-week-17-duplicate-verification
+          path: week-17-duplicate-verification.json
+          if-no-files-found: error
+          retention-days: 7
