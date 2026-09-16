@@ -13,17 +13,17 @@ concurrency:
 jobs:
   recover:
     runs-on: ubuntu-latest
-    timeout-minutes: 50
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       max-parallel: 1
       matrix:
         include:
-          # Canary: this exact block failed four times with HTTP 429 under
-          # dukascopy-node 1.50.0. Test the pre-JSON-engine release first
-          # before retrying the remaining historical ASK gaps.
+          # Minimal JSON-API canary: one completed trading day = one minute-data
+          # bucket/request in current dukascopy-node. This isolates whether the
+          # previous 10-day DXY ASK failures were caused by request pressure.
           - side: ask
-            window: 2022-12-22__2023-01-01
+            window: 2022-12-22__2022-12-23
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -35,35 +35,34 @@ jobs:
       - name: Install dependencies
         run: |
           pip install pandas pyarrow numpy
-          npm install -g dukascopy-node@1.46.4
-      - name: Cooldown before recovery
-        run: sleep 60
-      - name: Download and validate DXY recovery block
+          npm install -g dukascopy-node@1.50.0
+      - name: Download and validate one-day DXY ASK canary
         env:
           WINDOW: ${{ matrix.window }}
           TARGET: DXY
           SIDE: ${{ matrix.side }}
+          DOWNLOAD_DELAYS: '0,60,180'
         run: python trading_pipeline/side_download.py
-      - name: Upload verified DXY recovery block
+      - name: Upload verified DXY canary
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: dukascopy-dxy-${{ matrix.side }}-legacy-canary-${{ matrix.window }}
+          name: dukascopy-dxy-${{ matrix.side }}-json-canary-${{ matrix.window }}
           path: output/
           if-no-files-found: error
           retention-days: 30
           compression-level: 6
-      - name: Upload recovery diagnostics
+      - name: Upload canary diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: diagnostics-dxy-${{ matrix.side }}-legacy-canary-${{ matrix.window }}
+          name: diagnostics-dxy-${{ matrix.side }}-json-canary-${{ matrix.window }}
           path: output/
           if-no-files-found: warn
           retention-days: 7
 
-# Legacy-engine canary recovery. dukascopy-node 1.49.0 rewrote the engine around
-# a JSON API; repeated DXY ASK 2022 pulls on 1.50.0 are receiving HTTP 429 even
-# after 180/600/1200 second backoff. This isolates one known-failing block on
-# 1.46.4 before expanding the retry set. Validation remains in side_download.py:
-# Parquet Zstandard, SHA-256, numeric round-trip integrity, duplicate and OHLC checks.
+# DXY recovery uses the current Jetta JSON data API through dukascopy-node 1.50.0.
+# The legacy 1.46.4 canary failed against the obsolete datafeed path. Recovery
+# starts with one completed day so M1 requires only one JSON day bucket. Verified
+# outputs still pass Parquet Zstandard, SHA-256, numeric round-trip, duplicate and
+# OHLC validation in trading_pipeline/side_download.py before artifact upload.
