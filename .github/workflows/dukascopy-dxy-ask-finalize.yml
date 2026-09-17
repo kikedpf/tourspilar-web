@@ -23,45 +23,170 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Download all verified daily ASK artifacts from recovery run
-        uses: actions/download-artifact@v4
-        with:
-          pattern: dukascopy-dxy-ask-daily-*
-          path: ask_recovery_artifacts
-          merge-multiple: false
-          github-token: ${{ github.token }}
-          repository: ${{ github.repository }}
-          run-id: 35147734980
-
-      - name: Download already verified 2022-12-22 ASK canary
-        uses: actions/download-artifact@v4
-        with:
-          name: dukascopy-dxy-ask-json-canary-2022-12-22__2022-12-23
-          path: ask_canary/dukascopy-dxy-ask-json-canary-2022-12-22__2022-12-23
-          github-token: ${{ github.token }}
-          repository: ${{ github.repository }}
-          run-id: 35147243657
-
-      - name: Independently verify and assemble ASK bundle
+      - name: Download, verify and assemble ASK from every recovery attempt
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RECOVERY_RUN_ID: '35147734980'
+          CANARY_RUN_ID: '35147243657'
         run: |
           python - <<'PY'
-          import csv, hashlib, json, re, shutil
+          import csv, hashlib, io, json, os, re, shutil, time, urllib.error, urllib.request, zipfile
           from pathlib import Path
 
+          repo = os.environ['GITHUB_REPOSITORY']
+          token = os.environ['GH_TOKEN']
+          recovery_run = os.environ['RECOVERY_RUN_ID']
+          canary_run = os.environ['CANARY_RUN_ID']
+          api_headers = {
+              'Authorization': f'Bearer {token}',
+              'Accept': 'application/vnd.github+json',
+              'X-GitHub-Api-Version': '2022-11-28',
+              'User-Agent': 'dxy-ask-finalizer',
+          }
+          transient = {429, 500, 502, 503, 504}
+
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, req, fp, code, msg, headers, newurl):
+                  return None
+
+          no_redirect = urllib.request.build_opener(NoRedirect)
+
+          def api_bytes(url):
+              delays = [0, 2, 5, 10, 20, 30]
+              last = None
+              for n, delay in enumerate(delays, 1):
+                  if delay:
+                      time.sleep(delay)
+                  try:
+                      req = urllib.request.Request(url, headers=api_headers)
+                      with urllib.request.urlopen(req, timeout=120) as r:
+                          return r.read()
+                  except urllib.error.HTTPError as e:
+                      last = e
+                      if e.code not in transient or n == len(delays):
+                          raise
+                      print(f'API transient HTTP {e.code}; retry {n}/{len(delays)}: {url}', flush=True)
+                  except urllib.error.URLError as e:
+                      last = e
+                      if n == len(delays):
+                          raise
+                      print(f'API transient URL error; retry {n}/{len(delays)}: {e}', flush=True)
+              raise last
+
+          def api_json(url):
+              return json.loads(api_bytes(url).decode('utf-8'))
+
+          def list_artifacts(run_id):
+              out = []
+              page = 1
+              while True:
+                  data = api_json(f'https://api.github.com/repos/{repo}/actions/runs/{run_id}/artifacts?per_page=100&page={page}')
+                  batch = data.get('artifacts', [])
+                  out.extend(batch)
+                  if len(batch) < 100:
+                      break
+                  page += 1
+              print(f'Run {run_id}: {len(out)} artifacts across all attempts', flush=True)
+              return out
+
+          def download_artifact(a):
+              # GitHub's archive endpoint redirects to an Azure SAS URL. Do not
+              # forward the GitHub Authorization header to the Azure host.
+              delays = [0, 2, 5, 10, 20, 30]
+              last = None
+              for n, delay in enumerate(delays, 1):
+                  if delay:
+                      time.sleep(delay)
+                  try:
+                      req = urllib.request.Request(a['archive_download_url'], headers=api_headers)
+                      location = None
+                      try:
+                          with no_redirect.open(req, timeout=120) as r:
+                              if r.status in (301, 302, 303, 307, 308):
+                                  location = r.headers.get('Location')
+                              else:
+                                  payload = r.read()
+                                  location = None
+                      except urllib.error.HTTPError as e:
+                          if e.code in (301, 302, 303, 307, 308):
+                              location = e.headers.get('Location')
+                              payload = None
+                          else:
+                              raise
+
+                      if location:
+                          azure_req = urllib.request.Request(location, headers={'User-Agent': 'dxy-ask-finalizer'})
+                          with urllib.request.urlopen(azure_req, timeout=180) as r:
+                              payload = r.read()
+
+                      digest = a.get('digest', '')
+                      if digest.startswith('sha256:'):
+                          actual = hashlib.sha256(payload).hexdigest()
+                          expected = digest.split(':', 1)[1]
+                          if actual != expected:
+                              raise RuntimeError(f"GitHub artifact digest mismatch: {a['name']}")
+                      return payload
+                  except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError) as e:
+                      last = e
+                      code = getattr(e, 'code', None)
+                      if code is not None and code not in transient and code not in (301, 302, 303, 307, 308):
+                          raise
+                      if n == len(delays):
+                          raise
+                      print(f"Artifact transient error for {a['name']}; retry {n}/{len(delays)}: {e}", flush=True)
+              raise last
+
+          artifacts = list_artifacts(recovery_run)
           daily_re = re.compile(r'^dukascopy-dxy-ask-daily-(\d{4}-\d{2}-\d{2}__\d{4}-\d{2}-\d{2})$')
-          recovery_root = Path('ask_recovery_artifacts')
-          dirs = [p for p in recovery_root.iterdir() if p.is_dir() and daily_re.match(p.name)]
-          if len(dirs) != 225:
-              raise RuntimeError(f'Expected 225 verified recovery artifacts, found {len(dirs)}')
+          latest = {}
+          for a in artifacts:
+              m = daily_re.match(a['name'])
+              if not m or a.get('expired'):
+                  continue
+              window = m.group(1)
+              if window not in latest or a['created_at'] > latest[window]['created_at']:
+                  latest[window] = a
 
-          selected = []
-          for p in dirs:
-              selected.append((daily_re.match(p.name).group(1), p))
+          if len(latest) != 225:
+              raise RuntimeError(f'Expected 225 unique verified ASK recovery blocks across attempts, found {len(latest)}')
+          print('Recovered ASK success blocks across all attempts: 225', flush=True)
 
-          canary = Path('ask_canary/dukascopy-dxy-ask-json-canary-2022-12-22__2022-12-23')
-          if not canary.exists():
-              raise RuntimeError('Missing verified 2022-12-22 canary')
-          selected.append(('2022-12-22__2022-12-23', canary))
+          expected_no_data = {
+              '2022-12-26__2022-12-27',
+              '2023-01-02__2023-01-03',
+          }
+          if expected_no_data.intersection(latest):
+              raise RuntimeError('A source-empty day unexpectedly exists as a valid market artifact')
+
+          no_data_evidence = []
+          for window in sorted(expected_no_data):
+              name = f'diagnostics-dxy-ask-daily-{window}'
+              candidates = [a for a in artifacts if a['name'] == name and not a.get('expired')]
+              if len(candidates) < 1:
+                  raise RuntimeError(f'Missing diagnostic evidence for {window}')
+              a = max(candidates, key=lambda x: x['created_at'])
+              zbytes = download_artifact(a)
+              with zipfile.ZipFile(io.BytesIO(zbytes)) as zf:
+                  files = [zi for zi in zf.infolist() if not zi.is_dir()]
+                  if not files or any(zi.file_size != 0 for zi in files):
+                      raise RuntimeError(f'{window} is not confirmed source-empty')
+                  no_data_evidence.append({
+                      'window': window,
+                      'classification': 'source-empty/no market candles',
+                      'attempt_count': len(candidates),
+                      'diagnostic_artifact_id': a['id'],
+                      'diagnostic_sha256': a.get('digest'),
+                      'files': [{'name': zi.filename, 'bytes': zi.file_size} for zi in files],
+                  })
+
+          canary_artifacts = list_artifacts(canary_run)
+          canary_name = 'dukascopy-dxy-ask-json-canary-2022-12-22__2022-12-23'
+          canaries = [a for a in canary_artifacts if a['name'] == canary_name and not a.get('expired')]
+          if not canaries:
+              raise RuntimeError('Missing verified 2022-12-22 ASK canary')
+
+          selected = dict(latest)
+          selected['2022-12-22__2022-12-23'] = max(canaries, key=lambda x: x['created_at'])
           if len(selected) != 226:
               raise RuntimeError(f'Expected 226 verified ASK blocks including canary, got {len(selected)}')
 
@@ -70,9 +195,13 @@ jobs:
           (root / 'daily').mkdir(parents=True)
           verified = []
 
-          for i, (window, src) in enumerate(sorted(selected), 1):
+          for i, (window, a) in enumerate(sorted(selected.items()), 1):
+              zbytes = download_artifact(a)
               dest = root / 'daily' / window
-              shutil.copytree(src, dest)
+              dest.mkdir(parents=True)
+              with zipfile.ZipFile(io.BytesIO(zbytes)) as zf:
+                  zf.extractall(dest)
+
               parquets = list(dest.rglob('*.parquet'))
               manifests = list(dest.rglob('manifest_*.json'))
               qualities = list(dest.rglob('quality_*.csv'))
@@ -98,30 +227,25 @@ jobs:
               if rows <= 0 or duplicates != 0 or invalid != 0:
                   raise RuntimeError(f'Quality failure in packaged artifact for {window}')
 
-              verified.append({'window': window, 'rows': rows, 'parquet_sha256': pq_sha})
+              verified.append({
+                  'window': window,
+                  'rows': rows,
+                  'parquet_sha256': pq_sha,
+                  'artifact_id': a['id'],
+                  'artifact_sha256': a.get('digest'),
+              })
               if i % 25 == 0 or i == len(selected):
                   print(f'Verified {i}/{len(selected)} ASK blocks', flush=True)
 
-          no_data = [
-              {
-                  'window': '2022-12-26__2022-12-27',
-                  'classification': 'source-empty/no market candles',
-                  'evidence': '11 recovery attempts; latest diagnostic CSV independently inspected as 0 bytes',
-              },
-              {
-                  'window': '2023-01-02__2023-01-03',
-                  'classification': 'source-empty/no market candles',
-                  'evidence': '11 recovery attempts; latest diagnostic CSV independently inspected as 0 bytes',
-              },
-          ]
           summary = {
               'instrument': 'DXY_DUKASCOPY',
               'side': 'ask',
               'recovery_range': {'start_inclusive': '2022-08-24', 'end_exclusive': '2023-07-10'},
               'verified_daily_blocks': len(verified),
               'total_rows': sum(x['rows'] for x in verified),
-              'source_empty_days': no_data,
+              'source_empty_days': no_data_evidence,
               'validation': [
+                  'GitHub artifact SHA-256',
                   'Parquet SHA-256 against per-block checksums',
                   'Parquet Zstandard manifest',
                   'rows > 0',
