@@ -468,3 +468,14 @@ No new numeric threshold for displacement, structure penetration, imbalance fill
 - Backfill Weeks 1–5 to v2 before freezing the Benjamin baseline, following `docs/v2_backfill_plan.md`.
 - Do not freeze the Benjamin baseline until that backfill passes the v2 completeness gate.
 - Do not start module 15 until all available module-14 weekly videos are fully reviewed and all source gaps are explicitly recorded.
+
+## Week 17 v2 duplicate closure
+
+- Week 17 (`17) Trades Semana 17 (se repite)`) is **COMPLETE — DUPLICATE SOURCE / NON-INDEPENDENT SAMPLE**.
+- Direct full-transcript comparison against Week 16: 362 segments each, 2422.52 s each, ~99.0% normalized text similarity.
+- Distributed visual comparison: all 41 paired periodic contact sheets are visually equivalent (mean absolute grayscale difference ~0.14/255).
+- Source containers are not byte-identical, confirming that container hashes alone are insufficient for duplicate resolution.
+- Statistical treatment: `duplicate_of=16`, `duplicate_group_id=module14-week16-week17-repeat`, `independent_sample=false`, `rules_added=none`.
+- Canonical v2 events remain in `016-semana-16.md`; no duplicate trade/example/no-trade rows are created.
+- Week 18 is now the next permitted material in published order; its dense evidence workflow was launched only after this gate was resolved.
+- Benjamin baseline remains **not frozen**; Weeks 1–5 v2 backfill remains mandatory before freeze.
