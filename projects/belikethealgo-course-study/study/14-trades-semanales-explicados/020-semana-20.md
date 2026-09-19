@@ -1,6 +1,6 @@
 # 14 Trades Semanales Explicados — Semana 20
 
-Status: **IN PROGRESS — v2 semantic/event extraction persisted; final exhaustive dense-event audit pending**
+Status: **COMPLETE — v2 measurement gate passed; exact OHLC reconstruction remains a later calibration layer**
 
 ## Evidence reviewed
 
@@ -465,7 +465,33 @@ No unresolved field is guessed.
 - L0/L1 vs L2/L3 separated: **PASS**;
 - setup detector vs execution/management separated: **PASS**;
 - mathematical variables/rules extracted: **PASS**;
-- final exhaustive event screenshot index / closure audit: **PENDING**;
+- final exhaustive event screenshot index / closure audit: **PASS**;
 - exact OHLC reconstruction: **PENDING**.
 
-**Week 20 is not marked COMPLETE yet.**
+**Week 20 is closed under v2. Unresolved quantitative thresholds remain explicitly unresolved for later OHLC calibration.**
+
+
+## Dense evidence traceability index
+
+- Workflow run: `35140134992`.
+- Dense artifact: `10465410942`.
+- Artifact digest: `sha256:3f2dedec4fed3d3f27fdbf3975516da02d3cd8d140279b9fa17ebbc6bcb71e55`.
+- Focus pass: 2 fps, 12 frames/contact sheet (~6 s/sheet).
+- The event intervals below were cross-checked against the timestamped transcript and dense visual contact sheets; ambiguous items remain `unresolved` rather than guessed.
+
+| Event | Source interval | Focus contact sheets |
+|---|---:|---:|
+| W20-E01 | 150–248 s | 26–42 |
+| W20-E02 | 248–263 s | 42–44 |
+| W20-E03 | 263–350 s | 44–59 |
+| W20-E04 | 350–430 s | 59–72 |
+| W20-E05 | 430–591 s | 72–99 |
+| W20-E06 | 591–649 s | 99–109 |
+| W20-E07 | 649–707 s | 109–118 |
+| W20-E08 | 707–788 s | 118–132 |
+| W20-E09 | 856–888 s | 143–148 |
+| W20-E10 | 888–1038 s | 149–173 |
+| W20-E11 | 1038–1112 s | 174–186 |
+| W20-E12 | 1112–1203 s | 186–201 |
+| W20-E13 | 1203–1412 s | 201–236 |
+| W20-LIQ | 1412–1496 s | 236–250 |
