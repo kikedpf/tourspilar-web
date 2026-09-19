@@ -494,3 +494,39 @@ No new numeric threshold for displacement, structure penetration, imbalance fill
 - Exact OHLC/ATR, spread/slippage, fills, MFE/MAE and several realized-R fields remain unresolved rather than guessed.
 - Detailed v2 record: `study/14-trades-semanales-explicados/018-semana-18.md`.
 - Week 19 is now the next permitted material. Benjamin baseline remains unfrozen until Weeks 1–5 pass v2 backfill.
+
+
+## Week 19 v2 closure
+
+- Week 19 is **COMPLETE — v2 measurement gate passed**.
+- Full ~31m07s source reviewed chronologically with 325 timestamped transcript segments and dense visual evidence: 1,868 baseline frames at 1 fps + 3,735 focus frames at 2 fps.
+- Monday provides paired calibration evidence: superficially similar bearish moves differ because the cleaner example has deeper retracement, stronger candle formation, body-confirmed structure change and clearer impulse; wick-only structure violation is not treated as equivalent.
+- Tuesday is an explicit no-trade day.
+- Wednesday preserves a taken losing long separately from a later cleaner long; a compact pause/small-candle origin followed by strong departure is retained as a measurable liquidity-candidate hypothesis, not a hindsight rule.
+- Wednesday NY blocks the apparent pre-news sell and permits a post-release candidate only after structure/imbalance confirmation, strengthening event-specific news-state modeling.
+- Thursday reinforces the conservative orderblock rule: an uninduced orderblock can behave as liquidity rather than a trusted primary POI.
+- Thursday management independently supports a prolonged-stall / new-opposing-liquidity near-neutral exit candidate; this remains L3 and cannot alter entry validity.
+- Friday NFP evidence separates pre-release blocked geometry from the later second-window candidate.
+- New research variables include `wick_only_violation`, `body_break_candidate`, `retrace_fraction`, pause/force compression metrics and stagnation-management fields.
+- Detailed record: `study/14-trades-semanales-explicados/019-semana-19.md`.
+
+## Week 20 v2 closure
+
+- Week 20 is **COMPLETE — v2 measurement gate passed**.
+- Full ~24m56s source reviewed chronologically with ~271 indexed transcript segments plus dense visual evidence: 1,497 baseline frames at 1 fps + 2,993 focus frames at 2 fps.
+- Monday is a USD-holiday baseline no-trade; Tuesday is also an explicit no-trade day.
+- Wednesday shows that ideal LTF geometry outside Benjamin's preferred timing is not retroactively valid; a later 2m/3m/5m continuation execution is stored as a separate conditional family rather than merged with the missed 1m setup.
+- Wednesday open-trade news protection and the later post-news long strengthen separation between setup validity, volatility-dependent stop execution and L3 management.
+- Thursday provides paired negative/positive evidence that the first imbalance after a violent news move is not automatically the correct entry imbalance; liquidity collection + candle formation materially affect selection.
+- Friday contains a taken but lower-confidence short and a later instructor-supported second-window short after upper-liquidity sweep, **body-confirmed** structure change and imbalance.
+- Benjamin explicitly warns against wick-only structure entry and recommends a body break; if the ideal imbalance is missed, the alternative is to wait for fresh body-confirmed structure and then evaluate a new imbalance rather than chase.
+- Week 20 distinguishes high-probability **context liquidity** (Benjamin recommends 1H / at least 15m) from lower-timeframe **activation liquidity**, preventing a false contradiction with 1m/5m execution examples.
+- Detailed record: `study/14-trades-semanales-explicados/020-semana-20.md`.
+
+## CURRENT NEXT
+
+- Week 21 is the next permitted published material.
+- Continue the same v2 protocol, preserving all positive, negative, missed-trade and no-trade evidence.
+- Keep numerical detector thresholds unfrozen until instructor-label calibration + chronological holdout.
+- Weeks 1–5 still require v2 backfill before the Benjamin baseline can be frozen.
+- Do not start module 15 until all available module-14 weekly videos are fully reviewed and all verified source gaps/duplicates are recorded.
