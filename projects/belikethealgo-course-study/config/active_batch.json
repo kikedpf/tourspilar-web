@@ -2,8 +2,8 @@
   "enabled": true,
   "override_for_modules_env": "1,2,3,4",
   "module": 14,
-  "video_min": 30,
-  "video_max": 32,
-  "batch_id": "module14-weeks-030-032",
+  "video_min": 33,
+  "video_max": 35,
+  "batch_id": "module14-weeks-033-035",
   "note": "Study branch only. Existing approved process-v2 workflow override."
 }
