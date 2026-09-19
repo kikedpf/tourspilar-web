@@ -6,11 +6,31 @@ import path from 'node:path'
 
 const url = process.env.MEGA_PUBLIC_LINK
 if (!url) throw new Error('MEGA_PUBLIC_LINK is required')
-const modules = new Set((process.env.MODULES || '').split(',').map(s => Number(s.trim())).filter(Number.isFinite))
+let modules = new Set((process.env.MODULES || '').split(',').map(s => Number(s.trim())).filter(Number.isFinite))
 if (!modules.size) throw new Error('MODULES must contain comma-separated module numbers')
 
-const videoMin = process.env.VIDEO_MIN ? Number(process.env.VIDEO_MIN) : null
-const videoMax = process.env.VIDEO_MAX ? Number(process.env.VIDEO_MAX) : null
+let videoMin = process.env.VIDEO_MIN ? Number(process.env.VIDEO_MIN) : null
+let videoMax = process.env.VIDEO_MAX ? Number(process.env.VIDEO_MAX) : null
+
+// Optional study-branch batch override for the already-approved modules-1-4 runner.
+// It is deliberately gated to MODULES=1,2,3,4 so Module-14-specific workflows keep
+// their own explicit VIDEO_MIN/VIDEO_MAX behavior and cannot be accidentally redirected.
+try {
+  const cfgPath = path.resolve('projects/belikethealgo-course-study/config/active_batch.json')
+  const cfg = JSON.parse(await fs.readFile(cfgPath, 'utf8'))
+  const envModules = [...modules].sort((a,b)=>a-b).join(',')
+  if (cfg.enabled === true && cfg.override_for_modules_env === envModules && envModules === '1,2,3,4') {
+    modules = new Set([Number(cfg.module)])
+    videoMin = Number(cfg.video_min)
+    videoMax = Number(cfg.video_max)
+    if (![...modules].every(Number.isFinite) || !Number.isFinite(videoMin) || !Number.isFinite(videoMax)) {
+      throw new Error('active_batch.json contains invalid numeric values')
+    }
+    console.log(`Active batch override: module=${[...modules]} videos=${videoMin}-${videoMax}`)
+  }
+} catch (err) {
+  if (err?.code !== 'ENOENT') throw err
+}
 if (videoMin !== null && !Number.isFinite(videoMin)) throw new Error('VIDEO_MIN must be numeric')
 if (videoMax !== null && !Number.isFinite(videoMax)) throw new Error('VIDEO_MAX must be numeric')
 
