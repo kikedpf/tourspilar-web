@@ -479,3 +479,18 @@ No new numeric threshold for displacement, structure penetration, imbalance fill
 - Canonical v2 events remain in `016-semana-16.md`; no duplicate trade/example/no-trade rows are created.
 - Week 18 is now the next permitted material in published order; its dense evidence workflow was launched only after this gate was resolved.
 - Benjamin baseline remains **not frozen**; Weeks 1–5 v2 backfill remains mandatory before freeze.
+
+
+## Week 18 v2 closure
+
+- Week 18 is **COMPLETE — v2 measurement gate passed**.
+- Full ~29m19s source reviewed chronologically with transcript plus dense visual evidence: 1,759 baseline frames at 1 fps and 3,518 focus frames at 2 fps.
+- Tuesday London provides a clean liquidity -> structure change -> local impulse -> imbalance -> retracement short sequence; the later all-day displacement is L3 and is not used to calibrate the entry impulse.
+- Wednesday NY is a valid/taken long with an ex-ante accumulation concern that later stops; the stop does not create the quality downgrade.
+- Thursday London is rejected because the key manipulation occurs roughly two hours before the valid London operating state.
+- Thursday NY explicitly distinguishes an imbalance with prior liquidity to manipulate from one with no prior liquidity; POI touch alone is insufficient.
+- Friday waits through scheduled news, then accepts a post-news long only after a relevant 4H minimum sweep plus bullish structure/impulse/imbalance confirmation.
+- Direct-vs-confirmed entries and aggressive-vs-conservative stops remain L2 execution variants; no detector threshold is selected from their P&L.
+- Exact OHLC/ATR, spread/slippage, fills, MFE/MAE and several realized-R fields remain unresolved rather than guessed.
+- Detailed v2 record: `study/14-trades-semanales-explicados/018-semana-18.md`.
+- Week 19 is now the next permitted material. Benjamin baseline remains unfrozen until Weeks 1–5 pass v2 backfill.
