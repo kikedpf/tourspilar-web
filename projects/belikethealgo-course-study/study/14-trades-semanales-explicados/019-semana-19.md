@@ -1,6 +1,6 @@
 # 14 Trades Semanales Explicados — Semana 19
 
-Status: **IN PROGRESS — v2 semantic/event extraction persisted; final exhaustive dense-sheet audit pending**
+Status: **COMPLETE — v2 measurement gate passed; exact OHLC reconstruction remains a later calibration layer**
 
 ## Evidence reviewed
 
@@ -439,7 +439,29 @@ No unresolved field is guessed.
 - L0/L1 vs L2/L3 separation: **PASS**;
 - impulse vs displacement separation: **PASS**;
 - candidate mathematical variables extracted: **PASS**;
-- exhaustive dense-sheet/event screenshot audit: **PENDING**;
+- exhaustive dense-sheet/event screenshot audit: **PASS**;
 - exact OHLC reconstruction: **PENDING**.
 
-**Week 19 is not marked COMPLETE yet.**
+**Week 19 is closed under v2. Unresolved quantitative thresholds remain explicitly unresolved for later OHLC calibration.**
+
+
+## Dense evidence traceability index
+
+- Workflow run: `35140113080`.
+- Dense artifact: `10465600788`.
+- Artifact digest: `sha256:9c7adf6ed25c1456df32dc1c685525dabf4305c8617052a4af2e082de4b25eac`.
+- Focus pass: 2 fps, 12 frames/contact sheet (~6 s/sheet).
+- The event intervals below were cross-checked against the timestamped transcript and dense visual contact sheets; ambiguous items remain `unresolved` rather than guessed.
+
+| Event | Source interval | Focus contact sheets |
+|---|---:|---:|
+| W19-E01 | 320–410 s | 54–69 |
+| W19-E02 | 439–675 s | 74–113 |
+| W19-E03 | 676–687 s | 113–115 |
+| W19-E04 | 687–830 s | 115–139 |
+| W19-E05 | 830–1056 s | 139–176 |
+| W19-E06 | 1064–1235 s | 178–206 |
+| W19-E07 | 1240–1355 s | 207–226 |
+| W19-E08 | 1355–1536 s | 226–256 |
+| W19-E09 | 1536–1671 s | 257–279 |
+| W19-E10 | 1671–1771 s | 279–296 |
