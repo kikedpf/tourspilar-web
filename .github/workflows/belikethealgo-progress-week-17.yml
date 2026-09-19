@@ -1,0 +1,38 @@
+name: BeLikeTheAlgo - record Week 17 v2 closure
+
+on:
+  push:
+    branches: [belikethealgo-course-study]
+    paths: ['.github/workflows/belikethealgo-progress-week-17.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  record-progress:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: belikethealgo-course-study
+          fetch-depth: 0
+      - name: Append Week 17 closure if absent
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('projects/belikethealgo-course-study/STUDY_PROGRESS.md')
+          text=p.read_text(encoding='utf-8')
+          marker='## Week 17 v2 duplicate closure'
+          if marker not in text:
+              text += '''\n\n## Week 17 v2 duplicate closure\n\n- Week 17 (`17) Trades Semana 17 (se repite)`) is **COMPLETE — DUPLICATE SOURCE / NON-INDEPENDENT SAMPLE**.\n- Direct full-transcript comparison against Week 16: 362 segments each, 2422.52 s each, ~99.0% normalized text similarity.\n- Distributed visual comparison: all 41 paired periodic contact sheets are visually equivalent (mean absolute grayscale difference ~0.14/255).\n- Source containers are not byte-identical, confirming that container hashes alone are insufficient for duplicate resolution.\n- Statistical treatment: `duplicate_of=16`, `duplicate_group_id=module14-week16-week17-repeat`, `independent_sample=false`, `rules_added=none`.\n- Canonical v2 events remain in `016-semana-16.md`; no duplicate trade/example/no-trade rows are created.\n- Week 18 is now the next permitted material in published order; its dense evidence workflow was launched only after this gate was resolved.\n- Benjamin baseline remains **not frozen**; Weeks 1–5 v2 backfill remains mandatory before freeze.\n'''
+              p.write_text(text,encoding='utf-8')
+          PY
+      - name: Commit progress
+        run: |
+          if git diff --quiet -- projects/belikethealgo-course-study/STUDY_PROGRESS.md; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add projects/belikethealgo-course-study/STUDY_PROGRESS.md
+          git commit -m 'study: update progress through week 17 v2'
+          git push origin HEAD:belikethealgo-course-study
