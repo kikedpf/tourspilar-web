@@ -545,3 +545,14 @@ No new numeric threshold for displacement, structure penetration, imbalance fill
 - New evidence may SUPPORT / NARROW / BROADEN / CONTRADICT a rule; any behavioral change creates a new detector version.
 - P&L is forbidden from selecting instructor-replication thresholds.
 - Numeric cutoffs that are not yet demonstrated remain null/unresolved rather than guessed.
+
+
+## DETECTOR BUILD GATE — ACTIVE
+
+- Weekly study is **paused after Week 20** by user instruction until the detector is built/calibrated from Weeks 1–20.
+- Detector v0.1 logical architecture and raw-OHLC measurement layer are built.
+- Calibration dataset: **112 independent rows** (50 valid/recognized, 62 invalid/no-trade); Week 2 and Week 17 duplicates excluded; Week 6 source gap excluded.
+- Logical construction-corpus agreement: TP=50, TN=62, FP=0, FN=0, UNRESOLVED=0. This is construction/calibration agreement, not forward accuracy.
+- Numeric thresholds requiring exact historical OHLC remain unresolved where chart market dates/DST are not yet reconstructed.
+- Canonical build status: `detector/BUILD_STATUS_v0_1.md`.
+- **Week 21+ must not be studied until v0.1 numeric calibration/freeze gate is satisfied.**
