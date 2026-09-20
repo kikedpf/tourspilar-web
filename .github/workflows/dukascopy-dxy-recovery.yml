@@ -19,16 +19,16 @@ jobs:
       count: ${{ steps.generate.outputs.count }}
     steps:
       - id: generate
-        name: Build resumable one-day ASK recovery matrix
+        name: Build resumable one-day BID recovery matrix
         shell: bash
         run: |
           python - <<'PY'
           import json, os
           from datetime import date, timedelta
 
-          start = date(2022, 8, 24)
-          end = date(2023, 7, 10)  # exclusive; 2023-07-10__2023-07-20 already succeeded
-          already_verified = {date(2022, 12, 22)}
+          start = date(2024, 3, 5)
+          end = date(2024, 3, 6)  # exclusive; sole unresolved BID day
+          already_verified = set()
 
           include = []
           d = start
@@ -38,7 +38,7 @@ jobs:
               # diagnostics rather than silently treated as market data.
               if d.weekday() < 5 and d not in already_verified:
                   include.append({
-                      "side": "ask",
+                      "side": "bid",
                       "window": f"{d.isoformat()}__{(d + timedelta(days=1)).isoformat()}",
                   })
               d += timedelta(days=1)
@@ -70,7 +70,7 @@ jobs:
         run: |
           pip install pandas pyarrow numpy
           npm install -g dukascopy-node@1.50.0
-      - name: Download and validate one-day DXY ASK recovery block
+      - name: Download and validate one-day DXY BID recovery block
         env:
           WINDOW: ${{ matrix.window }}
           TARGET: DXY
@@ -95,9 +95,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
-# The original 10-day DXY ASK requests repeatedly hit provider rate limits.
-# A verified 2022-12-22 one-day canary on dukascopy-node 1.50.0 succeeded on the
-# current Jetta JSON API. This recovery therefore splits only the known failed
-# contiguous ASK region into one weekday per job, serializes requests with
-# max-parallel=1, and preserves strict Parquet Zstandard, SHA-256, numeric
-# round-trip, duplicate and OHLC validation before an artifact can be accepted.
+# Final targeted BID recovery for the sole genuine hard failure from the original
+# five-year inventory. Keep one weekday per job, dukascopy-node 1.50.0,
+# max-parallel=1, Parquet Zstandard, SHA-256, numeric round-trip, duplicate
+# and OHLC validation. Diagnostics are never accepted as valid data.
