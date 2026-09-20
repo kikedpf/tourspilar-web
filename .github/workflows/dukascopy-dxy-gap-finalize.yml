@@ -1,0 +1,258 @@
+name: Finalize clean DXY gap recovery bundles
+
+on:
+  push:
+    branches: [trading-data-pipeline]
+    paths:
+      - '.github/workflows/dukascopy-dxy-gap-finalize.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: dukascopy-dxy-gap-finalize
+  cancel-in-progress: false
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install validation dependencies
+        run: pip install pyarrow
+
+      - name: Download verified ASK early recovery source
+        uses: actions/download-artifact@v4
+        with:
+          name: dukascopy-dxy-ask-early-final-bundle
+          path: src/ask_early_zip
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: '35221082342'
+
+      - name: Download verified ASK later recovery source
+        uses: actions/download-artifact@v4
+        with:
+          name: dukascopy-dxy-ask-final-bundle
+          path: src/ask_later_zip
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: '35219686120'
+
+      - name: Download BID recovery source containing verified daily blocks
+        uses: actions/download-artifact@v4
+        with:
+          name: diagnostics-dxy-bid-final-recovery
+          path: src/bid_base
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: '35219719594'
+
+      - name: Download final verified BID day
+        uses: actions/download-artifact@v4
+        with:
+          name: dukascopy-dxy-bid-daily-2024-03-05__2024-03-06
+          path: src/bid_last
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: '35529512057'
+
+      - name: Extract ASK source bundles
+        run: |
+          mkdir -p src/ask_early src/ask_later
+          tar -xzf src/ask_early_zip/DXY_ASK_early_final_recovery.tar.gz -C src/ask_early
+          tar -xzf src/ask_later_zip/DXY_ASK_recovery_2022-08-24_2023-07-10.tar.gz -C src/ask_later
+
+      - name: Revalidate and construct clean verified bundles only
+        run: |
+          python - <<'PY'
+          import csv, hashlib, json, shutil
+          from pathlib import Path
+          import pyarrow.parquet as pq
+
+          root = Path('.')
+          clean = root / 'clean'
+          ask_out = clean / 'ask'
+          bid_out = clean / 'bid'
+          ask_out.mkdir(parents=True, exist_ok=True)
+          bid_out.mkdir(parents=True, exist_ok=True)
+
+          ask_empty = {
+              '2021-12-24__2021-12-25',
+              '2022-04-15__2022-04-16',
+              '2022-12-26__2022-12-27',
+              '2023-01-02__2023-01-03',
+          }
+          bid_empty = {
+              '2022-04-15__2022-04-16',
+              '2023-12-25__2023-12-26',
+              '2024-12-25__2024-12-26',
+              '2025-01-01__2025-01-02',
+              '2025-04-18__2025-04-19',
+          }
+
+          def sha256(path):
+              h = hashlib.sha256()
+              with open(path, 'rb') as fh:
+                  for chunk in iter(lambda: fh.read(1024 * 1024), b''):
+                      h.update(chunk)
+              return h.hexdigest()
+
+          def validate_block(block, side, window):
+              pqs = list(block.rglob('*.parquet'))
+              mans = list(block.rglob('manifest_*.json'))
+              quals = list(block.rglob('quality_*.csv'))
+              sums = list(block.rglob('checksums_*.csv'))
+              if not (len(pqs) == len(mans) == len(quals) == len(sums) == 1):
+                  raise RuntimeError(f'Incomplete payload {side} {window}: parquet={len(pqs)} manifest={len(mans)} quality={len(quals)} checksums={len(sums)}')
+
+              pq_path, man_path, qual_path, sum_path = pqs[0], mans[0], quals[0], sums[0]
+              manifest = json.loads(man_path.read_text(encoding='utf-8'))
+              if manifest.get('target') != 'DXY' or manifest.get('side') != side:
+                  raise RuntimeError(f'Manifest target/side mismatch {side} {window}')
+              if manifest.get('compression') != 'parquet-zstd':
+                  raise RuntimeError(f'Non-Zstandard manifest {side} {window}')
+              validation = str(manifest.get('validation', '')).lower()
+              for required in ('numeric roundtrip', 'duplicates', 'ohlc'):
+                  if required not in validation:
+                      raise RuntimeError(f'Missing validation marker {required}: {side} {window}')
+
+              with open(sum_path, newline='', encoding='utf-8') as fh:
+                  rows = list(csv.DictReader(fh))
+              if len(rows) != 1:
+                  raise RuntimeError(f'Checksum row count mismatch {side} {window}')
+              actual_sha = sha256(pq_path)
+              if rows[0].get('sha256') != actual_sha or manifest.get('sha256') != actual_sha:
+                  raise RuntimeError(f'SHA-256 mismatch {side} {window}')
+              if int(rows[0].get('bytes', -1)) != pq_path.stat().st_size:
+                  raise RuntimeError(f'Byte-size mismatch {side} {window}')
+
+              with open(qual_path, newline='', encoding='utf-8') as fh:
+                  qrows = list(csv.DictReader(fh))
+              if len(qrows) != 1:
+                  raise RuntimeError(f'Quality row count mismatch {side} {window}')
+              q = qrows[0]
+              if q.get('side') != side:
+                  raise RuntimeError(f'Quality side mismatch {side} {window}')
+              if int(float(q.get('duplicates', -1))) != 0 or int(float(q.get('invalid_ohlc', -1))) != 0:
+                  raise RuntimeError(f'Duplicate/OHLC failure {side} {window}')
+              expected_rows = int(float(q.get('rows', 0)))
+              if expected_rows <= 0:
+                  raise RuntimeError(f'No market rows in supposedly valid block {side} {window}')
+
+              pf = pq.ParquetFile(pq_path)
+              if pf.metadata.num_rows != expected_rows:
+                  raise RuntimeError(f'Parquet/quality row mismatch {side} {window}')
+              compressions = {
+                  pf.metadata.row_group(rg).column(col).compression
+                  for rg in range(pf.metadata.num_row_groups)
+                  for col in range(pf.metadata.num_columns)
+              }
+              if compressions != {'ZSTD'}:
+                  raise RuntimeError(f'Unexpected parquet compression {compressions}: {side} {window}')
+
+              if manifest.get('start_inclusive') != window[:10] or manifest.get('end_exclusive') != window[12:22]:
+                  raise RuntimeError(f'Manifest window mismatch {side} {window}')
+              return expected_rows
+
+          def copy_block(src, dst_root, side, window):
+              rows = validate_block(src, side, window)
+              dst = dst_root / window
+              if dst.exists():
+                  raise RuntimeError(f'Duplicate recovery window {side} {window}')
+              (dst / 'raw').mkdir(parents=True)
+              (dst / 'reports').mkdir(parents=True)
+              for p in src.rglob('*.parquet'):
+                  shutil.copy2(p, dst / 'raw' / p.name)
+              for pattern in ('manifest_*.json', 'quality_*.csv', 'checksums_*.csv'):
+                  for p in src.rglob(pattern):
+                      shutil.copy2(p, dst / 'reports' / p.name)
+              return rows
+
+          ask_sources = [
+              Path('src/ask_early/ask_early_final/daily'),
+              Path('src/ask_later/ask_bundle/daily'),
+          ]
+          ask_windows = {}
+          ask_rows = 0
+          for base in ask_sources:
+              if not base.is_dir():
+                  raise RuntimeError(f'Missing ASK source directory {base}')
+              for block in sorted(p for p in base.iterdir() if p.is_dir()):
+                  window = block.name
+                  if window in ask_empty:
+                      raise RuntimeError(f'Source-empty ASK day present as valid data: {window}')
+                  if window in ask_windows:
+                      raise RuntimeError(f'Duplicate ASK window across sources: {window}')
+                  ask_windows[window] = str(block)
+                  ask_rows += copy_block(block, ask_out, 'ask', window)
+
+          bid_base = Path('src/bid_base/daily')
+          if not bid_base.is_dir():
+              raise RuntimeError('Missing BID verified daily source')
+          bid_windows = {}
+          bid_rows = 0
+          for block in sorted(p for p in bid_base.iterdir() if p.is_dir()):
+              window = block.name
+              if window in bid_empty:
+                  raise RuntimeError(f'Source-empty BID day present as valid data: {window}')
+              bid_windows[window] = str(block)
+              bid_rows += copy_block(block, bid_out, 'bid', window)
+
+          last_window = '2024-03-05__2024-03-06'
+          last = Path('src/bid_last')
+          if last_window in bid_windows:
+              raise RuntimeError('Final BID day already existed unexpectedly')
+          bid_rows += copy_block(last, bid_out, 'bid', last_window)
+          bid_windows[last_window] = str(last)
+
+          if len(ask_windows) != 442:
+              raise RuntimeError(f'Expected 442 verified ASK blocks, got {len(ask_windows)}')
+          if len(bid_windows) != 395:
+              raise RuntimeError(f'Expected 395 verified BID blocks, got {len(bid_windows)}')
+
+          for side_dir in (ask_out, bid_out):
+              for p in side_dir.rglob('*'):
+                  if not p.is_file():
+                      continue
+                  rel = p.relative_to(side_dir).as_posix().lower()
+                  allowed = (
+                      rel.endswith('.parquet')
+                      or '/reports/manifest_' in '/' + rel
+                      or '/reports/quality_' in '/' + rel
+                      or '/reports/checksums_' in '/' + rel
+                  )
+                  if not allowed or 'diagnostic' in rel or '/logs/' in '/' + rel or rel.endswith('.log'):
+                      raise RuntimeError(f'Forbidden file in clean bundle: {p}')
+
+          print(f'ASK VERIFIED BLOCKS=442 ROWS={ask_rows}')
+          print(f'ASK ACCOUNTED SOURCE-EMPTY DAYS={sorted(ask_empty)}')
+          print(f'BID VERIFIED BLOCKS=395 ROWS={bid_rows}')
+          print(f'BID ACCOUNTED SOURCE-EMPTY DAYS={sorted(bid_empty)}')
+          print('ALL ORIGINAL DXY GAP WEEKDAYS ACCOUNTED: ASK 446/446; BID 400/400')
+          PY
+
+      - name: Upload clean verified ASK gap data only
+        uses: actions/upload-artifact@v4
+        with:
+          name: dukascopy-dxy-ask-gaps-clean-verified
+          path: clean/ask/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 6
+
+      - name: Upload clean verified BID gap data only
+        uses: actions/upload-artifact@v4
+        with:
+          name: dukascopy-dxy-bid-gaps-clean-verified
+          path: clean/bid/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 6
