@@ -1,0 +1,78 @@
+{
+  "detector_version": "0.1.0",
+  "evidence_cutoff_week": 20,
+  "measurement_schema_version": "v2",
+  "policy": "instructor_replication_not_pnl_optimization",
+  "hard_rules": {
+    "session_eligible": true,
+    "holiday_eligible": true,
+    "news_eligible": true,
+    "required_liquidity_taken": true,
+    "impulse_created_imbalance": true,
+    "wick_only_counts_as_structure_confirmation": false,
+    "orderblock_requires_inducement": true,
+    "chase_after_missed_entry": false
+  },
+  "provisional_rules": {
+    "normal_confirmation_min_count": 2,
+    "normal_confirmation_requires_impulse_plus_imbalance": true,
+    "preferred_context_liquidity_min_tf_minutes": 15,
+    "preferred_context_liquidity_min_tf_is_hard_gate": false,
+    "planning_rr_reference": 3,
+    "planning_rr_reference_is_hard_gate": false,
+    "daily_max_trades": 3,
+    "daily_max_losses": 2
+  },
+  "unresolved_thresholds": {
+    "min_context_liquidity_prominence_atr": null,
+    "equal_level_tolerance_atr": null,
+    "min_sweep_penetration_atr": null,
+    "max_sweep_penetration_atr": null,
+    "min_impulse_net_move_atr": null,
+    "min_impulse_body_ratio": null,
+    "min_impulse_directional_fraction": null,
+    "max_impulse_overlap_ratio": null,
+    "max_bars_liquidity_to_impulse": null,
+    "min_structure_close_penetration_atr": null,
+    "min_structure_break_body_ratio": null,
+    "min_fvg_gap_atr": null,
+    "max_entry_lateness_minutes": null,
+    "min_target_room_R": null,
+    "stall_exit_minutes": null
+  },
+  "evidence_trace": {
+    "context_timing": [
+      "Modules 7,8,12",
+      "Weeks 10-20"
+    ],
+    "liquidity_priority": [
+      "Modules 9,10,12",
+      "Weeks 12,15,18-20"
+    ],
+    "wick_vs_body_bos": [
+      "Module 3",
+      "Weeks 10,13,19,20"
+    ],
+    "impulse_plus_imbalance": [
+      "Modules 4,11,12",
+      "Weeks 11-20"
+    ],
+    "orderblock_inducement": [
+      "Module 5",
+      "Weeks 15,19"
+    ],
+    "news_gate": [
+      "Module 12",
+      "Weeks 11,14,18-20"
+    ],
+    "missed_entry_no_chase": [
+      "Week 20"
+    ],
+    "stagnation_management": [
+      "Weeks 19,20"
+    ],
+    "context_vs_activation_liquidity": [
+      "Week 20"
+    ]
+  }
+}
