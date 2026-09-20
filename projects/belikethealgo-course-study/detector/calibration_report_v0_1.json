@@ -1,0 +1,60 @@
+{
+  "detector_version": "0.1.0",
+  "dataset_role": "discovery/calibration; NOT independent validation",
+  "evidence_basis": "Modules 2-12 + independent labeled examples from Weeks 1-20",
+  "rows_total": 112,
+  "valid_rows": 50,
+  "invalid_or_no_trade_rows": 62,
+  "duplicates_excluded": [
+    "Week 2 duplicate",
+    "Week 17 duplicate"
+  ],
+  "source_gaps_excluded": [
+    "Week 6 source gap"
+  ],
+  "calibration_confusion": {
+    "TP": 50,
+    "TN": 62,
+    "FP": 0,
+    "FN": 0,
+    "UNRESOLVED": 0
+  },
+  "calibration_agreement": 1,
+  "warning": "This is logical agreement on the construction/calibration corpus, not forward accuracy, market edge, or profitability.",
+  "hard_rule_negative_coverage": {
+    "LIQ_REQUIRED_NOT_TAKEN": 14,
+    "CTX_HOLIDAY_BLOCKED": 3,
+    "CONFIRMATION_INSUFFICIENT": 9,
+    "IMPULSE_MISSING": 5,
+    "CTX_SESSION_BLOCKED": 7,
+    "ENTRY_TIME_INVALID": 14,
+    "ORDERBLOCK_NO_INDUCEMENT": 3,
+    "CTX_NEWS_BLOCKED": 7,
+    "IMPULSE_NO_IMBALANCE": 1,
+    "IMBALANCE_MISSING": 1,
+    "CTX_TARGET_ROOM_INSUFFICIENT": 1,
+    "LIQ_REQUIRED_MISSING": 5,
+    "CTX_REQUIRED_HTF_LOCATION_MISSING": 2,
+    "ENTRY_NO_RETRACE": 1,
+    "ENTRY_TRIGGER_MISSING": 1
+  },
+  "unresolved_numeric_thresholds": [
+    "min_context_liquidity_prominence_atr",
+    "equal_level_tolerance_atr",
+    "min_sweep_penetration_atr",
+    "max_sweep_penetration_atr",
+    "min_impulse_net_move_atr",
+    "min_impulse_body_ratio",
+    "min_impulse_directional_fraction",
+    "max_impulse_overlap_ratio",
+    "max_bars_liquidity_to_impulse",
+    "min_structure_close_penetration_atr",
+    "min_structure_break_body_ratio",
+    "min_fvg_gap_atr",
+    "max_entry_lateness_minutes",
+    "min_target_room_R",
+    "stall_exit_minutes"
+  ],
+  "numeric_blocker": "Many Week 13-20 records explicitly state historical market date/DST and raw OHLC are unresolved. Numeric thresholds must remain null until chart dates are reconstructed and EUR/USD/DXY candles are aligned.",
+  "forward_validation_start": 21
+}
