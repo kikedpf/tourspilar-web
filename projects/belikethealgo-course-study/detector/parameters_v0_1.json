@@ -74,5 +74,19 @@
     "context_vs_activation_liquidity": [
       "Week 20"
     ]
+  },
+  "discovery_calibration_set": {
+    "weekly_videos": "1-20",
+    "notes": "Use every independent positive, negative, missed-trade and no-trade example from Weeks 1-20 to fit instructor-replication definitions and numeric thresholds. Duplicates are excluded from independent counts."
+  },
+  "forward_validation": {
+    "starts_week": 21,
+    "rule": "Apply the frozen current detector before reviewing Benjamin's decision. If a rule changes after a mismatch, that week becomes development data and a later untouched block must replace it as holdout."
+  },
+  "numeric_calibration_policy": {
+    "objective": "replicate Benjamin labels, not maximize P&L",
+    "source_examples": "Weeks 1-20 + Modules 2-12",
+    "exact_ohlc_required_for_atr_thresholds": true,
+    "preserve_unresolved_until_measured": true
   }
 }
