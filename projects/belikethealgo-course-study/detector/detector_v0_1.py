@@ -183,12 +183,15 @@ def detect(features: Dict[str, Any], params: Optional[Dict[str, Any]] = None) ->
         aw.append("BOS_WICK_ONLY_NOT_CONFIRMATION")
 
     candle = features.get("candle_formation_confirmed")
-    if candle is None:
-        au.append("candle_formation_confirmed")
 
     confirmation_count = int(impulse_plus_imbalance) + int(body_structure) + int(candle is True)
     if impulse_plus_imbalance and confirmation_count < min_confirmations:
-        ar.append("CONFIRMATION_INSUFFICIENT")
+        # Candle formation is an alternative confirmation path. It is unresolved
+        # only when its unknown value could change the activation decision.
+        if candle is None and not body_structure:
+            au.append("candle_formation_confirmed")
+        else:
+            ar.append("CONFIRMATION_INSUFFICIENT")
 
     if features.get("poi_type") == "orderblock":
         inducement = features.get("inducement_exists_before_retest")
