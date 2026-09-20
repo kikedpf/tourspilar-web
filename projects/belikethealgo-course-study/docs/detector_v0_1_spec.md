@@ -1,7 +1,7 @@
 # Benjamin Detector v0.1 — instructor-replication specification
 
 Status: **ACTIVE DISCOVERY VERSION**  
-Evidence basis: Modules 2–12 + weekly corpus studied through Week 20. Weeks 1–5 remain pending v2 backfill, so rules supported only there cannot be frozen.
+Evidence basis: Modules 2–12 + weekly corpus studied through Week 20. **Weeks 1–20 are the discovery/calibration set for Detector v0.1.** Every independent positive, negative, missed-trade and no-trade example from those weeks must be used to define and measure the initial detector. Weeks 1–5 still require v2 backfill before their labels/features can be treated as complete.
 
 ## Purpose
 
@@ -383,5 +383,28 @@ Every new weekly video can do one of four things:
 4. **CONTRADICT** — creates a mismatch that must be investigated.
 
 Detector changes create a new version (`v0.2`, `v0.3`, ...). Previous rule versions and weekly labels remain immutable. No old label is silently rewritten.
+
+## Discovery/calibration split
+
+**Weeks 1–20 are not discarded and are not merely background reading. They are the initial detector training/calibration corpus.**
+
+For every independent example in Weeks 1–20 we must backfill a machine-readable row containing:
+- Benjamin's pre-entry label: valid / invalid / no-trade / missed-valid / unresolved;
+- context state;
+- liquidity objects and role;
+- sweep/take event;
+- impulse measurements;
+- BOS/body-vs-wick measurements;
+- imbalance/POI measurements;
+- candle-formation state;
+- timing/news state;
+- entry/retrace/chase state;
+- L2/L3 stored separately.
+
+Where exact OHLC is required, reconstruct the historical candles and calculate the numeric features from raw data. **The video gives the label; OHLC gives the number.**
+
+Candidate thresholds for impulse, liquidity prominence/tolerance, sweep penetration, structure penetration/body quality, entry lateness, target room, etc. are fitted to reproduce Benjamin's Weeks 1–20 labels — never to maximize their P&L.
+
+Week 21 onward is the first forward chronological validation block for v0.1. If a future week is used to change a rule, it becomes development data and a later untouched block must replace it as holdout.
 
 Thresholds are calibrated on instructor replication first. P&L is forbidden from choosing them.
