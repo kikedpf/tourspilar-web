@@ -530,3 +530,18 @@ No new numeric threshold for displacement, structure penetration, imbalance fill
 - Keep numerical detector thresholds unfrozen until instructor-label calibration + chronological holdout.
 - Weeks 1–5 still require v2 backfill before the Benjamin baseline can be frozen.
 - Do not start module 15 until all available module-14 weekly videos are fully reviewed and all verified source gaps/duplicates are recorded.
+
+
+## Detector v0.1.0 activated
+
+- Detector v0.1.0 is now the active instructor-replication baseline built from Modules 2–12 plus weekly evidence through Week 20.
+- Canonical specification: `docs/detector_v0_1_spec.md`.
+- Code: `detector/detector_v0_1.py`.
+- Parameters/unresolved thresholds: `detector/parameters_v0_1.json`.
+- Chronological adjustment log: `detector/CALIBRATION_LOG.md`.
+- Version history: `detector/CHANGELOG.md`.
+- Every newly studied weekly video from Week 21 forward must first be evaluated against the current detector before any rule is changed.
+- Every sample must be classified TP/TN/FP/FN/UNRESOLVED versus Benjamin's label.
+- New evidence may SUPPORT / NARROW / BROADEN / CONTRADICT a rule; any behavioral change creates a new detector version.
+- P&L is forbidden from selecting instructor-replication thresholds.
+- Numeric cutoffs that are not yet demonstrated remain null/unresolved rather than guessed.
