@@ -68,6 +68,8 @@ Changelog entry:
 
 ### v0.1.0
 - Evidence cutoff used to design detector: Week 20.
-- No chronological replication score is claimed yet because Weeks 1–20 helped construct the detector.
-- First genuine forward calibration starts with Week 21.
+- **Weeks 1–20 are the explicit discovery/calibration corpus**, not discarded evidence.
+- Every independent positive/negative/no-trade/missed-valid example from Weeks 1–20 must be backfilled into detector-training rows and used to calibrate definitions/thresholds against Benjamin's labels.
+- Exact ATR/pip/body/overlap/prominence thresholds require historical OHLC reconstruction aligned to the chart timestamps; until measured they remain null, not guessed.
+- First genuine forward validation starts with Week 21.
 - Numeric thresholds still unresolved are stored in `parameters_v0_1.json`.
