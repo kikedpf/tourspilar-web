@@ -1,0 +1,239 @@
+{
+  "rows": 112,
+  "positive": 50,
+  "negative": 62,
+  "feature_count": 34,
+  "feature_stats": {
+    "trade_taken": {
+      "n": 91,
+      "pos_n": 29,
+      "neg_n": 62,
+      "pos_mean": 0.8275862068965517,
+      "neg_mean": 0.016129032258064516
+    },
+    "evidence_explicit": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 1,
+      "neg_mean": 1
+    },
+    "independent_sample": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 1,
+      "neg_mean": 1
+    },
+    "context_liquidity_tf_minutes": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 60,
+      "neg_mean": 60
+    },
+    "session_eligible": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 1,
+      "neg_mean": 0.8870967741935484
+    },
+    "holiday_eligible": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 1,
+      "neg_mean": 0.9516129032258065
+    },
+    "news_eligible": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 1,
+      "neg_mean": 0.8870967741935484
+    },
+    "htf_location_required": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 0,
+      "neg_mean": 0.03225806451612903
+    },
+    "htf_poi_present": {
+      "n": 2,
+      "pos_n": 0,
+      "neg_n": 2,
+      "pos_mean": null,
+      "neg_mean": 0
+    },
+    "target_room_sufficient": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 1,
+      "neg_mean": 0.9838709677419355
+    },
+    "context_liquidity_present": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 1,
+      "neg_mean": 0.9193548387096774
+    },
+    "higher_tf_context_liquidity_present": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 1,
+      "neg_mean": 1
+    },
+    "required_liquidity_taken": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 1,
+      "neg_mean": 0.7741935483870968
+    },
+    "liquidity_event_present": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 1,
+      "neg_mean": 1
+    },
+    "impulse_confirmed": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 1,
+      "neg_mean": 0.9193548387096774
+    },
+    "impulse_created_imbalance": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 1,
+      "neg_mean": 0.9838709677419355
+    },
+    "entry_imbalance_created": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 1,
+      "neg_mean": 0.9838709677419355
+    },
+    "structure_change_confirmed": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 1,
+      "neg_mean": 0.8870967741935484
+    },
+    "structure_break_by_close": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 1,
+      "neg_mean": 0.8548387096774194
+    },
+    "candle_formation_confirmed": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 0,
+      "neg_mean": 0
+    },
+    "poi_is_orderblock": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 0,
+      "neg_mean": 0.04838709677419355
+    },
+    "inducement_exists_before_retest": {
+      "n": 3,
+      "pos_n": 0,
+      "neg_n": 3,
+      "pos_mean": null,
+      "neg_mean": 0
+    },
+    "entry_zone_defined": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 1,
+      "neg_mean": 1
+    },
+    "retracement_into_entry_zone": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 1,
+      "neg_mean": 0.9838709677419355
+    },
+    "entry_trigger_confirmed": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 1,
+      "neg_mean": 0.9838709677419355
+    },
+    "chase_attempted": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 0,
+      "neg_mean": 0
+    },
+    "timing_eligible_at_entry": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 1,
+      "neg_mean": 0.7741935483870968
+    },
+    "impulse_plus_imbalance": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 1,
+      "neg_mean": 0.9193548387096774
+    },
+    "body_structure_confirmation": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 1,
+      "neg_mean": 0.8548387096774194
+    },
+    "confirmation_count": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 2,
+      "neg_mean": 1.7741935483870968
+    },
+    "context_hard_pass": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 1,
+      "neg_mean": 0.5967741935483871
+    },
+    "entry_hard_pass": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 1,
+      "neg_mean": 0.7419354838709677
+    },
+    "expected_reason_count": {
+      "n": 112,
+      "pos_n": 50,
+      "neg_n": 62,
+      "pos_mean": 0,
+      "neg_mean": 1.1935483870967742
+    }
+  }
+}
