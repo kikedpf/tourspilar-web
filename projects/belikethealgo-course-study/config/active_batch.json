@@ -2,9 +2,9 @@
   "enabled": true,
   "override_for_modules_env": "1,2,3,4",
   "module": 14,
-  "video_min": 4,
-  "video_max": 5,
-  "batch_id": "calibration-weeks-004-005",
+  "video_min": 7,
+  "video_max": 9,
+  "batch_id": "calibration-weeks-007-009",
   "note": "Detector build: targeted measurement evidence only; Week 21+ study paused.",
   "calibration_measurement_mode": true
 }
