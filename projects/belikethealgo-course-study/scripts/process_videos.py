@@ -175,4 +175,4 @@ def main():
 if __name__=='__main__':
     main()
 
-# active-batch trigger: calibration-ohlc-w1-w20
+# active-batch trigger: calibration-ohlc-w1-w20-ready
