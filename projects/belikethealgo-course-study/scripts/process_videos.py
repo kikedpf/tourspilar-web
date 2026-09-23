@@ -69,8 +69,11 @@ def main():
     if cfg_path.exists():
         cfg = json.loads(cfg_path.read_text(encoding='utf-8'))
         if cfg.get('calibration_measurement_mode') is True:
-            print('Calibration measurement mode: targeted event extraction only')
+            print('Calibration measurement mode: targeted event extraction')
             run([sys.executable, str(ROOT / 'scripts' / 'extract_calibration_events.py')])
+            if cfg.get('download_calibration_ohlc') is True:
+                print('Downloading W1-W20 calibration OHLC for EURUSD and DXY')
+                run([sys.executable, str(ROOT / 'scripts' / 'download_calibration_ohlc.py')])
             return
 
     videos=sorted(RAW.rglob('*.mp4'))
@@ -172,4 +175,4 @@ def main():
 if __name__=='__main__':
     main()
 
-# active-batch trigger: calibration-019-020-ready
+# active-batch trigger: calibration-ohlc-w1-w20
