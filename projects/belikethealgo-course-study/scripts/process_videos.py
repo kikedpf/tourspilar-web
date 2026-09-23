@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import json, math, os, re, subprocess
+import json, math, os, re, subprocess, sys
 from pathlib import Path
 from faster_whisper import WhisperModel
 from PIL import Image, ImageDraw
@@ -65,6 +65,14 @@ def to_srt_time(seconds):
 
 
 def main():
+    cfg_path = ROOT / 'config' / 'active_batch.json'
+    if cfg_path.exists():
+        cfg = json.loads(cfg_path.read_text(encoding='utf-8'))
+        if cfg.get('calibration_measurement_mode') is True:
+            print('Calibration measurement mode: targeted event extraction only')
+            run([sys.executable, str(ROOT / 'scripts' / 'extract_calibration_events.py')])
+            return
+
     videos=sorted(RAW.rglob('*.mp4'))
     if not videos:
         raise SystemExit('No mp4 videos found')
@@ -164,4 +172,4 @@ def main():
 if __name__=='__main__':
     main()
 
-# active-batch trigger: 051-053
+# active-batch trigger: calibration-001-003
