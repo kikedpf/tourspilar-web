@@ -172,4 +172,4 @@ def main():
 if __name__=='__main__':
     main()
 
-# active-batch trigger: calibration-001-003
+# active-batch trigger: calibration-001-003-ready
