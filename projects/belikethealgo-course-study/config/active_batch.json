@@ -4,7 +4,8 @@
   "module": 14,
   "video_min": 19,
   "video_max": 20,
-  "batch_id": "calibration-weeks-019-020",
-  "note": "Detector build: targeted measurement evidence only; Week 21+ study paused.",
-  "calibration_measurement_mode": true
+  "batch_id": "calibration-market-data-w1-w20",
+  "note": "Detector build: W1-20 targeted evidence + EURUSD/DXY m1 BID calibration data.",
+  "calibration_measurement_mode": true,
+  "download_calibration_ohlc": true
 }
